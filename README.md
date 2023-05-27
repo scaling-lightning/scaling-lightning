@@ -1,19 +1,22 @@
 # Scaling Lightning - A Testing Toolkit for the Lightning Network
 
-This initiative aims to build a stress-testing toolkit for the Lightning Network protocol, its implementations, and applications that depend on the Lightning Network.
+This initiative aims to build a testing toolkit for the Lightning Network protocol, its implementations, and 
+applications that depend on the Lightning Network.
 
 The goal is to collaborate as an industry to help scale the Lightning Network and the applications that depend on it.
 
 ## Why is this important?
 
-Currently, there are unknowns and untested assumptions about how the Lightning Network and its applications will react to shocks in transaction volume, channels, nodes, gossip messages, etc.
+Currently, there are unknowns and untested assumptions about how the Lightning Network and its applications will react 
+to shocks in transaction volume, channels, nodes, gossip messages, etc.
 
 Having a set of tools and a signet Lightning Network will help:
 
 * Developers test their applications.
 * Researchers verify their assumptions.
 * Operators test their infrastructure.
-* Novices learn how the Lightning Network and various applications work in a somewhat realistic environment without risking real coins.
+* Novices learn how the Lightning Network and various applications work in a somewhat realistic environment without 
+  risking real coins.
 
 ## How will it work?
 
