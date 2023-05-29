@@ -1,3 +1,5 @@
+![ScalingLN Twitter Banner](https://github.com/ohenrik/scaling-lightning/assets/647617/8511c586-7549-4e2b-ad6d-bf87419a624c)
+
 # Scaling Lightning - A Testing Toolkit for the Lightning Network
 
 This initiative aims to build a testing toolkit for the Lightning Network protocol, its implementations, and 
