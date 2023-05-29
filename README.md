@@ -49,3 +49,8 @@ This is an outline of the project's milestones. We will further detail these mil
 * We invite operators to run nodes on the Signet Lightning Network.
 * We encourage researchers to help design general tools relevant to them.
 * Donate to the project to help fund development and maintain the signet Lightning Network.
+
+## How can you reach us?
+
+Telgram: https://t.me/+AytRsS0QKH5mMzM8
+Twitter: https://twitter.com/ScalingLN
