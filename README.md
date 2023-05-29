@@ -31,6 +31,18 @@ and researchers test their assumptions in an isolated environment. An example of
 [The Million Channels Project](https://github.com/rustyrussell/million-channels-project-data) developed by Rusty Russell 
 to test gossip.
 
+## Project milestones
+
+This is an outline of the project's milestones. We will further detail these milestones using the features of GitHub's milestones and project management tools:
+
+* [ ] Create a Helm chart to initiate a Regtest Lightning Network, making it easier for developers to start development.
+* [ ] Create a Helm chart for one or more Signet Bitcoin and Lightning Network nodes.
+* [ ] Develop a tool for generating or simulating channel openings/closings and traffic between nodes.
+* [ ] Develop a tool to simplify interaction with your nodes in your signet or regtest network.
+* [ ] Thoroughly document the project and provide instructions for use.
+* [ ] Create a website to host the documentation, using Docusaurus.
+* [ ] Document and provide links to supporting development resources.
+
 ## How can you help?
 
 * We need developers to contribute to the toolkit.
