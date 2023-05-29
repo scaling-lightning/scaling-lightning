@@ -52,5 +52,7 @@ This is an outline of the project's milestones. We will further detail these mil
 
 ## How can you reach us?
 
-Telgram: https://t.me/+AytRsS0QKH5mMzM8
-Twitter: https://twitter.com/ScalingLN
+If you have any questions or want to join the project you can reach us here:
+
+* Telgram: https://t.me/+AytRsS0QKH5mMzM8
+* Twitter: https://twitter.com/ScalingLN
