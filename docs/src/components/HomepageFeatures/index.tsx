@@ -1,6 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
 import styles from './styles.module.css';
+import classNames from "classnames";
 
 type FeatureItem = {
   title: string;
@@ -8,34 +9,33 @@ type FeatureItem = {
   description: JSX.Element;
 };
 
-const FeatureList: FeatureItem[] = [
+const FeatureList = [
   {
-    title: 'Easy to Use',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    title: 'The Goal',
+    Svg: require('@site/static/img/scaling-lightning-goal.svg').default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        This initiative aims to build a testing toolkit for the Lightning Network protocol, its implementations, and applications that depend on the Lightning Network.
+
+        The goal is to collaborate as an industry to help scale the Lightning Network and the applications that depend on it.
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
-    Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+    title: 'The Why',
+    Svg: require('@site/static/img/scaling-lightning-strategy.svg').default,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+       Currently, there are unknowns and untested assumptions about how the Lightning Network and its applications will react to shocks in transaction volume, channels, nodes, gossip messages, etc. Having a set of tools and a signet Lightning Network will help Developers, Researchers, Operators and Novices.
       </>
     ),
   },
   {
-    title: 'Powered by React',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    title: 'The How',
+    Svg: require('@site/static/img/scaling-lightning-idea.svg').default,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        We are still in the early stages of planning, but the first tool we are building will be a tool to quickly generate one or more Lightning Nodes. These nodes can connect either to a public signet Lightning Network or a private Regtest Lightning Network for any combination of LN implementations (CLN, LND, LDK, Acinq etc.).
       </>
     ),
   },
@@ -47,7 +47,7 @@ function Feature({title, Svg, description}: FeatureItem) {
       <div className="text--center">
         <Svg className={styles.featureSvg} role="img" />
       </div>
-      <div className="text--center padding-horiz--md">
+      <div className={classNames("text--center padding-horiz--md", styles.splashBanner)}>
         <h3>{title}</h3>
         <p>{description}</p>
       </div>
