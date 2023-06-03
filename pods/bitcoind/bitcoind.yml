@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: bitcoind
+  labels:
+    app: bitcoind
+spec:
+  containers:
+  - name: bitcoind
+    image: kylemanna/bitcoind
+    env:
+    - name: SIGNET
+      value: 1
+    - name: RPCUSER
+      value: mysecretrpcuser
+    - name: RPCPASSWORD
+      value: mysecretrpcpassword
+    ports:
+    - containerPort: 38333
+    volumeMounts:
+    - name: bitcoind-data
+      mountPath: /bitcoin/.bitcoin
+  volumes:
+  - name: bitcoind-data
+    emptyDir: {}
