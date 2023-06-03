@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.bitcoin.name }}
+  labels:
+    app: {{ .Values.bitcoin.name }}
+spec:
+  type: LoadBalancer
+  selector:
+    app: {{ .Values.bitcoin.name }}
+  ports:
+  - protocol: TCP
+    port: 38333
+    targetPort: 8333
+    name: p2p
+  - protocol: TCP
+    port: {{ .Values.bitcoin.rpcPort }}
+    targetPort: 8332
+    name: rpc

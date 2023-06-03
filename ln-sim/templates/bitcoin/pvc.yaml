@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Values.bitcoin.pvcName }}
+  labels:
+    app: {{ .Values.bitcoin.name }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.bitcoin.bitcoinStorageSize }}

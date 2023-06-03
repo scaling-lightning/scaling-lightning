@@ -1,0 +1,19 @@
+apiVersion: v2
+name: scaling-lightning
+description: A Helm chart to deploy a Lightning Network.
+type: application
+version: 0.1.0
+appVersion: "1.0"
+
+# Optional fields
+keywords:
+  - bitcoin
+  - lightning
+
+maintainers:
+  - name: Scaling Lightning
+    email: scalinglightning@proton.me
+  - name: Henrik Skogstrøm
+    email: henrik@ln.capital
+
+home: https://scalinglightning.com

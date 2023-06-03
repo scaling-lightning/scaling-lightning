@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bitcoin-config
+data:
+  bitcoin.conf: |
+    rpcuser={{ .Values.bitcoin.rpcUser }}
+    rpcpassword={{ .Values.bitcoin.rpcPassword }}
+    txindex=1
+    server=1
+    regtest=1;
+
+
+

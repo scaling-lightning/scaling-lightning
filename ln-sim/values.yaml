@@ -1,0 +1,8 @@
+bitcoin:
+  name: bitcoin-node
+  image: kylemanna/bitcoind
+  imageTag: latest
+  pvcName: bitcoin-pvc
+  bitcoinStorageSize: 5Gi
+  rpcPort: 8333
+  p2pPort: 8332

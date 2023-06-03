@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Values.bitcoin.name }}
+spec:
+  serviceName: {{ .Values.bitcoin.name }}
+  replicas: {{ .Values.bitcoin.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.bitcoin.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.bitcoin.name }}
+    spec:
+      containers:
+      - name: {{ .Values.bitcoin.name }}
+        image: "{{ .Values.bitcoin.image }}:{{ .Values.bitcoin.imageTag }}"
+        ports:
+        - containerPort: {{ .Values.bitcoin.rpcPort }} # usually 8333
+          name: rpc
+        - containerPort: {{ .Values.bitcoin.p2pPort }} # usually 8332
+          name: p2p
+        envFrom:
+        - configMapRef:
+            name: {{ .Values.bitcoin.configMap }}
+        - secretRef:
+            name: {{ .Values.bitcoin.secret }}
+        volumeMounts:
+        - name: {{ .Values.bitcoin.pvcName }}
+          mountPath: /root/.bitcoin
+      volumes:
+      - name: {{ .Values.bitcoin.pvcName }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.bitcoin.pvcName }}
