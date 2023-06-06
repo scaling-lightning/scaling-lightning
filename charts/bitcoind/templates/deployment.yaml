@@ -1,0 +1,6 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "bitcoind.fullname" . }}
+  labels:
+    {{- include "bitcoind.labels" . | nindent 4 }}
