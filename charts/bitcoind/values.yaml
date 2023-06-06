@@ -8,3 +8,8 @@ image:
   repository: ruimarinho/bitcoin-core
   tag: 24
   pullPolicy: IfNotPresent
+
+rpcPort: 8332
+rpcPortTest: 18443
+
+network: regtest
