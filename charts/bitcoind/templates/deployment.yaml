@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "bitcoind.fullname" . }}
+  labels:
+    {{- include "bitcoind.labels" . | nindent 4 }}
+spec:
+  replicas: {{ default 1 .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "bitcoind.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "bitcoind.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: rpc
+              {{- if eq "regtest" .Values.network  }}
+              containerPort: {{ .Values.rpcPortTest }}
+              {{- else }}
+              containerPort: {{ .Values.rpcPort }}
+              {{- end }}
+            - name: zmqpubrawblock
+              containerPort: {{ .Values.zmqPubBlockPort }}
+            - name: zmqpubrawtx
+              containerPort: {{ .Values.zmqPubTxPort }}
+          args:
+            - -server=1
+            - -printtoconsole
+            {{- if eq "regtest" .Values.network  }}
+            - -regtest=1
+            {{- end }}
+            - -rpcbind=0.0.0.0
+            - -rpcallowip=0.0.0.0/0
+            {{- if eq "regtest" .Values.network  }}
+            - -rpcport={{ .Values.rpcPortTest }}
+            {{- else }}
+            - -rpcport={{ .Values.rpcPort }}
+            {{- end }}
+            - -rpcauth=foo:595c56bed2ffa64098b72764a118a89b$6feb1ab150659b4c5ad0a81b2dd88807f9362cdf2ec239663973b49265d6a9a0
+            - -zmqpubrawblock=tcp://0.0.0.0:{{ .Values.zmqPubBlockPort }}
+            - -zmqpubrawtx=tcp://0.0.0.0:{{ .Values.zmqPubTxPort }}

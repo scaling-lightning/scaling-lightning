@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "lnd.fullname" . }}
+  labels:
+    {{- include "lnd.labels" . | nindent 4 }}
+spec:
+  replicas: {{ default 1 .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "lnd.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "lnd.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: peer
+              containerPort: {{ .Values.port }}
+            - name: grpc
+              containerPort: {{ .Values.gRPCPort }}
+            - name: rest
+              containerPort: {{ .Values.restPort }}
+          args:
+            - --noseedbackup
+            - --listen=0.0.0.0:{{ .Values.port }}
+            - --rpclisten=0.0.0.0:{{ .Values.gRPCPort }}
+            - --restlisten=0.0.0.0:{{ .Values.restPort }}
+            {{- if eq "regtest" .Values.network  }}
+            - --bitcoin.regtest
+            {{- end }}
+            - --bitcoin.active
+            - --bitcoin.node=bitcoind
+            - --bitcoind.rpchost={{ .Values.rpcHost }}
+            - --bitcoind.rpcuser={{ .Values.rpcUser }}
+            - --bitcoind.rpcpass={{ .Values.rpcPass }}
+            - --bitcoind.zmqpubrawblock=tcp://{{ .Values.rpcHost }}:{{ .Values.zmqPubBlockPort }}
+            - --bitcoind.zmqpubrawtx=tcp://{{ .Values.rpcHost }}:{{ .Values.zmqPubTxPort }}

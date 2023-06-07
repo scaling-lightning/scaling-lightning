@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "bitcoind.fullname" . }}
+  labels:
+    {{- include "bitcoind.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+      {{- if eq "regtest" .Values.network  }}
+    - port: {{ .Values.rpcPortTest }}
+      {{- else }}
+    - port: {{ .Values.rpcPort }}
+      {{- end }}
+      targetPort: rpc
+      name: rpc
+    - name: zmqpubrawblock
+      targetPort: zmqpubrawblock
+      port: {{ .Values.zmqPubBlockPort }}
+    - name: zmqpubrawtx
+      targetPort: zmqpubrawtx
+      port: {{ .Values.zmqPubTxPort }}
+  selector:
+    {{- include "bitcoind.selectorLabels" . | nindent 4 }}

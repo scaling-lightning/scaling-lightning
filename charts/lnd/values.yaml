@@ -1,0 +1,24 @@
+# Default values for helm.
+# This is a YAML-formatted file.
+
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: lightninglabs/lnd
+  tag: v0.16.3-beta
+  pullPolicy: IfNotPresent
+
+rpcPort: 8332
+
+rpcUser: foo
+rpcPass: pass
+rpcHost: bitcoind
+zmqPubBlockPort: 28332
+zmqPubTxPort: 28333
+
+port: 9735
+gRPCPort: 10009
+restPort: 8080
+
+network: regtest
