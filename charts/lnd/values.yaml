@@ -10,7 +10,7 @@ image:
   pullPolicy: IfNotPresent
 
 rpcPort: 8332
-rpcPortTest: 18444
+
 rpcUser: foo
 rpcPass: pass
 rpcHost: bitcoind
