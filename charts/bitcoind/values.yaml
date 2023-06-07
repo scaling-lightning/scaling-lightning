@@ -12,4 +12,7 @@ image:
 rpcPort: 8332
 rpcPortTest: 18443
 
+zmqPubBlockPort: 28332
+zmqPubTxPort: 28333
+
 network: regtest

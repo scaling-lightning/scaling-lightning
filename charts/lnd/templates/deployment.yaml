@@ -38,5 +38,5 @@ spec:
             - --bitcoind.rpchost={{ .Values.rpcHost }}
             - --bitcoind.rpcuser={{ .Values.rpcUser }}
             - --bitcoind.rpcpass={{ .Values.rpcPass }}
-            - --bitcoind.zmqpubrawblock=tcp://127.0.0.1:28332
-            - --bitcoind.zmqpubrawtx=tcp://127.0.0.1:28333
+            - --bitcoind.zmqpubrawblock=tcp://{{ .Values.rpcHost }}:{{ .Values.zmqPubBlockPort }}
+            - --bitcoind.zmqpubrawtx=tcp://{{ .Values.rpcHost }}:{{ .Values.zmqPubTxPort }}
