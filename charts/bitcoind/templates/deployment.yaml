@@ -32,6 +32,7 @@ spec:
           args:
             - -server=1
             - -printtoconsole
+            - -deprecatedrpc=generate
             {{- if eq "regtest" .Values.network  }}
             - -regtest=1
             {{- end }}
