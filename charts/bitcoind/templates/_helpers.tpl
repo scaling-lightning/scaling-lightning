@@ -49,3 +49,11 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 app.kubernetes.io/name: {{ include "bitcoind.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{/*
+ Client Selector labels
+ */}}
+{{- define "bitcoind.clientSelectorLabels" -}}
+app.kubernetes.io/name: {{ include "bitcoind.name" . }}-client
+app.kubernetes.io/instance: {{ .Release.Name }}-client
+{{- end }}
