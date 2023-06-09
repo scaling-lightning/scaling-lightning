@@ -3,9 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+
 	"github.com/btcsuite/btcd/rpcclient"
-	"log"
-	"os"
+	"github.com/cockroachdb/errors"
+	"github.com/rs/zerolog/log"
 )
 
 type appConfig struct {
@@ -15,10 +16,20 @@ type appConfig struct {
 	chain         string
 }
 
+var helpRequested = errors.New("Help requested")
+
 func main() {
 
 	appConfig := appConfig{}
-	parseFlags(&appConfig)
+
+	err := parseFlags(&appConfig)
+	if err != nil {
+		if errors.Is(err, helpRequested) {
+			flag.Usage()
+			return
+		}
+		log.Fatal().Err(err).Msg("Problem parsing flags")
+	}
 
 	host := fmt.Sprintf("%s:%d", appConfig.rpcHost, appConfig.rpcPort)
 	connCfg := &rpcclient.ConnConfig{
@@ -31,14 +42,14 @@ func main() {
 	// Notification parameter is nil since notifications are not supported in HTTP POST mode.
 	client, err := rpcclient.New(connCfg, nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Send()
 	}
 	defer client.Shutdown()
 
 	// Get the current block count.
 	blockCount, err := client.GetBlockCount()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal().Err(err).Send()
 	}
 	log.Printf("Block count: %d", blockCount)
 }
@@ -54,9 +65,26 @@ func parseFlags(appConfig *appConfig) error {
 	flag.Parse()
 
 	if *help {
-		flag.Usage()
-		os.Exit(0)
+		return helpRequested
 	}
 
+	return validateFlags(appConfig)
+}
+
+func validateFlags(appConfig *appConfig) error {
+	if appConfig.rpcCookieFile == "" {
+		return errors.New("RPC Cookie File location required, please use the -rpccookiefile flag")
+	}
+	if appConfig.rpcHost == "" {
+		return errors.New("RPC Host required, please use the -rpchost flag")
+	}
+	if appConfig.rpcPort == 0 {
+		switch appConfig.chain {
+		case "regtest":
+			appConfig.rpcPort = 18443
+		case "signet":
+			appConfig.rpcPort = 38332
+		}
+	}
 	return nil
 }
