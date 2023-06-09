@@ -3,11 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
+	"time"
 
 	"github.com/btcsuite/btcd/rpcclient"
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
 )
+
+const walletName = "scalinglightning"
 
 type appConfig struct {
 	rpcCookieFile string
@@ -42,17 +45,23 @@ func main() {
 	// Notification parameter is nil since notifications are not supported in HTTP POST mode.
 	client, err := rpcclient.New(connCfg, nil)
 	if err != nil {
-		log.Fatal().Err(err).Send()
+		log.Fatal().Err(err).Msg("Creating new rpc client")
 	}
 	defer client.Shutdown()
 
-	for i := 0; i < 99; i++ {
+	err = prepareBitcoind(client)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Preparing bitcoind")
+	}
+
+	for i := 0; i < 9; i++ {
 		// Get the current block count.
 		blockCount, err := client.GetBlockCount()
 		if err != nil {
 			log.Warn().Err(err).Send()
 		}
 		log.Printf("Block count: %d", blockCount)
+		time.Sleep(3 * time.Second)
 	}
 }
 
