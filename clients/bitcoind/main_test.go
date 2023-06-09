@@ -1,4 +1,4 @@
-package bitcoind
+package main
 
 import "testing"
 

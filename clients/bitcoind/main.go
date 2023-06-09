@@ -1,4 +1,4 @@
-package bitcoind
+package main
 
 import (
 	"flag"
@@ -46,12 +46,14 @@ func main() {
 	}
 	defer client.Shutdown()
 
-	// Get the current block count.
-	blockCount, err := client.GetBlockCount()
-	if err != nil {
-		log.Fatal().Err(err).Send()
+	for i := 0; i < 99; i++ {
+		// Get the current block count.
+		blockCount, err := client.GetBlockCount()
+		if err != nil {
+			log.Warn().Err(err).Send()
+		}
+		log.Printf("Block count: %d", blockCount)
 	}
-	log.Printf("Block count: %d", blockCount)
 }
 
 func parseFlags(appConfig *appConfig) error {
