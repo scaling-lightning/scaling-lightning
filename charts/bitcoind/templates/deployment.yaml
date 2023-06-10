@@ -13,10 +13,10 @@ spec:
     metadata:
       labels:
         {{- include "bitcoind.selectorLabels" . | nindent 8 }}
-    volumes:
-      - name: cookie
-        emptyDir: {}
     spec:
+      volumes:
+        - name: cookie
+          emptyDir: {}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
