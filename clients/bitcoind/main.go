@@ -8,6 +8,7 @@ import (
 	"github.com/btcsuite/btcd/rpcclient"
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
+	"github.com/scaling-lightning/scaling-lightning/pkg/tools"
 )
 
 const walletName = "scalinglightning"
@@ -49,19 +50,30 @@ func main() {
 	}
 	defer client.Shutdown()
 
-	err = prepareBitcoind(client)
+	log.Info().Msg("Attempting to initialise bitcoind")
+
+	err = tools.Retry(func() error {
+		err := prepareBitcoind(client)
+		if err != nil {
+			log.Warn().Err(err).Msg("Problem when initialising bitcoind, perhaps it's not ready")
+			return errors.Wrap(err, "Preparing bitcoind")
+		}
+		return nil
+	}, 10*time.Second, 5*time.Minute)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Preparing bitcoind")
 	}
 
-	for i := 0; i < 9; i++ {
-		// Get the current block count.
-		blockCount, err := client.GetBlockCount()
-		if err != nil {
-			log.Warn().Err(err).Send()
-		}
-		log.Printf("Block count: %d", blockCount)
-		time.Sleep(3 * time.Second)
+	// Get the current block count.
+	blockCount, err := client.GetBlockCount()
+	if err != nil {
+		log.Warn().Err(err).Send()
+	}
+	log.Info().Msgf("Block count: %d", blockCount)
+
+	log.Info().Msg("Waiting for command")
+
+	for {
 	}
 }
 
