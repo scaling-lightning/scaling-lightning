@@ -13,11 +13,17 @@ spec:
     metadata:
       labels:
         {{- include "bitcoind.selectorLabels" . | nindent 8 }}
+    volumes:
+      - name: cookie
+        emptyDir: {}
     spec:
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: cookie
+              mountPath: /home/bitcoin/.bitcoin/
           ports:
             - name: rpc
               {{- if eq "regtest" .Values.network  }}
@@ -45,3 +51,16 @@ spec:
             - -rpcauth=foo:595c56bed2ffa64098b72764a118a89b$6feb1ab150659b4c5ad0a81b2dd88807f9362cdf2ec239663973b49265d6a9a0
             - -zmqpubrawblock=tcp://0.0.0.0:{{ .Values.zmqPubBlockPort }}
             - -zmqpubrawtx=tcp://0.0.0.0:{{ .Values.zmqPubTxPort }}
+      containers:
+        - name: {{ .Chart.Name }}-client
+          image: bitcoindmax
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+          volumeMounts:
+            - name: cookie
+              mountPath: /bitcoind
+          args:
+            - -rpchost=bitcoind
+            - -rpccookiefile=/bitcoind/regtest/.cookie
