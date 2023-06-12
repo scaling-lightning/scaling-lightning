@@ -1,16 +1,21 @@
 package main
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
 
 func TestValidation(t *testing.T) {
+	assert := assert.New(t)
+
 	config := appConfig{}
-	error := validateFlags(&config)
-	if error == nil {
-		t.Error("Didn't complain about missing cookie file location")
-	}
+	err := validateFlags(&config)
+
+	assert.NotNil(err, "Didn't complain about missing cooke file location")
+
 	config = appConfig{rpcCookieFile: "dummy"}
-	error = validateFlags(&config)
-	if error == nil {
-		t.Error("Didn't complain about missing rpc host")
-	}
+	err = validateFlags(&config)
+
+	assert.NotNil(err, "Didn't complain about missing rpc host")
 }
