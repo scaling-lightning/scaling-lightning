@@ -3,12 +3,23 @@ package main
 import (
 	"strings"
 
+	"github.com/btcsuite/btcd/btcjson"
+	"github.com/btcsuite/btcd/btcutil"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/rpcclient"
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
 )
 
-func prepareBitcoind(client *rpcclient.Client) error {
+//go:generate mockery --name rpcClient --exported
+type rpcClient interface {
+	GetWalletInfo() (*btcjson.GetWalletInfoResult, error)
+	CreateWallet(name string, opts ...rpcclient.CreateWalletOpt) (*btcjson.CreateWalletResult, error)
+	GetNewAddress(account string) (btcutil.Address, error)
+	GenerateToAddress(numBlocks int64, address btcutil.Address, maxTries *int64) ([]*chainhash.Hash, error)
+}
+
+func initialiseBitcoind(client rpcClient) error {
 	walletInfo, err := client.GetWalletInfo()
 	if err != nil && !strings.Contains(err.Error(), "No wallet is loaded") {
 		return errors.Wrap(err, "Getting wallet info")
