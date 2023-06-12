@@ -30,6 +30,11 @@ func main() {
 		}
 		log.Fatal().Err(err).Msg("Problem parsing flags")
 	}
+
+	log.Info().Msg("Waiting for command")
+
+	for {
+	}
 }
 
 func parseFlags(appConfig *appConfig) error {

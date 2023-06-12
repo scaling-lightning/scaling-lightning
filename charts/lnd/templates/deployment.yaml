@@ -40,3 +40,14 @@ spec:
             - --bitcoind.rpcpass={{ .Values.rpcPass }}
             - --bitcoind.zmqpubrawblock=tcp://{{ .Values.rpcHost }}:{{ .Values.zmqPubBlockPort }}
             - --bitcoind.zmqpubrawtx=tcp://{{ .Values.rpcHost }}:{{ .Values.zmqPubTxPort }}
+        - name: {{ .Chart.Name }}-client
+          image: "lnd-client"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+          args:
+            - -tlsfilepath=/lnd/tls.cert
+            - -macaroonfilepath=/lnd/admin.macaron
+            - -grpcport=10009
+            - -grpcaddress=lnd
