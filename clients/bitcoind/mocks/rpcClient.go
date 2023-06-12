@@ -139,7 +139,7 @@ func NewRpcClient(t mockConstructorTestingTNewRpcClient) *RpcClient {
 	mock := &RpcClient{}
 	mock.Mock.Test(t)
 
-	// t.Cleanup(func() { mock.AssertExpectations(t) })
+	t.Cleanup(func() { mock.AssertExpectations(t) })
 
 	return mock
 }
