@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"time"
@@ -10,6 +9,7 @@ import (
 	"github.com/lightninglabs/lndclient"
 	"github.com/lightningnetwork/lnd/lnrpc"
 	"github.com/rs/zerolog/log"
+	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient"
 	"github.com/scaling-lightning/scaling-lightning/pkg/tools"
 )
 
@@ -20,6 +20,7 @@ type appConfig struct {
 	macaroonFilePath string
 	grpcPort         int
 	grpcAddress      string
+	apiPort          int
 }
 
 var helpRequested = errors.New("Help requested")
@@ -50,16 +51,16 @@ func main() {
 
 	}, 15*time.Second, 5*time.Minute)
 
-	response, err := client.WalletBalance(context.Background(), &lnrpc.WalletBalanceRequest{})
-	if err != nil {
-		log.Error().Err(err).Msg("Problem getting wallet balance")
-	}
-	log.Info().Msgf("Wallet balance is: %v", response.TotalBalance)
-
 	log.Info().Msg("Waiting for command")
 
-	for {
+	// start api
+	restServer := standardclient.NewStandardClient()
+	registerHandlers(restServer, client)
+	err = restServer.Start(appConfig.apiPort)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Starting REST service")
 	}
+
 }
 
 func parseFlags(appConfig *appConfig) error {
@@ -69,6 +70,7 @@ func parseFlags(appConfig *appConfig) error {
 	flag.StringVar(&appConfig.macaroonFilePath, "macaroonfilepath", "", "File location for LND's macaroon file")
 	flag.IntVar(&appConfig.grpcPort, "grpcport", 10009, "Optional: LND's gRPC port")
 	flag.StringVar(&appConfig.grpcAddress, "grpcaddress", "", "LND's gRPC address")
+	flag.IntVar(&appConfig.apiPort, "apiport", 8181, "Port to run REST API on")
 
 	flag.Parse()
 
