@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"time"
 
 	"github.com/cockroachdb/errors"
@@ -39,15 +40,17 @@ func main() {
 	var client lnrpc.LightningClient
 	tools.Retry(func() error {
 
-		client, err = lndclient.NewBasicClient(appConfig.grpcAddress, appConfig.tlsFilePath, appConfig.grpcAddress, "regtest", nil)
+		grpc := fmt.Sprintf("%s:%d", appConfig.grpcAddress, appConfig.grpcPort)
+		client, err = lndclient.NewBasicClient(grpc, appConfig.tlsFilePath, appConfig.macaroonFilePath, "regtest")
 		if err != nil {
-			return errors.Wrap(err, "Unable to connect to LND's gRPC. It might not be ready.")
+			log.Warn().Err(err).Msg("Problem when connecting to LND's gRPC, perhaps it's not ready")
+			return errors.Wrap(err, "New basic client fail")
 		}
 		return nil
 
 	}, 15*time.Second, 5*time.Minute)
 
-	response, err := client.WalletBalance(context.Background(), &lnrpc.WalletBalanceRequest{}, nil)
+	response, err := client.WalletBalance(context.Background(), &lnrpc.WalletBalanceRequest{})
 	if err != nil {
 		log.Error().Err(err).Msg("Problem getting wallet balance")
 	}
