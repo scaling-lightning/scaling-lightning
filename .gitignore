@@ -1,3 +1,7 @@
 .idea
 .DS_Store
 .cookie
+
+*.macaroon
+tls.cert
+tls.key
