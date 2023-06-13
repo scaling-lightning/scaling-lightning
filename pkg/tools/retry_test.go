@@ -5,11 +5,15 @@ import (
 	"time"
 
 	"github.com/cockroachdb/errors"
+	"github.com/rs/zerolog"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestRetry(t *testing.T) {
 	assert := assert.New(t)
+
+	// quieten retry logs
+	zerolog.SetGlobalLevel(zerolog.WarnLevel)
 
 	retryCount := 0
 	Retry(func() error {
