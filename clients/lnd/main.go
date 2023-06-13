@@ -1,10 +1,15 @@
 package main
 
 import (
+	"context"
 	"flag"
+	"time"
 
 	"github.com/cockroachdb/errors"
+	"github.com/lightninglabs/lndclient"
+	"github.com/lightningnetwork/lnd/lnrpc"
 	"github.com/rs/zerolog/log"
+	"github.com/scaling-lightning/scaling-lightning/pkg/tools"
 )
 
 const walletName = "scalinglightning"
@@ -30,6 +35,23 @@ func main() {
 		}
 		log.Fatal().Err(err).Msg("Problem parsing flags")
 	}
+
+	var client lnrpc.LightningClient
+	tools.Retry(func() error {
+
+		client, err = lndclient.NewBasicClient(appConfig.grpcAddress, appConfig.tlsFilePath, appConfig.grpcAddress, "regtest", nil)
+		if err != nil {
+			return errors.Wrap(err, "Unable to connect to LND's gRPC. It might not be ready.")
+		}
+		return nil
+
+	}, 15*time.Second, 5*time.Minute)
+
+	response, err := client.WalletBalance(context.Background(), &lnrpc.WalletBalanceRequest{}, nil)
+	if err != nil {
+		log.Error().Err(err).Msg("Problem getting wallet balance")
+	}
+	log.Info().Msgf("Wallet balance is: %v", response.TotalBalance)
 
 	log.Info().Msg("Waiting for command")
 
