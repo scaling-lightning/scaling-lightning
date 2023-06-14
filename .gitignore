@@ -5,3 +5,4 @@
 *.macaroon
 tls.cert
 tls.key
+*.tgz
