@@ -1,0 +1,9 @@
+dependencies:
+- name: bitcoind
+  repository: file://../bitcoind
+  version: 0.1.0
+- name: lnd
+  repository: file://../lnd
+  version: 0.1.0
+digest: sha256:e018317062aab7e6beb8d28108aa8aea571a96cad6ea4657ee807e8e241902ad
+generated: "2023-06-15T17:38:00.915005+01:00"
