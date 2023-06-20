@@ -19,7 +19,7 @@ func NewStandardClient() StandardClient {
 	return StandardClient{router: r}
 }
 
-func (sc *StandardClient) HandleWalletBalance(handler func(w http.ResponseWriter, r *http.Request)) {
+func (sc *StandardClient) RegisterWalletBalanceHandler(handler func(w http.ResponseWriter, r *http.Request)) {
 	sc.router.Get("/walletbalance", handler)
 }
 

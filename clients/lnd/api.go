@@ -14,7 +14,7 @@ import (
 //go:generate mockery --srcpkg=github.com/lightningnetwork/lnd/lnrpc --name=LightningClient
 
 func registerHandlers(standardclient lightning.StandardClient, lndClient lnrpc.LightningClient) {
-	standardclient.HandleWalletBalance(func(w http.ResponseWriter, r *http.Request) {
+	standardclient.RegisterWalletBalanceHandler(func(w http.ResponseWriter, r *http.Request) {
 		handleWalletBalance(w, r, lndClient)
 	})
 }
