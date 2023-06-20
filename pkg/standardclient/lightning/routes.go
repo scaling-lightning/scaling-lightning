@@ -1,4 +1,4 @@
-package standardclient
+package lightning
 
 import (
 	"fmt"

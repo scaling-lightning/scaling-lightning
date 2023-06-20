@@ -7,13 +7,13 @@ import (
 
 	"github.com/lightningnetwork/lnd/lnrpc"
 	"github.com/rs/zerolog/log"
-	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient"
+	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
 )
 
 // Probably better mock against our own interface
 //go:generate mockery --srcpkg=github.com/lightningnetwork/lnd/lnrpc --name=LightningClient
 
-func registerHandlers(standardclient standardclient.StandardClient, lndClient lnrpc.LightningClient) {
+func registerHandlers(standardclient lightning.StandardClient, lndClient lnrpc.LightningClient) {
 	standardclient.HandleWalletBalance(func(w http.ResponseWriter, r *http.Request) {
 		handleWalletBalance(w, r, lndClient)
 	})

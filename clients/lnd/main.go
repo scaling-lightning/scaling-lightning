@@ -9,7 +9,7 @@ import (
 	"github.com/lightninglabs/lndclient"
 	"github.com/lightningnetwork/lnd/lnrpc"
 	"github.com/rs/zerolog/log"
-	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient"
+	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
 	"github.com/scaling-lightning/scaling-lightning/pkg/tools"
 )
 
@@ -54,7 +54,7 @@ func main() {
 	log.Info().Msg("Waiting for command")
 
 	// start api
-	restServer := standardclient.NewStandardClient()
+	restServer := lightning.NewStandardClient()
 	registerHandlers(restServer, client)
 	err = restServer.Start(appConfig.apiPort)
 	if err != nil {
