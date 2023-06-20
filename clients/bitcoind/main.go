@@ -8,6 +8,7 @@ import (
 	"github.com/btcsuite/btcd/rpcclient"
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
+	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/bitcoin"
 	"github.com/scaling-lightning/scaling-lightning/pkg/tools"
 )
 
@@ -18,6 +19,7 @@ type appConfig struct {
 	rpcHost       string
 	rpcPort       int
 	chain         string
+	apiPort       int
 }
 
 var helpRequested = errors.New("Help requested")
@@ -73,7 +75,12 @@ func main() {
 
 	log.Info().Msg("Waiting for command")
 
-	for {
+	// start api
+	restServer := bitcoin.NewStandardClient()
+	registerHandlers(restServer, client)
+	err = restServer.Start(appConfig.apiPort)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Starting REST service")
 	}
 }
 
@@ -82,8 +89,9 @@ func parseFlags(appConfig *appConfig) error {
 
 	flag.StringVar(&appConfig.rpcCookieFile, "rpccookiefile", "", "File location for Bitcoind's .cookie file")
 	flag.StringVar(&appConfig.rpcHost, "rpchost", "", "Bitcoind's RPC host")
-	flag.IntVar(&appConfig.rpcPort, "rpcport", 0, "Optional: Bitcoind's RPC port. Will use defaults specified by -chain if not set. ")
-	flag.StringVar(&appConfig.chain, "chain", "regtest", "Current chain. Valid options: regtest, signet.")
+	flag.IntVar(&appConfig.rpcPort, "rpcport", 0, "Optional: Bitcoind's RPC port, will use defaults specified by -chain if not set")
+	flag.StringVar(&appConfig.chain, "chain", "regtest", "Current chain. Valid options: regtest, signet")
+	flag.IntVar(&appConfig.apiPort, "apiport", 8080, "Optional: Port to run REST API on")
 
 	flag.Parse()
 

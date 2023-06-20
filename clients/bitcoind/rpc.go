@@ -13,10 +13,12 @@ import (
 
 //go:generate mockery --name rpcClient --exported
 type rpcClient interface {
-	GetWalletInfo() (*btcjson.GetWalletInfoResult, error)
 	CreateWallet(name string, opts ...rpcclient.CreateWalletOpt) (*btcjson.CreateWalletResult, error)
-	GetNewAddress(account string) (btcutil.Address, error)
 	GenerateToAddress(numBlocks int64, address btcutil.Address, maxTries *int64) ([]*chainhash.Hash, error)
+	GetBalance(account string) (btcutil.Amount, error)
+	GetNewAddress(account string) (btcutil.Address, error)
+	GetWalletInfo() (*btcjson.GetWalletInfoResult, error)
+	SendToAddress(address btcutil.Address, amount btcutil.Amount) (*chainhash.Hash, error)
 }
 
 func initialiseBitcoind(client rpcClient) error {

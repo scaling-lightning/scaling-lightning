@@ -70,7 +70,7 @@ func parseFlags(appConfig *appConfig) error {
 	flag.StringVar(&appConfig.macaroonFilePath, "macaroonfilepath", "", "File location for LND's macaroon file")
 	flag.IntVar(&appConfig.grpcPort, "grpcport", 10009, "Optional: LND's gRPC port")
 	flag.StringVar(&appConfig.grpcAddress, "grpcaddress", "", "LND's gRPC address")
-	flag.IntVar(&appConfig.apiPort, "apiport", 8181, "Port to run REST API on")
+	flag.IntVar(&appConfig.apiPort, "apiport", 8181, "Optional: Port to run REST API on")
 
 	flag.Parse()
 

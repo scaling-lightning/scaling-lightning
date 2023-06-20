@@ -77,6 +77,30 @@ func (_m *RpcClient) GenerateToAddress(numBlocks int64, address btcutil.Address,
 	return r0, r1
 }
 
+// GetBalance provides a mock function with given fields: account
+func (_m *RpcClient) GetBalance(account string) (btcutil.Amount, error) {
+	ret := _m.Called(account)
+
+	var r0 btcutil.Amount
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (btcutil.Amount, error)); ok {
+		return rf(account)
+	}
+	if rf, ok := ret.Get(0).(func(string) btcutil.Amount); ok {
+		r0 = rf(account)
+	} else {
+		r0 = ret.Get(0).(btcutil.Amount)
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(account)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetNewAddress provides a mock function with given fields: account
 func (_m *RpcClient) GetNewAddress(account string) (btcutil.Address, error) {
 	ret := _m.Called(account)
@@ -122,6 +146,32 @@ func (_m *RpcClient) GetWalletInfo() (*btcjson.GetWalletInfoResult, error) {
 
 	if rf, ok := ret.Get(1).(func() error); ok {
 		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// SendToAddress provides a mock function with given fields: address, amount
+func (_m *RpcClient) SendToAddress(address btcutil.Address, amount btcutil.Amount) (*chainhash.Hash, error) {
+	ret := _m.Called(address, amount)
+
+	var r0 *chainhash.Hash
+	var r1 error
+	if rf, ok := ret.Get(0).(func(btcutil.Address, btcutil.Amount) (*chainhash.Hash, error)); ok {
+		return rf(address, amount)
+	}
+	if rf, ok := ret.Get(0).(func(btcutil.Address, btcutil.Amount) *chainhash.Hash); ok {
+		r0 = rf(address, amount)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*chainhash.Hash)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(btcutil.Address, btcutil.Amount) error); ok {
+		r1 = rf(address, amount)
 	} else {
 		r1 = ret.Error(1)
 	}
