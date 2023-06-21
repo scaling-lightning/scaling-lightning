@@ -49,7 +49,7 @@ func TestHandleSendToAddress(t *testing.T) {
 	sendReqBytes, err := json.Marshal(sendReq)
 	assert.Nil(err)
 
-	req := httptest.NewRequest(http.MethodGet, "/", bytes.NewReader(sendReqBytes))
+	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(sendReqBytes))
 	res := httptest.NewRecorder()
 
 	handleSendToAddress(res, req, mockClient)
