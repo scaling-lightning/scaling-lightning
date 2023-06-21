@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"github.com/lightningnetwork/lnd/lnrpc"
-	"github.com/rs/zerolog/log"
 	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/apierrors"
 	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
 )
@@ -27,7 +26,7 @@ func registerHandlers(standardclient lightning.StandardClient, lndClient lnrpc.L
 func handleWalletBalance(w http.ResponseWriter, r *http.Request, lndClient lnrpc.LightningClient) {
 	response, err := lndClient.WalletBalance(context.Background(), &lnrpc.WalletBalanceRequest{})
 	if err != nil {
-		log.Error().Err(err).Msg("Problem getting wallet balance")
+		apierrors.SendServerErrorFromErr(w, err, "Problem getting wallet balance")
 		return
 	}
 	w.WriteHeader(http.StatusOK)
@@ -41,7 +40,7 @@ type newAddressResponse struct {
 func handleGetNewAddress(w http.ResponseWriter, r *http.Request, lndClient lnrpc.LightningClient) {
 	newAddress, err := lndClient.NewAddress(context.Background(), &lnrpc.NewAddressRequest{})
 	if err != nil {
-		log.Error().Err(err).Msg("Problem getting wallet balance")
+		apierrors.SendServerErrorFromErr(w, err, "Problem getting new address")
 		return
 	}
 	response := newAddressResponse{Address: newAddress.Address}
