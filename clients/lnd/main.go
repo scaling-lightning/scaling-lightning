@@ -39,7 +39,7 @@ func main() {
 	}
 
 	var client lnrpc.LightningClient
-	tools.Retry(func() error {
+	err := tools.Retry(func() error {
 
 		grpc := fmt.Sprintf("%s:%d", appConfig.grpcAddress, appConfig.grpcPort)
 		client, err = lndclient.NewBasicClient(grpc, appConfig.tlsFilePath, appConfig.macaroonFilePath, "regtest")
@@ -50,6 +50,9 @@ func main() {
 		return nil
 
 	}, 15*time.Second, 5*time.Minute)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Starting LND Client")
+	}
 
 	log.Info().Msg("Waiting for command")
 
