@@ -20,5 +20,8 @@ spec:
     - name: zmqpubrawtx
       targetPort: zmqpubrawtx
       port: {{ .Values.zmqPubTxPort }}
+    - name: client
+      targetPort: client
+      port: {{ .Values.clientPort }}
   selector:
     {{- include "bitcoind.selectorLabels" . | nindent 4 }}

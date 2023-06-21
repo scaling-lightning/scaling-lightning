@@ -15,4 +15,6 @@ rpcPortTest: 18443
 zmqPubBlockPort: 28332
 zmqPubTxPort: 28333
 
+clientPort: 8181
+
 network: regtest

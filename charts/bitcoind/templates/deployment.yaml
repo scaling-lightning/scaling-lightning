@@ -53,10 +53,10 @@ spec:
             - -zmqpubrawtx=tcp://0.0.0.0:{{ .Values.zmqPubTxPort }}
             - -startupnotify=chmod o+rx /home/bitcoin/.bitcoin && chmod o+r /home/bitcoin/.bitcoin/regtest/.cookie
         - name: {{ .Chart.Name }}-client
-          image: bitcoindmax
+          image: bitcoind-client
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
+            - name: client
               containerPort: 8080
           volumeMounts:
             - name: cookie

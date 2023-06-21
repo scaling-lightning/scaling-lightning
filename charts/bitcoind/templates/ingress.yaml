@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "bitcoind.fullname" . }}
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /{{ include "bitcoind.fullname" . }}(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "bitcoind.fullname" . }}
+                port:
+                  name: client
