@@ -48,6 +48,7 @@ spec:
             - --bitcoind.rpcpass={{ .Values.rpcPass }}
             - --bitcoind.zmqpubrawblock=tcp://{{ .Values.rpcHost }}:{{ .Values.zmqPubBlockPort }}
             - --bitcoind.zmqpubrawtx=tcp://{{ .Values.rpcHost }}:{{ .Values.zmqPubTxPort }}
+            - --tlsextradomain={{ include "lnd.fullname" . }}
         - name: {{ .Chart.Name }}-client
           image: "lnd-client"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -62,6 +63,6 @@ spec:
               containerPort: {{ .Values.clientPort }}
           args:
             - -tlsfilepath=/lnd/tls.cert
-            - -macaroonfilepath=/lnd/data/chain/bitcoin/regtest/admin.macaroon
+            - -macaroonfilepath=/lnd/data/chain/bitcoin/regtest
             - -grpcport=10009
-            - -grpcaddress=lnd
+            - -grpcaddress={{ include "lnd.fullname" . }}
