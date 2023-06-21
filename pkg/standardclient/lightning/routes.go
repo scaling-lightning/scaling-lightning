@@ -16,6 +16,9 @@ type StandardClient struct {
 func NewStandardClient() StandardClient {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Welcome to the API for lnd client"))
+	})
 	return StandardClient{router: r}
 }
 
