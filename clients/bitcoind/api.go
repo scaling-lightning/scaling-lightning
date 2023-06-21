@@ -21,7 +21,7 @@ func registerHandlers(standardclient bitcoin.StandardClient, rpcClient rpcClient
 }
 
 func handleWalletBalance(w http.ResponseWriter, r *http.Request, rpcClient rpcClient) {
-	response, err := rpcClient.GetBalance(walletName)
+	response, err := rpcClient.GetBalance("*")
 	if err != nil {
 		apierrors.SendServerErrorFromErr(w, err, "Problem getting wallet balance")
 		return
