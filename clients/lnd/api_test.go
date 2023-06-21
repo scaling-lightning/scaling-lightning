@@ -26,3 +26,19 @@ func TestHandleWalletBalance(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Contains(t, string(bodyBytes), "21")
 }
+
+func TestHandleGetNewAddress(t *testing.T) {
+	mockClient := mocks.NewLightningClient(t)
+
+	req := httptest.NewRequest(http.MethodPost, "/", nil)
+	res := httptest.NewRecorder()
+
+	addressStr := "bcrt1qddzehdyj5e7w4sfya3h9qznnm80etc9gkpk0qd"
+	mockClient.On("NewAddress", mock.Anything, mock.Anything).Return(&lnrpc.NewAddressResponse{Address: addressStr}, nil)
+
+	handleGetNewAddress(res, req, mockClient)
+
+	bodyBytes, err := io.ReadAll(res.Result().Body)
+	assert.Nil(t, err)
+	assert.Contains(t, string(bodyBytes), addressStr)
+}
