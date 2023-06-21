@@ -39,7 +39,7 @@ func main() {
 	}
 
 	var client lnrpc.LightningClient
-	err := tools.Retry(func() error {
+	err = tools.Retry(func() error {
 
 		grpc := fmt.Sprintf("%s:%d", appConfig.grpcAddress, appConfig.grpcPort)
 		client, err = lndclient.NewBasicClient(grpc, appConfig.tlsFilePath, appConfig.macaroonFilePath, "regtest")
