@@ -14,10 +14,16 @@ spec:
       labels:
         {{- include "lnd.selectorLabels" . | nindent 8 }}
     spec:
+      volumes:
+        - name: tlsmacaroon
+          emptyDir: {}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: tlsmacaroon
+              mountPath: /root/.lnd
           ports:
             - name: peer
               containerPort: {{ .Values.port }}
@@ -43,6 +49,9 @@ spec:
         - name: {{ .Chart.Name }}-client
           image: "lnd-client"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: tlsmacaroon
+              mountPath: /lnd
           ports:
             - name: http
               containerPort: 8080
@@ -51,6 +60,6 @@ spec:
               containerPort: {{ .Values.clientPort }}
           args:
             - -tlsfilepath=/lnd/tls.cert
-            - -macaroonfilepath=/lnd/admin.macaron
+            - -macaroonfilepath=/lnd/data/chain/bitcoin/regtest/admin.macaroon
             - -grpcport=10009
             - -grpcaddress=lnd
