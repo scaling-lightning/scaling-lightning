@@ -55,3 +55,34 @@ func handleSendToAddress(w http.ResponseWriter, r *http.Request, rpcClient rpcCl
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(fmt.Sprintf("Payment sent. Hash: %v", response.String())))
 }
+
+type generateToAddressReq struct {
+	Address        string `json:"address"`
+	NumberOfBlocks uint64 `json:"numberOfBlocks"`
+}
+
+func handleGenerateToAddress(w http.ResponseWriter, r *http.Request, rpcClient rpcClient) {
+	var generateToAddressReq generateToAddressReq
+	if err := json.NewDecoder(r.Body).Decode(&generateToAddressReq); err != nil {
+		apierrors.SendBadRequestFromErr(w, err, "Problem reading request")
+		return
+	}
+
+	// TODO: pass in real network
+	address, err := btcutil.DecodeAddress(generateToAddressReq.Address, &chaincfg.Params{Name: "regtest"})
+	if err != nil {
+		apierrors.SendBadRequestFromErr(w, err, "Unable to decode address")
+		return
+	}
+	response, err := rpcClient.GenerateToAddress(int64(generateToAddressReq.NumberOfBlocks), address, nil)
+	if err != nil {
+		apierrors.SendServerErrorFromErr(w, err, "Problem generating to address")
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	hashes := []string{}
+	for _, hash := range response {
+		hashes = append(hashes, hash.String()+"\n")
+	}
+	w.Write([]byte(fmt.Sprintf("Generated. Hashes: %v", hashes)))
+}

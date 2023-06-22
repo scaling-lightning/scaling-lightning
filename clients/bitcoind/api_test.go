@@ -58,3 +58,27 @@ func TestHandleSendToAddress(t *testing.T) {
 	assert.Nil(err)
 	assert.Contains(strings.ToLower(string(bodyBytes)), "payment sent")
 }
+
+// GenerateToAddress(numBlocks int64, address btcutil.Address, maxTries *int64) ([]*chainhash.Hash, error)
+func TestHandleGenerateToAddress(t *testing.T) {
+	mockClient := mocks.NewRpcClient(t)
+	assert := assert.New(t)
+
+	hash, err := chainhash.NewHashFromStr("0")
+	assert.Nil(err)
+	mockClient.On("GenerateToAddress", mock.AnythingOfType("int64"), mock.Anything, mock.AnythingOfType("*int64")).Return([]*chainhash.Hash{hash}, nil)
+
+	addressStr := "bcrt1qddzehdyj5e7w4sfya3h9qznnm80etc9gkpk0qd"
+	genReq := generateToAddressReq{Address: addressStr, NumberOfBlocks: uint64(20)}
+	genReqBytes, err := json.Marshal(genReq)
+	assert.Nil(err)
+
+	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(genReqBytes))
+	res := httptest.NewRecorder()
+
+	handleGenerateToAddress(res, req, mockClient)
+
+	bodyBytes, err := io.ReadAll(res.Result().Body)
+	assert.Nil(err)
+	assert.Contains(string(bodyBytes), hash.String())
+}

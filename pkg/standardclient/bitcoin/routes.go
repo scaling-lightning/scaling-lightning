@@ -30,6 +30,10 @@ func (sc *StandardClient) RegisterSendToAddressHandler(handler func(w http.Respo
 	sc.router.Post("/sendtoaddress", handler)
 }
 
+func (sc *StandardClient) RegisterGenerateToAddressHandler(handler func(w http.ResponseWriter, r *http.Request)) {
+	sc.router.Post("/generatetoaddress", handler)
+}
+
 func (sc *StandardClient) Start(port int) error {
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), sc.router)
 	if err != nil {
