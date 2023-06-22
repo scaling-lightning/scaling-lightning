@@ -18,6 +18,9 @@ func registerHandlers(standardclient bitcoin.StandardClient, rpcClient rpcClient
 	standardclient.RegisterSendToAddressHandler(func(w http.ResponseWriter, r *http.Request) {
 		handleSendToAddress(w, r, rpcClient)
 	})
+	standardclient.RegisterGenerateToAddressHandler(func(w http.ResponseWriter, r *http.Request) {
+		handleGenerateToAddress(w, r, rpcClient)
+	})
 }
 
 func handleWalletBalance(w http.ResponseWriter, r *http.Request, rpcClient rpcClient) {
