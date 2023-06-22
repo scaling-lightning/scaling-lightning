@@ -27,6 +27,9 @@ func registerHandlers(standardclient lightning.StandardClient, lndClient lnrpc.L
 	standardclient.RegisterConnectPeerHandler(func(w http.ResponseWriter, r *http.Request) {
 		handleConnectPeer(w, r, lndClient)
 	})
+	standardclient.RegisterOpenChannelHandler(func(w http.ResponseWriter, r *http.Request) {
+		handleOpenChannel(w, r, lndClient)
+	})
 }
 
 func handleWalletBalance(w http.ResponseWriter, r *http.Request, lndClient lnrpc.LightningClient) {
@@ -80,7 +83,7 @@ func handlePubKey(w http.ResponseWriter, r *http.Request, lndClient lnrpc.Lightn
 }
 
 type connectPeerReq struct {
-	PubKey string `json:"pubkey"`
+	PubKey string `json:"pubKey"`
 	Host   string `json:"host"`
 	Port   int    `json:"port"`
 }
@@ -93,12 +96,46 @@ func handleConnectPeer(w http.ResponseWriter, r *http.Request, lndClient lnrpc.L
 	}
 
 	peerAddress := fmt.Sprintf("%v:%v", connectPeerReq.Host, connectPeerReq.Port)
-	response, err := lndClient.ConnectPeer(context.Background(),
+	_, err := lndClient.ConnectPeer(context.Background(),
 		&lnrpc.ConnectPeerRequest{Addr: &lnrpc.LightningAddress{Pubkey: connectPeerReq.PubKey, Host: peerAddress}})
 	if err != nil {
 		apierrors.SendServerErrorFromErr(w, err, "Problem connecting to peer")
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintf("Connect peer request received: %v", response.String())))
+	w.Write([]byte("Connect peer request received"))
+}
+
+type openChannelReq struct {
+	PubKey   string `json:"pubKey"`
+	LocalAmt int64  `json:"localAmount"`
+}
+
+type openChannelRes struct {
+	FundingTx   string `json:"fundingTx"`
+	OutputIndex uint32 `json:"outputIndex"`
+}
+
+func handleOpenChannel(w http.ResponseWriter, r *http.Request, lndClient lnrpc.LightningClient) {
+	var openChannelReq openChannelReq
+	if err := json.NewDecoder(r.Body).Decode(&openChannelReq); err != nil {
+		apierrors.SendBadRequestFromErr(w, err, "Problem reading request")
+		return
+	}
+
+	chanPoint, err := lndClient.OpenChannelSync(context.Background(),
+		&lnrpc.OpenChannelRequest{NodePubkey: []byte(openChannelReq.PubKey), LocalFundingAmount: openChannelReq.LocalAmt})
+	if err != nil {
+		apierrors.SendServerErrorFromErr(w, err, "Problem opening channel")
+		return
+	}
+
+	response := openChannelRes{FundingTx: chanPoint.GetFundingTxidStr(), OutputIndex: chanPoint.OutputIndex}
+	responseJson, err := json.Marshal(response)
+	if err != nil {
+		apierrors.SendServerErrorFromErr(w, err, "Problem marshalling funding tx and index json")
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(responseJson)
 }

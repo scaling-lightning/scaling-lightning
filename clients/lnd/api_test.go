@@ -84,3 +84,26 @@ func TestHandleConnectPeer(t *testing.T) {
 	assert.Nil(err)
 	assert.Contains(string(bodyBytes), "request received")
 }
+
+func TestHandleOpenChannel(t *testing.T) {
+	mockClient := mocks.NewLightningClient(t)
+	assert := assert.New(t)
+
+	pubKey := "037c70cddec9b27c92af73a6b04cf09672fb29b18eca86890d835779979ff61c40"
+	localAmt := 20001
+
+	openChannelReq := openChannelReq{PubKey: pubKey, LocalAmt: int64(localAmt)}
+	openChannelReqBytes, err := json.Marshal(openChannelReq)
+	assert.Nil(err)
+
+	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(openChannelReqBytes))
+	res := httptest.NewRecorder()
+
+	mockClient.On("OpenChannelSync", mock.Anything, mock.Anything).Return(&lnrpc.ChannelPoint{OutputIndex: uint32(615)}, nil)
+
+	handleOpenChannel(res, req, mockClient)
+
+	bodyBytes, err := io.ReadAll(res.Result().Body)
+	assert.Nil(err)
+	assert.Contains(string(bodyBytes), "615")
+}

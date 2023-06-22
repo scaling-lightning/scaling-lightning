@@ -38,6 +38,10 @@ func (sc *StandardClient) RegisterConnectPeerHandler(handler func(w http.Respons
 	sc.router.Post("/connectpeer", handler)
 }
 
+func (sc *StandardClient) RegisterOpenChannelHandler(handler func(w http.ResponseWriter, r *http.Request)) {
+	sc.router.Post("/openchannel", handler)
+}
+
 func (sc *StandardClient) Start(port int) error {
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), sc.router)
 	if err != nil {
