@@ -21,6 +21,9 @@ func registerHandlers(standardclient bitcoin.StandardClient, rpcClient rpcClient
 	standardclient.RegisterGenerateToAddressHandler(func(w http.ResponseWriter, r *http.Request) {
 		handleGenerateToAddress(w, r, rpcClient)
 	})
+	standardclient.RegisterNewAddressHandler(func(w http.ResponseWriter, r *http.Request) {
+		handleNewAddress(w, r, rpcClient)
+	})
 }
 
 func handleWalletBalance(w http.ResponseWriter, r *http.Request, rpcClient rpcClient) {
@@ -88,4 +91,24 @@ func handleGenerateToAddress(w http.ResponseWriter, r *http.Request, rpcClient r
 		hashes = append(hashes, hash.String()+"\n")
 	}
 	w.Write([]byte(fmt.Sprintf("Generated. Hashes: %v", hashes)))
+}
+
+type newAddressRes struct {
+	Address string `json:"address"`
+}
+
+func handleNewAddress(w http.ResponseWriter, r *http.Request, rpcClient rpcClient) {
+	newAddress, err := rpcClient.GetNewAddress(walletName)
+	if err != nil {
+		apierrors.SendServerErrorFromErr(w, err, "Problem generating to address")
+		return
+	}
+	response := newAddressRes{Address: newAddress.String()}
+	responseJson, err := json.Marshal(response)
+	if err != nil {
+		apierrors.SendServerErrorFromErr(w, err, "Problem marshalling new address json")
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(responseJson)
 }

@@ -82,3 +82,22 @@ func TestHandleGenerateToAddress(t *testing.T) {
 	assert.Nil(err)
 	assert.Contains(string(bodyBytes), hash.String())
 }
+
+func TestHandleNewAddress(t *testing.T) {
+	mockClient := mocks.NewRpcClient(t)
+	assert := assert.New(t)
+
+	req := httptest.NewRequest(http.MethodPost, "/", nil)
+	res := httptest.NewRecorder()
+
+	addressStr := "bcrt1qddzehdyj5e7w4sfya3h9qznnm80etc9gkpk0qd"
+	address, _ := btcutil.DecodeAddress(addressStr, &chaincfg.Params{Name: "regtest"})
+
+	mockClient.On("GetNewAddress", mock.AnythingOfType("string")).Return(address, nil)
+
+	handleNewAddress(res, req, mockClient)
+
+	bodyBytes, err := io.ReadAll(res.Result().Body)
+	assert.Nil(err)
+	assert.Contains(string(bodyBytes), addressStr)
+}
