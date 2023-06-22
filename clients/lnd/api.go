@@ -21,6 +21,9 @@ func registerHandlers(standardclient lightning.StandardClient, lndClient lnrpc.L
 	standardclient.RegisterNewAddressHandler(func(w http.ResponseWriter, r *http.Request) {
 		handleNewAddress(w, r, lndClient)
 	})
+	standardclient.RegisterPubKeyHandler(func(w http.ResponseWriter, r *http.Request) {
+		handlePubKey(w, r, lndClient)
+	})
 }
 
 func handleWalletBalance(w http.ResponseWriter, r *http.Request, lndClient lnrpc.LightningClient) {
@@ -47,6 +50,26 @@ func handleNewAddress(w http.ResponseWriter, r *http.Request, lndClient lnrpc.Li
 	responseJson, err := json.Marshal(response)
 	if err != nil {
 		apierrors.SendServerErrorFromErr(w, err, "Problem marshalling new address json")
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(responseJson)
+}
+
+type pubKeyRes struct {
+	PubKey string `json:"pubkey"`
+}
+
+func handlePubKey(w http.ResponseWriter, r *http.Request, lndClient lnrpc.LightningClient) {
+	pubKey, err := lndClient.GetInfo(context.Background(), &lnrpc.GetInfoRequest{})
+	if err != nil {
+		apierrors.SendServerErrorFromErr(w, err, "Problem getting new address")
+		return
+	}
+	response := pubKeyRes{PubKey: pubKey.IdentityPubkey}
+	responseJson, err := json.Marshal(response)
+	if err != nil {
+		apierrors.SendServerErrorFromErr(w, err, "Problem marshalling pubkey json")
 	}
 
 	w.WriteHeader(http.StatusOK)

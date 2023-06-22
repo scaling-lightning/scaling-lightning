@@ -42,3 +42,19 @@ func TestHandleNewAddress(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Contains(t, string(bodyBytes), addressStr)
 }
+
+func TestHandlePubKey(t *testing.T) {
+	mockClient := mocks.NewLightningClient(t)
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	res := httptest.NewRecorder()
+
+	pubKey := "037c70cddec9b27c92af73a6b04cf09672fb29b18eca86890d835779979ff61c40"
+	mockClient.On("GetInfo", mock.Anything, mock.Anything).Return(&lnrpc.GetInfoResponse{IdentityPubkey: pubKey}, nil)
+
+	handlePubKey(res, req, mockClient)
+
+	bodyBytes, err := io.ReadAll(res.Result().Body)
+	assert.Nil(t, err)
+	assert.Contains(t, string(bodyBytes), pubKey)
+}

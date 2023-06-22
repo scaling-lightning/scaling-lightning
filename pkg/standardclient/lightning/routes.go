@@ -30,6 +30,10 @@ func (sc *StandardClient) RegisterNewAddressHandler(handler func(w http.Response
 	sc.router.Post("/newaddress", handler)
 }
 
+func (sc *StandardClient) RegisterPubKeyHandler(handler func(w http.ResponseWriter, r *http.Request)) {
+	sc.router.Get("/pubkey", handler)
+}
+
 func (sc *StandardClient) Start(port int) error {
 	err := http.ListenAndServe(fmt.Sprintf(":%d", port), sc.router)
 	if err != nil {
