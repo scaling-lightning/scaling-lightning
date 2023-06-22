@@ -24,6 +24,9 @@ func registerHandlers(standardclient lightning.StandardClient, lndClient lnrpc.L
 	standardclient.RegisterPubKeyHandler(func(w http.ResponseWriter, r *http.Request) {
 		handlePubKey(w, r, lndClient)
 	})
+	standardclient.RegisterConnectPeerHandler(func(w http.ResponseWriter, r *http.Request) {
+		handleConnectPeer(w, r, lndClient)
+	})
 }
 
 func handleWalletBalance(w http.ResponseWriter, r *http.Request, lndClient lnrpc.LightningClient) {
@@ -74,4 +77,28 @@ func handlePubKey(w http.ResponseWriter, r *http.Request, lndClient lnrpc.Lightn
 
 	w.WriteHeader(http.StatusOK)
 	w.Write(responseJson)
+}
+
+type connectPeerReq struct {
+	PubKey string `json:"pubkey"`
+	Host   string `json:"host"`
+	Port   int    `json:"port"`
+}
+
+func handleConnectPeer(w http.ResponseWriter, r *http.Request, lndClient lnrpc.LightningClient) {
+	var connectPeerReq connectPeerReq
+	if err := json.NewDecoder(r.Body).Decode(&connectPeerReq); err != nil {
+		apierrors.SendBadRequestFromErr(w, err, "Problem reading request")
+		return
+	}
+
+	peerAddress := fmt.Sprintf("%v:%v", connectPeerReq.Host, connectPeerReq.Port)
+	response, err := lndClient.ConnectPeer(context.Background(),
+		&lnrpc.ConnectPeerRequest{Addr: &lnrpc.LightningAddress{Pubkey: connectPeerReq.PubKey, Host: peerAddress}})
+	if err != nil {
+		apierrors.SendServerErrorFromErr(w, err, "Problem connecting to peer")
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(fmt.Sprintf("Connect peer request received: %v", response.String())))
 }
