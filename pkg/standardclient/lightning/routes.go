@@ -26,7 +26,7 @@ func (sc *StandardClient) RegisterWalletBalanceHandler(handler func(w http.Respo
 	sc.router.Get("/walletbalance", handler)
 }
 
-func (sc *StandardClient) RegisterGetNewAddressHandler(handler func(w http.ResponseWriter, r *http.Request)) {
+func (sc *StandardClient) RegisterNewAddressHandler(handler func(w http.ResponseWriter, r *http.Request)) {
 	sc.router.Post("/newaddress", handler)
 }
 

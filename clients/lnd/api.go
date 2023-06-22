@@ -18,8 +18,8 @@ func registerHandlers(standardclient lightning.StandardClient, lndClient lnrpc.L
 	standardclient.RegisterWalletBalanceHandler(func(w http.ResponseWriter, r *http.Request) {
 		handleWalletBalance(w, r, lndClient)
 	})
-	standardclient.RegisterGetNewAddressHandler(func(w http.ResponseWriter, r *http.Request) {
-		handleGetNewAddress(w, r, lndClient)
+	standardclient.RegisterNewAddressHandler(func(w http.ResponseWriter, r *http.Request) {
+		handleNewAddress(w, r, lndClient)
 	})
 }
 
@@ -33,17 +33,17 @@ func handleWalletBalance(w http.ResponseWriter, r *http.Request, lndClient lnrpc
 	w.Write([]byte(fmt.Sprintf("Wallet balance is: %v", response.TotalBalance)))
 }
 
-type newAddressResponse struct {
+type newAddressRes struct {
 	Address string `json:"address"`
 }
 
-func handleGetNewAddress(w http.ResponseWriter, r *http.Request, lndClient lnrpc.LightningClient) {
+func handleNewAddress(w http.ResponseWriter, r *http.Request, lndClient lnrpc.LightningClient) {
 	newAddress, err := lndClient.NewAddress(context.Background(), &lnrpc.NewAddressRequest{})
 	if err != nil {
 		apierrors.SendServerErrorFromErr(w, err, "Problem getting new address")
 		return
 	}
-	response := newAddressResponse{Address: newAddress.Address}
+	response := newAddressRes{Address: newAddress.Address}
 	responseJson, err := json.Marshal(response)
 	if err != nil {
 		apierrors.SendServerErrorFromErr(w, err, "Problem marshalling new address json")
