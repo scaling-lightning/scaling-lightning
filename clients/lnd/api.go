@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -123,8 +124,14 @@ func handleOpenChannel(w http.ResponseWriter, r *http.Request, lndClient lnrpc.L
 		return
 	}
 
+	pubKeyHex, err := hex.DecodeString(openChannelReq.PubKey)
+	if err != nil {
+		apierrors.SendBadRequestFromErr(w, err, "Problem decoding pubKey to hex")
+		return
+	}
+
 	chanPoint, err := lndClient.OpenChannelSync(context.Background(),
-		&lnrpc.OpenChannelRequest{NodePubkey: []byte(openChannelReq.PubKey), LocalFundingAmount: openChannelReq.LocalAmt})
+		&lnrpc.OpenChannelRequest{NodePubkey: pubKeyHex, LocalFundingAmount: openChannelReq.LocalAmt})
 	if err != nil {
 		apierrors.SendServerErrorFromErr(w, err, "Problem opening channel")
 		return
