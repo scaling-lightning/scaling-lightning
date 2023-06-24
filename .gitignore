@@ -6,3 +6,6 @@
 tls.cert
 tls.key
 *.tgz
+
+/helmfiles/*
+!/helmfiles/helmfile.yaml
