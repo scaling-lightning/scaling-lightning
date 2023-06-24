@@ -1,0 +1,12 @@
+
+releases:
+    - name: bitcoind
+      chart: ../charts/bitcoind
+    - name: lnd1
+      chart: ../charts/lnd
+    - name: lnd2
+      chart: ../charts/lnd
+    - name: lnd3
+      chart: ../charts/lnd
+    - name: lnd4
+      chart: ../charts/lnd
