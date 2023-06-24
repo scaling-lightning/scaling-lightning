@@ -7,6 +7,79 @@ applications that depend on the Lightning Network.
 
 The goal is to collaborate as an industry to help scale the Lightning Network and the applications that depend on it.
 
+## Getting started
+
+> ***The project is still far from complete***. 
+
+### Requirements:
+
+* Kubernetes. 
+
+    > If you are developing locally you can use Docker Desktop and enable 
+    Kubernetes in the dashboard.
+
+* You also need Helm 3 and Helmfile. If you are on a Mac you can install them with Homebrew
+    
+        brew install helm helmfile
+
+* Helm Diff:
+
+      helm plugin install https://github.com/databus23/helm-diff
+
+* Ingress nginx:
+
+      kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.0/deploy/static/provider/cloud/deploy.yaml
+
+### Starting a Network
+
+To spin up de default network with 4 nodes, run:
+
+    helmfile apply --file helmfiles/helmfile.yaml
+
+To destroy the network run: 
+    
+    helmfile destroy --file helmfiles/helmfile.yaml
+
+#### Your own configuration
+
+This project is still in its infancy, so we don't have a lot of configuration options yet. 
+But you can create your own `helmfile.yaml` in the `helmfiles` folder with the following content:
+
+```yaml
+# helmfiles/helmfile.yaml
+# All files except helmfile.yaml are ignored by git
+releases:
+    - name: bitcoind
+      chart: ../charts/bitcoind # these should point to the charts you want to use.
+      ## Set additional values or override existing ones
+      # values:
+      #   - ./anywhere/bitcoind/values.yaml
+    - name: lnd1
+      chart: ../charts/lnd # these should point to the charts you want to use.
+      ## Set additional values or override existing ones
+      ## original values: charts/bitcoind/values.yaml
+      # values:
+      #   - ./anywhere/lnd/values.yaml
+    - name: lnd2
+      chart: ../charts/lnd # these should point to the charts you want to use.
+      ## Set additional values or override existing ones
+      ## original values: charts/lnd/values.yaml
+      # values:
+      #   - ./anywhere/lnd/values.yaml
+    - name: lnd3
+      chart: ../charts/lnd # these should point to the charts you want to use.
+      ## Set additional values or override existing ones
+      ## original values: charts/lnd/values.yaml
+      # values:
+      #   - ./anywhere/lnd/values.yaml
+    - name: lnd4
+      chart: ../charts/lnd # these should point to the charts you want to use.
+      ## Set additional values or override existing ones
+      ## original values: charts/lnd/values.yaml
+      # values:
+      #   - ./anywhere/lnd/values.yaml
+```
+
 ## Why is this important?
 
 Currently, there are unknowns and untested assumptions about how the Lightning Network and its applications will react 
@@ -35,12 +108,21 @@ to test gossip.
 
 This is an outline of the project's milestones. We will further detail these milestones using the features of GitHub's milestones and project management tools:
 
-* [ ] Create a Helm chart to initiate a Regtest Lightning Network, making it easier for developers to start development.
-* [ ] Create a Helm chart for one or more Signet Bitcoin and Lightning Network nodes.
-* [ ] Develop a tool for generating or simulating channel openings/closings and traffic between nodes.
-* [ ] Develop a tool to simplify interaction with your nodes in your signet or regtest network.
+* [ ] Create a basic kubernetes setup for running a Lightning Network.
+* [ ] Improve configurability and ease of use.
+* [ ] Create a client for communication with Lightning Nodes.
+  * [ ] LND
+  * [ ] CLN
+  * [ ] LDK
+  * [ ] Eclair
+* [ ] Create a client for communication with Bitcoin Nodes.
+  * [ ] Bitcoind
+  * [ ] btcd
+* [ ] Create a library for programmatically interacting with the clients.
+* [ ] Create a cli version of the library.
+* [ ] Create a tool for generating or simulating network activity.
+* [x] Create a website to host the documentation, using Docusaurus.
 * [ ] Thoroughly document the project and provide instructions for use.
-* [ ] Create a website to host the documentation, using Docusaurus.
 * [ ] Document and provide links to supporting development resources.
 
 ## How can you help?
