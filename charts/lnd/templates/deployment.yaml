@@ -50,7 +50,7 @@ spec:
             - --bitcoind.zmqpubrawtx=tcp://{{ .Values.rpcHost }}:{{ .Values.zmqPubTxPort }}
             - --tlsextradomain={{ include "lnd.fullname" . }}
         - name: {{ .Chart.Name }}-client
-          image: "lnd-client"
+          image: {{ .Values.clientImage.repository }}:{{ .Values.clientImage.tag | default "latest" }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           volumeMounts:
             - name: tlsmacaroon

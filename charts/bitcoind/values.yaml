@@ -9,6 +9,11 @@ image:
   tag: 24
   pullPolicy: IfNotPresent
 
+clientImage:
+  repository: scalingln/bitcoind-client
+  tag: latest
+  pullPolicy: IfNotPresent
+
 rpcPort: 8332
 rpcPortTest: 18443
 

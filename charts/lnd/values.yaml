@@ -9,6 +9,11 @@ image:
   tag: v0.16.3-beta
   pullPolicy: IfNotPresent
 
+clientImage:
+  repository: scalingln/lnd-client
+  tag: latest
+  pullPolicy: IfNotPresent
+
 rpcPort: 8332
 
 rpcUser: foo
