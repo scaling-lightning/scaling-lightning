@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ include "bitcoind.fullname" . }}
   labels:
@@ -16,7 +16,13 @@ spec:
     spec:
       volumes:
         - name: cookie
+          {{- if .Values.bitcoindHostPath }}
+          hostPath:
+            path: {{ .Values.bitcoindHostPath }}
+            type: DirectoryOrCreate
+          {{- else }}
           emptyDir: {}
+          {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"

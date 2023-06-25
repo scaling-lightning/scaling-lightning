@@ -9,3 +9,5 @@ tls.key
 
 /helmfiles/*
 !/helmfiles/helmfile.yaml
+/volumes/*
+!/volumes/.gitkeep

@@ -46,8 +46,8 @@ This project is still in its infancy, so we don't have a lot of configuration op
 But you can create your own `helmfile.yaml` in the `helmfiles` folder with the following content:
 
 ```yaml
-# helmfiles/helmfile.yaml
-# All files except helmfile.yaml are ignored by git
+# helmfiles/my-helmfile.yaml
+# All files except helmfile.yaml are ignored by git, so you can add them safely.
 releases:
     - name: bitcoind
       chart: ../charts/bitcoind # these should point to the charts you want to use.
@@ -58,26 +58,30 @@ releases:
       chart: ../charts/lnd # these should point to the charts you want to use.
       ## Set additional values or override existing ones
       ## original values: charts/bitcoind/values.yaml
-      # values:
-      #   - ./anywhere/lnd/values.yaml
+      values:
+          - gRPCNodePort: 30009
+          - lndHostPath: {{env "PWD"}}/volumes/lnd1
     - name: lnd2
       chart: ../charts/lnd # these should point to the charts you want to use.
       ## Set additional values or override existing ones
       ## original values: charts/lnd/values.yaml
-      # values:
-      #   - ./anywhere/lnd/values.yaml
+      values:
+          - gRPCNodePort: 30010
+          - lndHostPath: {{env "PWD"}}/volumes/lnd2
     - name: lnd3
       chart: ../charts/lnd # these should point to the charts you want to use.
       ## Set additional values or override existing ones
       ## original values: charts/lnd/values.yaml
-      # values:
-      #   - ./anywhere/lnd/values.yaml
+      values:
+          - gRPCNodePort: 30011
+          - lndHostPath: {{env "PWD"}}/volumes/lnd3
     - name: lnd4
       chart: ../charts/lnd # these should point to the charts you want to use.
       ## Set additional values or override existing ones
       ## original values: charts/lnd/values.yaml
-      # values:
-      #   - ./anywhere/lnd/values.yaml
+      values:
+          - gRPCNodePort: 30012
+          - lndHostPath: {{env "PWD"}}/volumes/lnd4
 ```
 
 ## Why is this important?

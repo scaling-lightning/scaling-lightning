@@ -24,6 +24,7 @@ zmqPubTxPort: 28333
 
 port: 9735
 gRPCPort: 10009
+#gRPCNodePort: 30009 # has to be above 30,000
 restPort: 8080
 
 clientPort: 8181

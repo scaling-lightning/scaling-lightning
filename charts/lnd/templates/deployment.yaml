@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ include "lnd.fullname" . }}
   labels:
@@ -18,7 +18,13 @@ spec:
         runAsUser: 0
       volumes:
         - name: tlsmacaroon
+          {{- if .Values.lndHostPath }}
+          hostPath:
+            path: {{ .Values.lndHostPath }}
+            type: DirectoryOrCreate
+          {{- else }}
           emptyDir: {}
+          {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
