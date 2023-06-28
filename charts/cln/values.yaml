@@ -1,0 +1,27 @@
+nameOverride: ""
+fullnameOverride: ""
+
+image:
+  repository: elementsproject/lightningd
+  tag: v23.05.1
+  pullPolicy: IfNotPresent
+
+clientImage:
+  repository: cln-client
+  tag: latest
+  pullPolicy: IfNotPresent
+
+bitcoind:
+  rpcPort: 8332
+  rpcUser: foo
+  rpcPass: pass
+  rpcHost: bitcoind
+  zmqPubBlockPort: 28332
+  zmqPubTxPort: 28333
+
+port: 9735
+gRPCPort: 8383
+
+clientPort: 8181
+
+network: regtest
