@@ -2,8 +2,8 @@ nameOverride: ""
 fullnameOverride: ""
 
 image:
-  repository: lncm/clightning
-  tag: v22.11.1
+  repository: elementsproject/lightningd
+  tag: v23.05.1
   pullPolicy: IfNotPresent
 
 clientImage:
