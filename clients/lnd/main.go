@@ -13,8 +13,6 @@ import (
 	"github.com/scaling-lightning/scaling-lightning/pkg/tools"
 )
 
-const walletName = "scalinglightning"
-
 type appConfig struct {
 	tlsFilePath      string
 	macaroonFilePath string
