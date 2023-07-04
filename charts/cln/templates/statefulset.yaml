@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "cln.fullname" . }}
+  labels:
+    {{- include "cln.labels" . | nindent 4 }}
+spec:
+  replicas: {{ default 1 .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "cln.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "cln.selectorLabels" . | nindent 8 }}
+    spec:
+      volumes:
+        - name: tlsmacaroon
+          {{- if .Values.clnHostPath }}
+          hostPath:
+            path: {{ .Values.clnHostPath }}
+            type: DirectoryOrCreate
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          # volumeMounts:
+          #   - name: tlsmacaroon
+          #     mountPath: /root/.cln
+          ports:
+            - name: peer
+              containerPort: {{ .Values.port }}
+            - name: grpc
+              containerPort: {{ .Values.gRPCPort }}
+          args:
+            - --grpc-port={{ .Values.gRPCPort }}
+            - --network={{ .Values.network }}
+            - --bitcoin-rpcuser={{ .Values.bitcoind.rpcUser }}
+            - --bitcoin-rpcpassword={{ .Values.bitcoind.rpcPass }}
+            - --bitcoin-rpcconnect={{ .Values.bitcoind.rpcHost }}
+            - --bitcoin-rpcport={{ .Values.bitcoind.rpcPort }}
+            - --bitcoin-retry-timeout=600
+        # - name: {{ .Chart.Name }}-client
+        #   image: {{ .Values.clientImage.repository }}:{{ .Values.clientImage.tag | default "latest" }}
+        #   imagePullPolicy: {{ .Values.image.pullPolicy }}
+        #   volumeMounts:
+        #     - name: tlsmacaroon
+        #       mountPath: /cln
+        #   ports:
+        #     - name: http
+        #       containerPort: 8080
+        #   ports:
+        #     - name: client
+        #       containerPort: {{ .Values.clientPort }}
+        #   args:
+        #     - -tlsfilepath=/cln/tls.cert
+        #     - -macaroonfilepath=/cln/data/chain/bitcoin/regtest
+        #     - -grpcport=10009
+        #     - -grpcaddress={{ include "cln.fullname" . }}

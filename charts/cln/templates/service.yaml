@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "lnd.fullname" . }}
+  name: {{ include "cln.fullname" . }}
   labels:
-    {{- include "lnd.labels" . | nindent 4 }}
+    {{- include "cln.labels" . | nindent 4 }}
 spec:
   type: ClusterIP
   ports:
@@ -13,21 +13,18 @@ spec:
     - name: grpc
       targetPort: grpc
       port: {{ .Values.gRPCPort }}
-    - name: rest
-      targetPort: rest
-      port: {{ .Values.restPort }}
     - name: client
       targetPort: client
       port: {{ .Values.clientPort }}
   selector:
-    {{- include "lnd.selectorLabels" . | nindent 4 }}
+    {{- include "cln.selectorLabels" . | nindent 4 }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "lnd.fullname" . }}-nodeport
+  name: {{ include "cln.fullname" . }}-nodeport
   labels:
-    {{- include "lnd.labels" . | nindent 4 }}
+    {{- include "cln.labels" . | nindent 4 }}
 spec:
   type: NodePort
   ports:
@@ -40,12 +37,8 @@ spec:
       {{- if .Values.gRPCNodePort }}
       nodePort: {{ .Values.gRPCNodePort }}
       {{- end }}
-    - name: rest
-      targetPort: rest
-      port: {{ .Values.restPort }}
     - name: client
       targetPort: client
       port: {{ .Values.clientPort }}
   selector:
-    {{- include "lnd.selectorLabels" . | nindent 4 }}
-
+    {{- include "cln.selectorLabels" . | nindent 4 }}
