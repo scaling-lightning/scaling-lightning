@@ -5,6 +5,7 @@
 *.macaroon
 tls.cert
 tls.key
+*.pem
 *.tgz
 
 /helmfiles/*
