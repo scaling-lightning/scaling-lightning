@@ -15,6 +15,7 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/timeout"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	clnGRPC "github.com/scaling-lightning/scaling-lightning/clients/cln/grpc"
 	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
 	"github.com/scaling-lightning/scaling-lightning/pkg/tools"
 	"github.com/scaling-lightning/scaling-lightning/pkg/tools/grpc_helpers"
@@ -70,15 +71,22 @@ func main() {
 		log.Fatal().Err(err).Msg("Problem reading certificate authority cert")
 	}
 
-	_, err = grpcConnect("localhost:32274", cert, certKey, ca)
+	conn, err := grpcConnect("localhost:32274", cert, certKey, ca)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Problem connecting to CLN's gRPC server")
 	}
 
+	client := clnGRPC.NewNodeClient(conn)
+	info, err := client.Getinfo(context.Background(), &clnGRPC.GetinfoRequest{})
+
+	log.Info().Msg("CLN Info:")
+
+	log.Info().Msg(info.String())
+
 	log.Info().Msg("Waiting for command")
 	// start api
 	restServer := lightning.NewStandardClient()
-	// registerHandlers(restServer, client)
+	registerHandlers(restServer, client)
 	err = restServer.Start(appConfig.apiPort)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Starting REST service")
