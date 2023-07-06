@@ -108,6 +108,10 @@ and researchers test their assumptions in an isolated environment. An example of
 [The Million Channels Project](https://github.com/rustyrussell/million-channels-project-data) developed by Rusty Russell 
 to test gossip.
 
+### Yes, we know about Polar.
+
+While Polar is an excellent project it is fundamentally different from what we want to achieve with the Scaling Lightning initiative. Polar is a desktop application meant to manually build a network through a drag and drop interface, which is great for novices and simple projects. However, it's not something that is suitable for a developer or testing environment at a startup or as a researcher. We have discussed and considered using parts of Polar or altering Polar, but it's not the right direction to go for Scaling Lightning.
+
 ## Project milestones
 
 This is an outline of the project's milestones. We will further detail these milestones using the features of GitHub's milestones and project management tools:
