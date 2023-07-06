@@ -1,14 +1,25 @@
 package main
 
 import (
+	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"flag"
 	"fmt"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/cockroachdb/errors"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/timeout"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
 	"github.com/scaling-lightning/scaling-lightning/pkg/tools"
+	"github.com/scaling-lightning/scaling-lightning/pkg/tools/grpc_helpers"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 type appConfig struct {
@@ -44,8 +55,27 @@ func main() {
 		log.Fatal().Err(err).Msg("Starting CLN Client")
 	}
 
-	log.Info().Msg("Waiting for command")
+	cert, err := os.ReadFile("./client.pem")
+	if err != nil {
+		log.Fatal().Err(err).Msg("Problem reading client certificate")
+	}
 
+	certKey, err := os.ReadFile("./client-key.pem")
+	if err != nil {
+		log.Fatal().Err(err).Msg("Problem reading client key")
+	}
+
+	ca, err := os.ReadFile("./ca.pem")
+	if err != nil {
+		log.Fatal().Err(err).Msg("Problem reading certificate authority cert")
+	}
+
+	_, err = grpcConnect("localhost:32274", cert, certKey, ca)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Problem connecting to CLN's gRPC server")
+	}
+
+	log.Info().Msg("Waiting for command")
 	// start api
 	restServer := lightning.NewStandardClient()
 	// registerHandlers(restServer, client)
@@ -85,4 +115,60 @@ func validateFlags(appConfig *appConfig) error {
 		return errors.New("gRPC address required. Please use the -grpcaddress flag")
 	}
 	return nil
+}
+
+func grpcConnect(host string,
+	certificate []byte,
+	key []byte,
+	caCertificate []byte) (*grpc.ClientConn, error) {
+
+	clientCrt, err := tls.X509KeyPair(certificate, key)
+	if err != nil {
+		return nil, errors.New("CLN credentials: failed to create X509 KeyPair")
+	}
+
+	certPool := x509.NewCertPool()
+	certPool.AppendCertsFromPEM(caCertificate)
+
+	serverName := "localhost"
+	if strings.Contains(host, "cln") {
+		serverName = "cln"
+	}
+
+	tlsConfig := &tls.Config{
+		MinVersion:   tls.VersionTLS12,
+		ClientAuth:   tls.RequestClientCert,
+		Certificates: []tls.Certificate{clientCrt},
+		RootCAs:      certPool,
+		ServerName:   serverName,
+	}
+
+	loggerOpts := grpc_helpers.GetLoggingOptions()
+
+	logger := zerolog.New(os.Stderr)
+
+	opts := []grpc.DialOption{
+		grpc.WithReturnConnectionError(),
+		grpc.FailOnNonTempDialError(true),
+		grpc.WithBlock(),
+		grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)),
+		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(grpc_helpers.RecvMsgSize)),
+		grpc.WithChainUnaryInterceptor(
+			timeout.UnaryClientInterceptor(grpc_helpers.UnaryTimeout),
+			logging.UnaryClientInterceptor(grpc_helpers.InterceptorLogger(logger), loggerOpts...),
+		),
+		grpc.WithChainStreamInterceptor(
+			logging.StreamClientInterceptor(grpc_helpers.InterceptorLogger(logger), loggerOpts...),
+		),
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
+	defer cancel()
+
+	conn, err := grpc.DialContext(ctx, host, opts...)
+	if err != nil {
+		return nil, fmt.Errorf("cannot dial to CLN %v", err)
+	}
+
+	return conn, nil
 }

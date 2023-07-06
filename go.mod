@@ -3,15 +3,27 @@ module github.com/scaling-lightning/scaling-lightning
 go 1.20
 
 require (
+	github.com/btcsuite/btcd v0.23.5-0.20230125025938-be056b0a0b2f
+	github.com/btcsuite/btcd/btcutil v1.1.3
+	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.2
+	github.com/cockroachdb/errors v1.9.1
+	github.com/go-chi/chi/v5 v5.0.8
+	github.com/grpc-ecosystem/go-grpc-middleware/v2 v2.0.0-rc.5
+	github.com/lightninglabs/lndclient v0.16.0-14
+	github.com/lightningnetwork/lnd v0.16.0-beta
+	github.com/rs/zerolog v1.29.1
+	github.com/stretchr/testify v1.8.4
+	google.golang.org/grpc v1.53.0
+	google.golang.org/protobuf v1.30.0
+)
+
+require (
 	github.com/aead/chacha20 v0.0.0-20180709150244-8b13a72661da // indirect
 	github.com/aead/siphash v1.0.1 // indirect
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/btcsuite/btcd v0.23.5-0.20230125025938-be056b0a0b2f // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
-	github.com/btcsuite/btcd/btcutil v1.1.3 // indirect
 	github.com/btcsuite/btcd/btcutil/psbt v1.1.5 // indirect
-	github.com/btcsuite/btcd/chaincfg/chainhash v1.0.2 // indirect
 	github.com/btcsuite/btclog v0.0.0-20170628155309-84c8d2346e9f // indirect
 	github.com/btcsuite/btcwallet v0.16.7 // indirect
 	github.com/btcsuite/btcwallet/wallet/txauthor v1.3.2 // indirect
@@ -23,8 +35,7 @@ require (
 	github.com/btcsuite/websocket v0.0.0-20150119174127-31079b680792 // indirect
 	github.com/btcsuite/winsvc v1.0.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.1 // indirect
-	github.com/cespare/xxhash/v2 v2.1.1 // indirect
-	github.com/cockroachdb/errors v1.9.1 // indirect
+	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/cockroachdb/logtags v0.0.0-20230118201751-21c54148d20b // indirect
 	github.com/cockroachdb/redact v1.1.4 // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
@@ -37,7 +48,6 @@ require (
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/fergusstrange/embedded-postgres v1.10.0 // indirect
 	github.com/getsentry/sentry-go v0.21.0 // indirect
-	github.com/go-chi/chi/v5 v5.0.8 // indirect
 	github.com/go-errors/errors v1.4.2 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
@@ -71,11 +81,9 @@ require (
 	github.com/kr/text v0.2.0 // indirect
 	github.com/lib/pq v1.10.3 // indirect
 	github.com/lightninglabs/gozmq v0.0.0-20191113021534-d20a764486bf // indirect
-	github.com/lightninglabs/lndclient v0.16.0-14 // indirect
 	github.com/lightninglabs/neutrino v0.15.0 // indirect
 	github.com/lightninglabs/neutrino/cache v1.1.1 // indirect
 	github.com/lightningnetwork/lightning-onion v1.2.1-0.20221202012345-ca23184850a1 // indirect
-	github.com/lightningnetwork/lnd v0.16.0-beta // indirect
 	github.com/lightningnetwork/lnd/clock v1.1.0 // indirect
 	github.com/lightningnetwork/lnd/healthcheck v1.2.2 // indirect
 	github.com/lightningnetwork/lnd/kvdb v1.4.1 // indirect
@@ -102,15 +110,14 @@ require (
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
 	github.com/rogpeppe/fastuuid v1.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.10.0 // indirect
-	github.com/rs/zerolog v1.29.1 // indirect
 	github.com/sirupsen/logrus v1.9.0 // indirect
 	github.com/soheilhy/cmux v0.1.5 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
-	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7 // indirect
 	github.com/tmc/grpc-websocket-proxy v0.0.0-20201229170055-e5319fda7802 // indirect
 	github.com/ulikunitz/xz v0.5.10 // indirect
+	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/xi2/xz v0.0.0-20171230120015-48954b6210f8 // indirect
 	github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2 // indirect
 	go.etcd.io/bbolt v1.3.6 // indirect
@@ -140,9 +147,7 @@ require (
 	golang.org/x/text v0.9.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.6.0 // indirect
-	google.golang.org/genproto v0.0.0-20210624195500-8bfb893ecb84 // indirect
-	google.golang.org/grpc v1.41.0 // indirect
-	google.golang.org/protobuf v1.29.1 // indirect
+	google.golang.org/genproto v0.0.0-20230110181048-76db0878b65f // indirect
 	gopkg.in/errgo.v1 v1.0.1 // indirect
 	gopkg.in/macaroon-bakery.v2 v2.0.1 // indirect
 	gopkg.in/macaroon.v2 v2.1.0 // indirect
