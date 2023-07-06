@@ -4,7 +4,9 @@ test:
 
 .PHONY: protoc
 protoc:
-	protoc --proto_path=clients/cln/grpc --go_out=. \
+	protoc --proto_path=clients/cln/grpc --go_out=. --go-grpc_out=. \
     --go_opt=Mnode.proto=clients/cln/grpc \
     --go_opt=Mprimitives.proto=clients/cln/grpc \
+    --go-grpc_opt=Mnode.proto=clients/cln/grpc \
+    --go-grpc_opt=Mprimitives.proto=clients/cln/grpc \
     clients/cln/grpc/primitives.proto clients/cln/grpc/node.proto
