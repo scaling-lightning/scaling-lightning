@@ -17,7 +17,7 @@ func registerHandlers(standardclient lightning.StandardClient, clnClient clnGRPC
 }
 
 func handleWalletBalance(w http.ResponseWriter, r *http.Request, clnClient clnGRPC.NodeClient) {
-	response, err := clnClient.ListFunds(context.Background(), &clnGRPC.ListfundsRequest{})
+	response, err = clnClient.ListFunds(context.Background(), &clnGRPC.ListfundsRequest{})
 	if err != nil {
 		apierrors.SendServerErrorFromErr(w, err, "Problem getting wallet balance")
 		return

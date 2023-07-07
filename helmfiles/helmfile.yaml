@@ -2,8 +2,8 @@
 releases:
     - name: bitcoind
       chart: ../charts/bitcoind
-      values:
-          - bitcoindHostPath: {{env "PWD"}}/volumes/bitcoind
+      # values:
+      #     - bitcoindHostPath: {{env "PWD"}}/volumes/bitcoind
     - name: lnd1
       chart: ../charts/lnd
       values:
@@ -24,3 +24,11 @@ releases:
       values:
           - gRPCNodePort: 30012
           - lndHostPath: {{env "PWD"}}/volumes/lnd4
+    - name: cln1
+      chart: ../charts/cln
+      values:
+          - gRPCNodePort: 30013
+    - name: cln2
+      chart: ../charts/cln
+      values:
+          - gRPCNodePort: 30014
