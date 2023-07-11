@@ -10,3 +10,7 @@ protoc:
     --go-grpc_opt=Mnode.proto=clients/cln/grpc \
     --go-grpc_opt=Mprimitives.proto=clients/cln/grpc \
     clients/cln/grpc/primitives.proto clients/cln/grpc/node.proto
+
+.PHONY: generate-mocks
+generate-mocks:
+	go generate ./...
