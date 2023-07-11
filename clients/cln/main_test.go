@@ -14,15 +14,21 @@ func TestValidation(t *testing.T) {
 	err := validateFlags(&config)
 
 	assert.NotNil(err)
-	assert.Contains(strings.ToLower(err.Error()), "tls", "Didn't complain about missing TLS file path")
+	assert.Contains(strings.ToLower(err.Error()), "clientcert", "Didn't complain about missing client cert path")
 
-	config = appConfig{tlsFilePath: "tls"}
+	config = appConfig{clientCertificate: "certpath"}
 	err = validateFlags(&config)
 
 	assert.NotNil(err)
-	assert.Contains(strings.ToLower(err.Error()), "macaroon", "Didn't complain about missing Macaroon file location")
+	assert.Contains(strings.ToLower(err.Error()), "clientkey", "Didn't complain about missing client key file location")
 
-	config = appConfig{tlsFilePath: "tls", macaroonFilePath: "macaroon"}
+	config = appConfig{clientCertificate: "certpath", clientKey: "clientkeypath"}
+	err = validateFlags(&config)
+
+	assert.NotNil(err)
+	assert.Contains(strings.ToLower(err.Error()), "cacert", "Didn't complain about missing ca cert file location")
+
+	config = appConfig{clientCertificate: "certpath", clientKey: "clientkeypath", caCert: "cacertpath"}
 	err = validateFlags(&config)
 
 	assert.NotNil(err)

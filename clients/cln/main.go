@@ -24,11 +24,12 @@ import (
 )
 
 type appConfig struct {
-	tlsFilePath      string
-	macaroonFilePath string
-	grpcPort         int
-	grpcAddress      string
-	apiPort          int
+	clientCertificate string
+	clientKey         string
+	caCert            string
+	grpcPort          int
+	grpcAddress       string
+	apiPort           int
 }
 
 var helpRequested = errors.New("Help requested")
@@ -46,7 +47,38 @@ func main() {
 		log.Fatal().Err(err).Msg("Problem parsing flags")
 	}
 
+	cert, err := os.ReadFile(appConfig.clientCertificate)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Problem reading client certificate")
+	}
+
+	certKey, err := os.ReadFile(appConfig.clientKey)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Problem reading client key")
+	}
+
+	ca, err := os.ReadFile(appConfig.caCert)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Problem reading certificate authority cert")
+	}
+
+	var client clnGRPC.NodeClient
+
 	err = tools.Retry(func() error {
+
+		conn, err := grpcConnect(fmt.Sprintf("%s:%d", appConfig.grpcAddress, appConfig.grpcPort), cert, certKey, ca)
+		if err != nil {
+			log.Fatal().Err(err).Msg("Problem connecting to CLN's gRPC server")
+		}
+		client = clnGRPC.NewNodeClient(conn)
+		info, err := client.Getinfo(context.Background(), &clnGRPC.GetinfoRequest{})
+		if err != nil {
+			return errors.Wrap(err, "Getting info from CLN")
+
+		}
+
+		log.Info().Msg("CLN Info:")
+		log.Info().Msg(info.String())
 
 		_ = fmt.Sprintf("%s:%d", appConfig.grpcAddress, appConfig.grpcPort)
 		return nil
@@ -55,33 +87,6 @@ func main() {
 	if err != nil {
 		log.Fatal().Err(err).Msg("Starting CLN Client")
 	}
-
-	cert, err := os.ReadFile("./client.pem")
-	if err != nil {
-		log.Fatal().Err(err).Msg("Problem reading client certificate")
-	}
-
-	certKey, err := os.ReadFile("./client-key.pem")
-	if err != nil {
-		log.Fatal().Err(err).Msg("Problem reading client key")
-	}
-
-	ca, err := os.ReadFile("./ca.pem")
-	if err != nil {
-		log.Fatal().Err(err).Msg("Problem reading certificate authority cert")
-	}
-
-	conn, err := grpcConnect("localhost:32274", cert, certKey, ca)
-	if err != nil {
-		log.Fatal().Err(err).Msg("Problem connecting to CLN's gRPC server")
-	}
-
-	client := clnGRPC.NewNodeClient(conn)
-	info, err := client.Getinfo(context.Background(), &clnGRPC.GetinfoRequest{})
-
-	log.Info().Msg("CLN Info:")
-
-	log.Info().Msg(info.String())
 
 	log.Info().Msg("Waiting for command")
 	// start api
@@ -97,9 +102,10 @@ func main() {
 func parseFlags(appConfig *appConfig) error {
 	var help = flag.Bool("help", false, "Show help")
 
-	flag.StringVar(&appConfig.tlsFilePath, "tlsfilepath", "", "File location for CLN's tls file")
-	flag.StringVar(&appConfig.macaroonFilePath, "macaroonfilepath", "", "File location for CLN's macaroon file")
-	flag.IntVar(&appConfig.grpcPort, "grpcport", 10009, "Optional: CLN's gRPC port")
+	flag.StringVar(&appConfig.clientCertificate, "clientcert", "", "File location for CLN's client certificate")
+	flag.StringVar(&appConfig.clientKey, "clientkey", "", "File location for CLN's client key")
+	flag.StringVar(&appConfig.caCert, "cacert", "", "File location for CLN's certificate authority cert")
+	flag.IntVar(&appConfig.grpcPort, "grpcport", 8383, "Optional: CLN's gRPC port")
 	flag.StringVar(&appConfig.grpcAddress, "grpcaddress", "", "CLN's gRPC address")
 	flag.IntVar(&appConfig.apiPort, "apiport", 8181, "Optional: Port to run REST API on")
 
@@ -113,11 +119,14 @@ func parseFlags(appConfig *appConfig) error {
 }
 
 func validateFlags(appConfig *appConfig) error {
-	if appConfig.tlsFilePath == "" {
-		return errors.New("TLS file path required. Please use the -tlsfilepath flag")
+	if appConfig.clientCertificate == "" {
+		return errors.New("Client certificate required. Please use the -clientcert flag")
 	}
-	if appConfig.macaroonFilePath == "" {
-		return errors.New("Macaroon file path required. Please use the -macaroon flag")
+	if appConfig.clientKey == "" {
+		return errors.New("Client key file path required. Please use the -clientkey flag")
+	}
+	if appConfig.caCert == "" {
+		return errors.New("Certificate authoritiy cert file path required. Please use the -cacert flag")
 	}
 	if appConfig.grpcAddress == "" {
 		return errors.New("gRPC address required. Please use the -grpcaddress flag")
