@@ -10,6 +10,9 @@ import (
 	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
 )
 
+// Probably better mock against our own interface
+//go:generate mockery --dir=gprc --name=NodeClient
+
 func registerHandlers(standardclient lightning.StandardClient, clnClient clnGRPC.NodeClient) {
 	standardclient.RegisterWalletBalanceHandler(func(w http.ResponseWriter, r *http.Request) {
 		handleWalletBalance(w, r, clnClient)
@@ -17,7 +20,7 @@ func registerHandlers(standardclient lightning.StandardClient, clnClient clnGRPC
 }
 
 func handleWalletBalance(w http.ResponseWriter, r *http.Request, clnClient clnGRPC.NodeClient) {
-	response, err = clnClient.ListFunds(context.Background(), &clnGRPC.ListfundsRequest{})
+	response, err := clnClient.ListFunds(context.Background(), &clnGRPC.ListfundsRequest{})
 	if err != nil {
 		apierrors.SendServerErrorFromErr(w, err, "Problem getting wallet balance")
 		return
