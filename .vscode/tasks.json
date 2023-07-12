@@ -1,0 +1,14 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "make",
+			"targetName": "test",
+			"makeFileRelativePath": "Makefile",
+			"group": "test",
+			"problemMatcher": [],
+			"label": "make: test",
+			"detail": "./Makefile"
+		}
+	]
+}
