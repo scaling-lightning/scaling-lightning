@@ -11,7 +11,7 @@ import (
 )
 
 // Probably better mock against our own interface
-//go:generate mockery --dir=gprc --name=NodeClient
+//go:generate mockery --dir=grpc --name=NodeClient
 
 func registerHandlers(standardclient lightning.StandardClient, clnClient clnGRPC.NodeClient) {
 	standardclient.RegisterWalletBalanceHandler(func(w http.ResponseWriter, r *http.Request) {
