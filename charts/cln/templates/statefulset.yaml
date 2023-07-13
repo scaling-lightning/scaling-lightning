@@ -53,8 +53,8 @@ spec:
             - name: client
               containerPort: {{ .Values.clientPort }}
           args:
-            - -clientcert=/cln/client.pem
-            - -clientkey=/cln/client-key.pem
-            - -cacert=/cln/ca.pem
+            - -clientcert=/cln/regtest/client.pem
+            - -clientkey=/cln/regtest/client-key.pem
+            - -cacert=/cln/regtest/ca.pem
             - -grpcport={{ .Values.gRPCPort }}
             - -grpcaddress={{ include "cln.fullname" . }}
