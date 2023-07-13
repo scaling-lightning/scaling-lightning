@@ -1,23 +1,26 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/lightningnetwork/lnd/lnrpc"
-	"github.com/scaling-lightning/scaling-lightning/clients/lnd/mocks"
+	clnGRPC "github.com/scaling-lightning/scaling-lightning/clients/cln/grpc"
+	"github.com/scaling-lightning/scaling-lightning/clients/cln/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestHandleWalletBalance(t *testing.T) {
-	mockClient := mocks.NewLightningClient(t)
+	mockClient := mocks.NewNodeClient(t)
 
-	mockClient.On("WalletBalance", mock.Anything, mock.Anything).Return(&lnrpc.WalletBalanceResponse{TotalBalance: 21}, nil)
+	// mock based test for the handleWalletBalance function
+	mockClient.On("ListFunds", mock.Anything, mock.Anything).
+		Return(&clnGRPC.ListfundsResponse{Outputs: []*clnGRPC.ListfundsOutputs{
+			{AmountMsat: &clnGRPC.Amount{Msat: 20}},
+			{AmountMsat: &clnGRPC.Amount{Msat: 1}},
+		}}, nil)
 
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	res := httptest.NewRecorder()
