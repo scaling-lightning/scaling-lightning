@@ -15,7 +15,7 @@ spec:
         {{- include "cln.selectorLabels" . | nindent 8 }}
     spec:
       volumes:
-        - name: tlsmacaroon
+        - name: clientcerts
           {{- if .Values.clnHostPath }}
           hostPath:
             path: {{ .Values.clnHostPath }}
@@ -27,9 +27,9 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          # volumeMounts:
-          #   - name: tlsmacaroon
-          #     mountPath: /root/.cln
+          volumeMounts:
+            - name: clientcerts
+              mountPath: /root/.lightning
           ports:
             - name: peer
               containerPort: {{ .Values.port }}
@@ -43,20 +43,18 @@ spec:
             - --bitcoin-rpcconnect={{ .Values.bitcoind.rpcHost }}
             - --bitcoin-rpcport={{ .Values.bitcoind.rpcPort }}
             - --bitcoin-retry-timeout=600
-        # - name: {{ .Chart.Name }}-client
-        #   image: {{ .Values.clientImage.repository }}:{{ .Values.clientImage.tag | default "latest" }}
-        #   imagePullPolicy: {{ .Values.image.pullPolicy }}
-        #   volumeMounts:
-        #     - name: tlsmacaroon
-        #       mountPath: /cln
-        #   ports:
-        #     - name: http
-        #       containerPort: 8080
-        #   ports:
-        #     - name: client
-        #       containerPort: {{ .Values.clientPort }}
-        #   args:
-        #     - -tlsfilepath=/cln/tls.cert
-        #     - -macaroonfilepath=/cln/data/chain/bitcoin/regtest
-        #     - -grpcport=10009
-        #     - -grpcaddress={{ include "cln.fullname" . }}
+        - name: {{ .Chart.Name }}-client
+          image: {{ .Values.clientImage.repository }}:{{ .Values.clientImage.tag | default "latest" }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: clientcerts
+              mountPath: /cln
+          ports:
+            - name: client
+              containerPort: {{ .Values.clientPort }}
+          args:
+            - -clientcert=/cln/client.pem
+            - -clientkey=/cln/client-key.pem
+            - -cacert=/cln/ca.pem
+            - -grpcport={{ .Values.gRPCPort }}
+            - -grpcaddress={{ include "cln.fullname" . }}
