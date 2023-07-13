@@ -47,34 +47,43 @@ func main() {
 		log.Fatal().Err(err).Msg("Problem parsing flags")
 	}
 
-	cert, err := os.ReadFile(appConfig.clientCertificate)
-	if err != nil {
-		log.Fatal().Err(err).Msg("Problem reading client certificate")
-	}
-
-	certKey, err := os.ReadFile(appConfig.clientKey)
-	if err != nil {
-		log.Fatal().Err(err).Msg("Problem reading client key")
-	}
-
-	ca, err := os.ReadFile(appConfig.caCert)
-	if err != nil {
-		log.Fatal().Err(err).Msg("Problem reading certificate authority cert")
-	}
-
 	var client clnGRPC.NodeClient
 
 	err = tools.Retry(func() error {
 
-		conn, err := grpcConnect(fmt.Sprintf("%s:%d", appConfig.grpcAddress, appConfig.grpcPort), cert, certKey, ca)
+		cert, err := os.ReadFile(appConfig.clientCertificate)
 		if err != nil {
-			log.Fatal().Err(err).Msg("Problem connecting to CLN's gRPC server")
+			log.Warn().Err(err).Msg("Problem reading client certificate")
+			return err
+		}
+
+		certKey, err := os.ReadFile(appConfig.clientKey)
+		if err != nil {
+			log.Warn().Err(err).Msg("Problem reading client key")
+			return err
+		}
+
+		ca, err := os.ReadFile(appConfig.caCert)
+		if err != nil {
+			log.Warn().Err(err).Msg("Problem reading certificate authority cert")
+			return err
+		}
+
+		conn, err := grpcConnect(
+			fmt.Sprintf("%s:%d", appConfig.grpcAddress, appConfig.grpcPort),
+			cert,
+			certKey,
+			ca,
+		)
+		if err != nil {
+			log.Warn().Err(err).Msg("Problem connecting to CLN's gRPC server")
+			return err
 		}
 		client = clnGRPC.NewNodeClient(conn)
 		info, err := client.Getinfo(context.Background(), &clnGRPC.GetinfoRequest{})
 		if err != nil {
-			return errors.Wrap(err, "Getting info from CLN")
-
+			log.Warn().Err(err).Msg("Problem getting info from CLN's gRPC server")
+			return err
 		}
 
 		log.Info().Msg("CLN Info:")
@@ -102,9 +111,19 @@ func main() {
 func parseFlags(appConfig *appConfig) error {
 	var help = flag.Bool("help", false, "Show help")
 
-	flag.StringVar(&appConfig.clientCertificate, "clientcert", "", "File location for CLN's client certificate")
+	flag.StringVar(
+		&appConfig.clientCertificate,
+		"clientcert",
+		"",
+		"File location for CLN's client certificate",
+	)
 	flag.StringVar(&appConfig.clientKey, "clientkey", "", "File location for CLN's client key")
-	flag.StringVar(&appConfig.caCert, "cacert", "", "File location for CLN's certificate authority cert")
+	flag.StringVar(
+		&appConfig.caCert,
+		"cacert",
+		"",
+		"File location for CLN's certificate authority cert",
+	)
 	flag.IntVar(&appConfig.grpcPort, "grpcport", 8383, "Optional: CLN's gRPC port")
 	flag.StringVar(&appConfig.grpcAddress, "grpcaddress", "", "CLN's gRPC address")
 	flag.IntVar(&appConfig.apiPort, "apiport", 8181, "Optional: Port to run REST API on")
@@ -126,7 +145,9 @@ func validateFlags(appConfig *appConfig) error {
 		return errors.New("Client key file path required. Please use the -clientkey flag")
 	}
 	if appConfig.caCert == "" {
-		return errors.New("Certificate authoritiy cert file path required. Please use the -cacert flag")
+		return errors.New(
+			"Certificate authoritiy cert file path required. Please use the -cacert flag",
+		)
 	}
 	if appConfig.grpcAddress == "" {
 		return errors.New("gRPC address required. Please use the -grpcaddress flag")
