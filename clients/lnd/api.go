@@ -70,7 +70,7 @@ type pubKeyRes struct {
 func handlePubKey(w http.ResponseWriter, r *http.Request, lndClient lnrpc.LightningClient) {
 	pubKey, err := lndClient.GetInfo(context.Background(), &lnrpc.GetInfoRequest{})
 	if err != nil {
-		apierrors.SendServerErrorFromErr(w, err, "Problem getting new address")
+		apierrors.SendServerErrorFromErr(w, err, "Problem getting node info")
 		return
 	}
 	response := pubKeyRes{PubKey: pubKey.IdentityPubkey}
