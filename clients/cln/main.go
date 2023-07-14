@@ -97,7 +97,7 @@ func main() {
 		log.Fatal().Err(err).Msg("Starting CLN Client")
 	}
 
-	log.Info().Msg("Waiting for command")
+	log.Info().Msgf("Starting API server on port %d", appConfig.apiPort)
 	// start api
 	restServer := lightning.NewStandardClient()
 	registerHandlers(restServer, client)
