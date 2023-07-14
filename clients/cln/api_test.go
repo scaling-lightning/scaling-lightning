@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -49,3 +50,25 @@ func TestHandleNewAddress(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Contains(t, string(bodyBytes), address)
 }
+
+func TestHandlePubKey(t *testing.T) {
+	mockClient := mocks.NewNodeClient(t)
+
+	// mock based test for the handleGetPubKey function
+	pubKey := "02c3d4d2b6b4b8e2f5f9c6e3f0b1e8d5a2c3d4d2b6b4b8e2f5f9c6e3f0b1e8d5"
+	pubKeyBinary, err := hex.DecodeString(pubKey)
+	assert.Nil(t, err)
+
+	mockClient.On("Getinfo", mock.Anything, mock.Anything).
+		Return(&clnGRPC.GetinfoResponse{Id: pubKeyBinary}, nil)
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	res := httptest.NewRecorder()
+
+	handlePubKey(res, req, mockClient)
+
+	bodyBytes, err := io.ReadAll(res.Result().Body)
+	assert.Nil(t, err)
+	assert.Contains(t, string(bodyBytes), pubKey)
+}
+	
