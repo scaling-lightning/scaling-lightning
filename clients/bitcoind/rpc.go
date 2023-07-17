@@ -38,12 +38,18 @@ func initialiseBitcoind(client rpcClient) error {
 	if walletInfo == nil || walletInfo.WalletName == "" {
 		log.Info().Msg("No wallet loaded, trying to load scalinglightning wallet")
 		loadWalletResult, err := client.LoadWallet(walletName)
-		if err != nil || loadWalletResult.Warning != "" {
+		if err != nil {
 			log.Info().Msg("Couldn't load scalinglightning wallet, trying to create it")
+			if err != nil {
+				log.Info().Msgf("Load wallet err was: %v", err.Error())
+			}
 			_, err := client.CreateWallet(walletName)
 			if err != nil {
 				return errors.Wrap(err, "Creating bitcoind wallet")
 			}
+		}
+		if loadWalletResult != nil && loadWalletResult.Warning != "" {
+			log.Info().Msgf("Load wallet warning was: %v", loadWalletResult.Warning)
 		}
 	}
 
