@@ -96,3 +96,34 @@ func TestHandleConnectPeer(t *testing.T) {
 	assert.Nil(err)
 	assert.Contains(string(bodyBytes), "request received")
 }
+
+func TestHandleOpenChannel(t *testing.T) {
+	assert := assert.New(t)
+	mockClient := mocks.NewNodeClient(t)
+
+	outIndex := 615
+	txIdString := "71c73940758ac6ebe34a8f228e28300e"
+	TxId, err := hex.DecodeString(txIdString) // real one would be larger
+	assert.Nil(err)
+
+	mockClient.On("FundChannel", mock.Anything, mock.Anything).
+		Return(&clnGRPC.FundchannelResponse{Txid: TxId, Outnum: uint32(outIndex)}, nil)
+
+	pubKey := "037c70cddec9b27c92af73a6b04cf09672fb29b18eca86890d835779979ff61c40"
+	amount := 1000000
+
+	openChannelReq := openChannelReq{PubKey: pubKey, LocalAmt: int64(amount)}
+	openChannelBytes, err := json.Marshal(openChannelReq)
+
+	assert.Nil(err)
+
+	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(openChannelBytes))
+	res := httptest.NewRecorder()
+
+	handleOpenChannel(res, req, mockClient)
+
+	bodyBytes, err := io.ReadAll(res.Result().Body)
+	assert.Nil(err)
+	assert.Contains(string(bodyBytes), "615")
+	assert.Contains(string(bodyBytes), "615")
+}

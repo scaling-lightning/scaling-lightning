@@ -28,6 +28,9 @@ func registerHandlers(standardclient lightning.StandardClient, clnClient clnGRPC
 	standardclient.RegisterConnectPeerHandler(func(w http.ResponseWriter, r *http.Request) {
 		handleConnectPeer(w, r, clnClient)
 	})
+	standardclient.RegisterOpenChannelHandler(func(w http.ResponseWriter, r *http.Request) {
+		handleOpenChannel(w, r, clnClient)
+	})
 }
 
 type newAddressRes struct {
@@ -110,42 +113,51 @@ func handleConnectPeer(w http.ResponseWriter, r *http.Request, clnClient clnGRPC
 	w.Write([]byte("Connect peer request received"))
 }
 
-// type openChannelReq struct {
-// 	PubKey   string `json:"pubKey"`
-// 	LocalAmt int64  `json:"localAmount"`
-// }
+type openChannelReq struct {
+	PubKey   string `json:"pubKey"`
+	LocalAmt int64  `json:"localAmount"`
+}
 
-// type openChannelRes struct {
-// 	FundingTx   string `json:"fundingTx"`
-// 	OutputIndex uint32 `json:"outputIndex"`
-// }
+type openChannelRes struct {
+	FundingTx   string `json:"fundingTx"`
+	OutputIndex uint32 `json:"outputIndex"`
+}
 
-// func handleOpenChannel(w http.ResponseWriter, r *http.Request, lndClient lnrpc.LightningClient) {
-// 	var openChannelReq openChannelReq
-// 	if err := json.NewDecoder(r.Body).Decode(&openChannelReq); err != nil {
-// 		apierrors.SendBadRequestFromErr(w, err, "Problem reading request")
-// 		return
-// 	}
+func handleOpenChannel(w http.ResponseWriter, r *http.Request, clnClient clnGRPC.NodeClient) {
+	var openChannelReq openChannelReq
+	if err := json.NewDecoder(r.Body).Decode(&openChannelReq); err != nil {
+		apierrors.SendBadRequestFromErr(w, err, "Problem reading request")
+		return
+	}
 
-// 	pubKeyHex, err := hex.DecodeString(openChannelReq.PubKey)
-// 	if err != nil {
-// 		apierrors.SendBadRequestFromErr(w, err, "Problem decoding pubKey to hex")
-// 		return
-// 	}
+	pubKeyHex, err := hex.DecodeString(openChannelReq.PubKey)
+	if err != nil {
+		apierrors.SendBadRequestFromErr(w, err, "Problem decoding pubKey to hex")
+		return
+	}
 
-// 	chanPoint, err := lndClient.OpenChannelSync(context.Background(),
-// 		&lnrpc.OpenChannelRequest{NodePubkey: pubKeyHex, LocalFundingAmount: openChannelReq.LocalAmt})
-// 	if err != nil {
-// 		apierrors.SendServerErrorFromErr(w, err, "Problem opening channel")
-// 		return
-// 	}
+	amount := clnGRPC.AmountOrAll{
+		Value: &clnGRPC.AmountOrAll_Amount{
+			Amount: &clnGRPC.Amount{Msat: uint64(openChannelReq.LocalAmt)},
+		},
+	}
 
-// 	response := openChannelRes{FundingTx: chanPoint.GetFundingTxidStr(), OutputIndex: chanPoint.OutputIndex}
-// 	responseJson, err := json.Marshal(response)
-// 	if err != nil {
-// 		apierrors.SendServerErrorFromErr(w, err, "Problem marshalling funding tx and index json")
-// 	}
+	chanPoint, err := clnClient.FundChannel(context.Background(),
+		&clnGRPC.FundchannelRequest{Id: pubKeyHex, Amount: &amount})
+	if err != nil {
+		apierrors.SendServerErrorFromErr(w, err, "Problem opening channel")
+		return
+	}
 
-// 	w.WriteHeader(http.StatusOK)
-// 	w.Write(responseJson)
-// }
+	response := openChannelRes{
+		FundingTx:   hex.EncodeToString(chanPoint.Txid),
+		OutputIndex: chanPoint.Outnum,
+	}
+	responseJson, err := json.Marshal(response)
+	if err != nil {
+		apierrors.SendServerErrorFromErr(w, err, "Problem marshalling funding tx and index json")
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write(responseJson)
+}
