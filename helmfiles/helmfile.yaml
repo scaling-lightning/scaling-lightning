@@ -1,34 +1,33 @@
-
 releases:
-    - name: bitcoind
-      chart: ../charts/bitcoind
-      # values:
-      #     - bitcoindHostPath: {{env "PWD"}}/volumes/bitcoind
-    - name: lnd1
-      chart: ../charts/lnd
-      values:
-          - gRPCNodePort: 30009
-          - lndHostPath: '{{env "PWD"}}/volumes/lnd1'
-    - name: lnd2
-      chart: ../charts/lnd
-      values:
-          - gRPCNodePort: 30010
-          - lndHostPath: '{{env "PWD"}}/volumes/lnd2'
-    - name: lnd3
-      chart: ../charts/lnd
-      values:
-          - gRPCNodePort: 30011
-          - lndHostPath: '{{env "PWD"}}/volumes/lnd3'
-    - name: lnd4
-      chart: ../charts/lnd
-      values:
-          - gRPCNodePort: 30012
-          - lndHostPath: '{{env "PWD"}}/volumes/lnd4'
-    - name: cln1
-      chart: ../charts/cln
-      values:
-          - gRPCNodePort: 30013
-    - name: cln2
-      chart: ../charts/cln
-      values:
-          - gRPCNodePort: 30014
+  - name: bitcoind
+    chart: ../charts/bitcoind
+    values:
+      - bitcoindHostPath: '{{env "PWD"}}/volumes/bitcoind'
+  - name: lnd1
+    chart: ../charts/lnd
+    values:
+      - gRPCNodePort: 30009
+      - lndHostPath: '{{env "PWD"}}/volumes/lnd1'
+  - name: lnd2
+    chart: ../charts/lnd
+    values:
+      - gRPCNodePort: 30010
+      - lndHostPath: '{{env "PWD"}}/volumes/lnd2'
+  - name: lnd3
+    chart: ../charts/lnd
+    values:
+      - gRPCNodePort: 30011
+      - lndHostPath: '{{env "PWD"}}/volumes/lnd3'
+  - name: lnd4
+    chart: ../charts/lnd
+    values:
+      - gRPCNodePort: 30012
+      - lndHostPath: '{{env "PWD"}}/volumes/lnd4'
+  - name: cln1
+    chart: ../charts/cln
+    values:
+      - gRPCNodePort: 30013
+  - name: cln2
+    chart: ../charts/cln
+    values:
+      - gRPCNodePort: 30014
