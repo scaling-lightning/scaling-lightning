@@ -138,7 +138,7 @@ func handleOpenChannel(w http.ResponseWriter, r *http.Request, clnClient clnGRPC
 
 	amount := clnGRPC.AmountOrAll{
 		Value: &clnGRPC.AmountOrAll_Amount{
-			Amount: &clnGRPC.Amount{Msat: uint64(openChannelReq.LocalAmt)},
+			Amount: &clnGRPC.Amount{Msat: uint64(openChannelReq.LocalAmt) * 1000},
 		},
 	}
 
