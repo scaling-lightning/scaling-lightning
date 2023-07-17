@@ -38,6 +38,7 @@ spec:
             - name: grpc
               containerPort: {{ .Values.gRPCPort }}
           args:
+            - --addr=:{{ .Values.port }}
             - --grpc-port={{ .Values.gRPCPort }}
             - --network={{ .Values.network }}
             - --bitcoin-rpcuser={{ .Values.bitcoind.rpcUser }}
