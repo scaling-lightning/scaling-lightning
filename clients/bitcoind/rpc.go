@@ -13,8 +13,16 @@ import (
 
 //go:generate mockery --name rpcClient --exported
 type rpcClient interface {
-	CreateWallet(name string, opts ...rpcclient.CreateWalletOpt) (*btcjson.CreateWalletResult, error)
-	GenerateToAddress(numBlocks int64, address btcutil.Address, maxTries *int64) ([]*chainhash.Hash, error)
+	CreateWallet(
+		name string,
+		opts ...rpcclient.CreateWalletOpt,
+	) (*btcjson.CreateWalletResult, error)
+	LoadWallet(name string) (*btcjson.LoadWalletResult, error)
+	GenerateToAddress(
+		numBlocks int64,
+		address btcutil.Address,
+		maxTries *int64,
+	) ([]*chainhash.Hash, error)
 	GetBalance(account string) (btcutil.Amount, error)
 	GetNewAddress(account string) (btcutil.Address, error)
 	GetWalletInfo() (*btcjson.GetWalletInfoResult, error)
@@ -28,15 +36,20 @@ func initialiseBitcoind(client rpcClient) error {
 	}
 
 	if walletInfo == nil || walletInfo.WalletName == "" {
-		_, err := client.CreateWallet(walletName)
-		if err != nil {
-			return errors.Wrap(err, "Creating bitcoind wallet")
+		log.Info().Msg("No wallet loaded, trying to load scalinglightning wallet")
+		loadWalletResult, err := client.LoadWallet(walletName)
+		if err != nil || loadWalletResult.Warning != "" {
+			log.Info().Msg("Couldn't load scalinglightning wallet, trying to create it")
+			_, err := client.CreateWallet(walletName)
+			if err != nil {
+				return errors.Wrap(err, "Creating bitcoind wallet")
+			}
 		}
 	}
 
 	walletInfo, err = client.GetWalletInfo()
-	if err != nil && !strings.Contains(err.Error(), "No wallet is loaded") {
-		return errors.Wrap(err, "Getting wallet info")
+	if err != nil {
+		return errors.Wrap(err, "Getting wallet info, wallet should exist by now")
 	}
 
 	log.Info().Msgf("Loaded wallet: %v", walletInfo.WalletName)

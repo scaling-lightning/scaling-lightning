@@ -153,6 +153,32 @@ func (_m *RpcClient) GetWalletInfo() (*btcjson.GetWalletInfoResult, error) {
 	return r0, r1
 }
 
+// LoadWallet provides a mock function with given fields: name
+func (_m *RpcClient) LoadWallet(name string) (*btcjson.LoadWalletResult, error) {
+	ret := _m.Called(name)
+
+	var r0 *btcjson.LoadWalletResult
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string) (*btcjson.LoadWalletResult, error)); ok {
+		return rf(name)
+	}
+	if rf, ok := ret.Get(0).(func(string) *btcjson.LoadWalletResult); ok {
+		r0 = rf(name)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*btcjson.LoadWalletResult)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(name)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // SendToAddress provides a mock function with given fields: address, amount
 func (_m *RpcClient) SendToAddress(address btcutil.Address, amount btcutil.Amount) (*chainhash.Hash, error) {
 	ret := _m.Called(address, amount)
