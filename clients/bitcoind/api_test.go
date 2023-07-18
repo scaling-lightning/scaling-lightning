@@ -46,7 +46,7 @@ func TestHandleSendToAddress(t *testing.T) {
 	assert.Nil(err)
 	mockClient.On("SendToAddress", newAddress, btcutil.Amount(amount)).Return(hash, nil)
 
-	sendReq := types.SendToAddressReq{Address: addressStr, Amount: uint64(amount)}
+	sendReq := types.SendToAddressReq{Address: addressStr, AmtSats: uint64(amount)}
 	sendReqBytes, err := json.Marshal(sendReq)
 	assert.Nil(err)
 
@@ -71,7 +71,7 @@ func TestHandleGenerateToAddress(t *testing.T) {
 		Return([]*chainhash.Hash{hash}, nil)
 
 	addressStr := "bcrt1qddzehdyj5e7w4sfya3h9qznnm80etc9gkpk0qd"
-	genReq := types.GenerateToAddressReq{Address: addressStr, NumberOfBlocks: uint64(20)}
+	genReq := types.GenerateToAddressReq{Address: addressStr, NumOfBlocks: uint64(20)}
 	genReqBytes, err := json.Marshal(genReq)
 	assert.Nil(err)
 

@@ -52,7 +52,7 @@ func handleSendToAddress(w http.ResponseWriter, r *http.Request, rpcClient rpcCl
 		apierrors.SendBadRequestFromErr(w, err, "Unable to decode address")
 		return
 	}
-	response, err := rpcClient.SendToAddress(newAddress, btcutil.Amount(sendToAddressReq.Amount))
+	response, err := rpcClient.SendToAddress(newAddress, btcutil.Amount(sendToAddressReq.AmtSats))
 	if err != nil {
 		apierrors.SendServerErrorFromErr(w, err, "Problem sending to address")
 		return
@@ -78,7 +78,7 @@ func handleGenerateToAddress(w http.ResponseWriter, r *http.Request, rpcClient r
 		return
 	}
 	response, err := rpcClient.GenerateToAddress(
-		int64(generateToAddressReq.NumberOfBlocks),
+		int64(generateToAddressReq.NumOfBlocks),
 		address,
 		nil,
 	)

@@ -15,8 +15,8 @@ type ConnectPeerReq struct {
 }
 
 type OpenChannelReq struct {
-	PubKey   string `json:"pubKey"`
-	LocalAmt int64  `json:"localAmount"`
+	PubKey       string `json:"pubKey"`
+	LocalAmtSats int64  `json:"localAmountSats"`
 }
 
 type OpenChannelRes struct {
@@ -26,10 +26,10 @@ type OpenChannelRes struct {
 
 type SendToAddressReq struct {
 	Address string `json:"address"`
-	Amount  uint64 `json:"amount"`
+	AmtSats uint64 `json:"amountSats"`
 }
 
 type GenerateToAddressReq struct {
-	Address        string `json:"address"`
-	NumberOfBlocks uint64 `json:"numberOfBlocks"`
+	Address     string `json:"address"`
+	NumOfBlocks uint64 `json:"numberOfBlocks"`
 }

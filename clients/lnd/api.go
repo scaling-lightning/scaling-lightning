@@ -115,7 +115,7 @@ func handleOpenChannel(w http.ResponseWriter, r *http.Request, lndClient lnrpc.L
 		context.Background(),
 		&lnrpc.OpenChannelRequest{
 			NodePubkey:         pubKeyHex,
-			LocalFundingAmount: openChannelReq.LocalAmt,
+			LocalFundingAmount: openChannelReq.LocalAmtSats,
 		},
 	)
 	if err != nil {
