@@ -8,7 +8,4 @@ tls.key
 *.pem
 *.tgz
 
-/helmfiles/*
-!/helmfiles/helmfile.yaml
-/volumes/*
-!/volumes/.gitkeep
+volumes
