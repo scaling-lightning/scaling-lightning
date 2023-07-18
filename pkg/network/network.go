@@ -213,7 +213,7 @@ func GetPubKey(name string) (string, error) {
 }
 
 func GetWalletBalanceSats(name string) (string, error) {
-	resp, err := http.Get(fmt.Sprintf("http://localhost/%v/walletbalace", name))
+	resp, err := http.Get(fmt.Sprintf("http://localhost/%v/walletbalance", name))
 	if err != nil {
 		return "", errors.Wrapf(err, "Sending GET request to %v/walletbalance", name)
 	}
