@@ -11,6 +11,7 @@ import (
 
 	clnGRPC "github.com/scaling-lightning/scaling-lightning/clients/cln/grpc"
 	"github.com/scaling-lightning/scaling-lightning/clients/cln/mocks"
+	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -82,7 +83,7 @@ func TestHandleConnectPeer(t *testing.T) {
 	host := "lnd1.myfancysats.com"
 	port := 9745
 
-	connectPeerReq := connectPeerReq{PubKey: pubKey, Host: host, Port: port}
+	connectPeerReq := types.ConnectPeerReq{PubKey: pubKey, Host: host, Port: port}
 	connectPeerBytes, err := json.Marshal(connectPeerReq)
 
 	assert.Nil(err)
@@ -112,7 +113,7 @@ func TestHandleOpenChannel(t *testing.T) {
 	pubKey := "037c70cddec9b27c92af73a6b04cf09672fb29b18eca86890d835779979ff61c40"
 	amount := 1000000
 
-	openChannelReq := openChannelReq{PubKey: pubKey, LocalAmt: int64(amount)}
+	openChannelReq := types.OpenChannelReq{PubKey: pubKey, LocalAmt: int64(amount)}
 	openChannelBytes, err := json.Marshal(openChannelReq)
 
 	assert.Nil(err)

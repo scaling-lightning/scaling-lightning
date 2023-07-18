@@ -10,6 +10,7 @@ import (
 	clnGRPC "github.com/scaling-lightning/scaling-lightning/clients/cln/grpc"
 	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/apierrors"
 	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
+	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/types"
 )
 
 // Probably better mock against our own interface
@@ -33,17 +34,13 @@ func registerHandlers(standardclient lightning.StandardClient, clnClient clnGRPC
 	})
 }
 
-type newAddressRes struct {
-	Address string `json:"address"`
-}
-
 func handleNewAddress(w http.ResponseWriter, r *http.Request, clnClient clnGRPC.NodeClient) {
 	newAddress, err := clnClient.NewAddr(context.Background(), &clnGRPC.NewaddrRequest{})
 	if err != nil {
 		apierrors.SendServerErrorFromErr(w, err, "Problem getting new address")
 		return
 	}
-	response := newAddressRes{Address: *newAddress.Bech32}
+	response := types.NewAddressRes{Address: *newAddress.Bech32}
 	responseJson, err := json.Marshal(response)
 	if err != nil {
 		apierrors.SendServerErrorFromErr(w, err, "Problem marshalling new address json")
@@ -68,17 +65,13 @@ func handleWalletBalance(w http.ResponseWriter, r *http.Request, clnClient clnGR
 	w.Write([]byte(fmt.Sprintf("Wallet balance is: %v msats", total)))
 }
 
-type pubKeyRes struct {
-	PubKey string `json:"pubkey"`
-}
-
 func handlePubKey(w http.ResponseWriter, r *http.Request, clnClient clnGRPC.NodeClient) {
 	info, err := clnClient.Getinfo(context.Background(), &clnGRPC.GetinfoRequest{})
 	if err != nil {
 		apierrors.SendServerErrorFromErr(w, err, "Problem getting node info")
 		return
 	}
-	response := pubKeyRes{PubKey: hex.EncodeToString(info.Id)}
+	response := types.PubKeyRes{PubKey: hex.EncodeToString(info.Id)}
 	responseJson, err := json.Marshal(response)
 	if err != nil {
 		apierrors.SendServerErrorFromErr(w, err, "Problem marshalling pubkey json")
@@ -88,14 +81,8 @@ func handlePubKey(w http.ResponseWriter, r *http.Request, clnClient clnGRPC.Node
 	w.Write(responseJson)
 }
 
-type connectPeerReq struct {
-	PubKey string `json:"pubKey"`
-	Host   string `json:"host"`
-	Port   int    `json:"port"`
-}
-
 func handleConnectPeer(w http.ResponseWriter, r *http.Request, clnClient clnGRPC.NodeClient) {
-	var connectPeerReq connectPeerReq
+	var connectPeerReq types.ConnectPeerReq
 	if err := json.NewDecoder(r.Body).Decode(&connectPeerReq); err != nil {
 		apierrors.SendBadRequestFromErr(w, err, "Problem reading request")
 		return
@@ -113,18 +100,8 @@ func handleConnectPeer(w http.ResponseWriter, r *http.Request, clnClient clnGRPC
 	w.Write([]byte("Connect peer request received"))
 }
 
-type openChannelReq struct {
-	PubKey   string `json:"pubKey"`
-	LocalAmt int64  `json:"localAmount"`
-}
-
-type openChannelRes struct {
-	FundingTx   string `json:"fundingTx"`
-	OutputIndex uint32 `json:"outputIndex"`
-}
-
 func handleOpenChannel(w http.ResponseWriter, r *http.Request, clnClient clnGRPC.NodeClient) {
-	var openChannelReq openChannelReq
+	var openChannelReq types.OpenChannelReq
 	if err := json.NewDecoder(r.Body).Decode(&openChannelReq); err != nil {
 		apierrors.SendBadRequestFromErr(w, err, "Problem reading request")
 		return
@@ -149,7 +126,7 @@ func handleOpenChannel(w http.ResponseWriter, r *http.Request, clnClient clnGRPC
 		return
 	}
 
-	response := openChannelRes{
+	response := types.OpenChannelRes{
 		FundingTx:   hex.EncodeToString(chanPoint.Txid),
 		OutputIndex: chanPoint.Outnum,
 	}
