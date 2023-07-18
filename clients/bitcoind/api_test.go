@@ -13,6 +13,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg"
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/scaling-lightning/scaling-lightning/clients/bitcoind/mocks"
+	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -45,7 +46,7 @@ func TestHandleSendToAddress(t *testing.T) {
 	assert.Nil(err)
 	mockClient.On("SendToAddress", newAddress, btcutil.Amount(amount)).Return(hash, nil)
 
-	sendReq := sendToAddressReq{Address: addressStr, Amount: uint64(amount)}
+	sendReq := types.SendToAddressReq{Address: addressStr, Amount: uint64(amount)}
 	sendReqBytes, err := json.Marshal(sendReq)
 	assert.Nil(err)
 
@@ -66,10 +67,11 @@ func TestHandleGenerateToAddress(t *testing.T) {
 
 	hash, err := chainhash.NewHashFromStr("0")
 	assert.Nil(err)
-	mockClient.On("GenerateToAddress", mock.AnythingOfType("int64"), mock.Anything, mock.AnythingOfType("*int64")).Return([]*chainhash.Hash{hash}, nil)
+	mockClient.On("GenerateToAddress", mock.AnythingOfType("int64"), mock.Anything, mock.AnythingOfType("*int64")).
+		Return([]*chainhash.Hash{hash}, nil)
 
 	addressStr := "bcrt1qddzehdyj5e7w4sfya3h9qznnm80etc9gkpk0qd"
-	genReq := generateToAddressReq{Address: addressStr, NumberOfBlocks: uint64(20)}
+	genReq := types.GenerateToAddressReq{Address: addressStr, NumberOfBlocks: uint64(20)}
 	genReqBytes, err := json.Marshal(genReq)
 	assert.Nil(err)
 

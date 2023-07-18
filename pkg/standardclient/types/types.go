@@ -23,3 +23,13 @@ type OpenChannelRes struct {
 	FundingTx   string `json:"fundingTx"`
 	OutputIndex uint32 `json:"outputIndex"`
 }
+
+type SendToAddressReq struct {
+	Address string `json:"address"`
+	Amount  uint64 `json:"amount"`
+}
+
+type GenerateToAddressReq struct {
+	Address        string `json:"address"`
+	NumberOfBlocks uint64 `json:"numberOfBlocks"`
+}
