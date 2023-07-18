@@ -15,13 +15,22 @@ func TestMain(t *testing.T) {
 
 	err := sl.StartViaHelmfile("../helmfiles/helmfile.yaml")
 	assert.NoError(err)
-	defer sl.StopViaHelmfile("../helmfiles/helmfile.yaml")
+	// defer sl.StopViaHelmfile("../helmfiles/helmfile.yaml")
 
 	// this one will take a little while as the network is starting up
 	err = tools.Retry(func() error {
 		return sl.Send("bitcoind", "cln1", 1_000_000)
 	}, time.Second*15, time.Minute*2)
+	assert.NoError(err)
 
+	err = tools.Retry(func() error {
+		return sl.ConnectPeer("lnd1", "cln1")
+	}, time.Second*15, time.Minute*2)
+	assert.NoError(err)
+
+	err = tools.Retry(func() error {
+		return sl.OpenChannel("cln1", "lnd1", 40_001)
+	}, time.Second*15, time.Minute*2)
 	assert.NoError(err)
 
 	// log.Fatal().Msg("Testing main")

@@ -97,7 +97,7 @@ func TestHandleOpenChannel(t *testing.T) {
 	pubKey := "037c70cddec9b27c92af73a6b04cf09672fb29b18eca86890d835779979ff61c40"
 	localAmt := 20001
 
-	openChannelReq := types.OpenChannelReq{PubKey: pubKey, LocalAmtSats: int64(localAmt)}
+	openChannelReq := types.OpenChannelReq{PubKey: pubKey, LocalAmtSats: uint64(localAmt)}
 	openChannelReqBytes, err := json.Marshal(openChannelReq)
 	assert.Nil(err)
 

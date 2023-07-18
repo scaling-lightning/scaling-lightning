@@ -193,3 +193,101 @@ func GetNewAddress(name string) (string, error) {
 	}
 	return newAddress.Address, nil
 }
+
+func GetPubKey(name string) (string, error) {
+	resp, err := http.Get(fmt.Sprintf("http://localhost/%v/pubkey", name))
+	if err != nil {
+		return "", errors.Wrapf(err, "Sending GET request to %v/pubkey", name)
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", errors.Wrapf(err, "Reading response body from %v/pubkey", name)
+	}
+	var pubKey types.PubKeyRes
+	err = json.Unmarshal(body, &pubKey)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+	return pubKey.PubKey, nil
+}
+
+func GetWalletBalanceSats(name string) (string, error) {
+	resp, err := http.Get(fmt.Sprintf("http://localhost/%v/walletbalace", name))
+	if err != nil {
+		return "", errors.Wrapf(err, "Sending GET request to %v/walletbalance", name)
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", errors.Wrapf(err, "Reading response body from %v/walletbalance", name)
+	}
+	return string(body), nil
+}
+
+func ConnectPeer(fromName string, toName string) error {
+	log.Debug().Msgf("Connecting %v to %v", fromName, toName)
+	toPubKey, err := GetPubKey(toName)
+	if err != nil {
+		return errors.Wrapf(err, "Getting pubkey for %v", toName)
+	}
+	req := types.ConnectPeerReq{PubKey: toPubKey, Host: toName, Port: 9735}
+	postBody, _ := json.Marshal(req)
+	postBuf := bytes.NewBuffer(postBody)
+	resp, err := http.Post(
+		fmt.Sprintf("http://localhost/%v/connectpeer", fromName),
+		"application/json",
+		postBuf,
+	)
+	if err != nil {
+		return errors.Wrapf(err, "Sending POST request to %v/connectpeer", fromName)
+	}
+	if resp.StatusCode != 200 {
+		defer resp.Body.Close()
+		body, err := io.ReadAll(resp.Body)
+		if err == nil {
+			if strings.Contains(string(body), "already connected") {
+				return nil
+			}
+			log.Debug().Msgf("Response body to failed connectpeer request was: %v", string(body))
+		}
+		return errors.Newf(
+			"Got non-200 status code from %v/connectpeer: %v",
+			fromName,
+			resp.StatusCode,
+		)
+	}
+	return nil
+}
+
+func OpenChannel(fromName string, toName string, localAmtSats uint64) error {
+	log.Debug().Msgf("Opening channel from %v to %v for %d sats", fromName, toName, localAmtSats)
+	toPubKey, err := GetPubKey(toName)
+	if err != nil {
+		return errors.Wrapf(err, "Getting pubkey for %v", toName)
+	}
+	req := types.OpenChannelReq{PubKey: toPubKey, LocalAmtSats: localAmtSats}
+	postBody, _ := json.Marshal(req)
+	postBuf := bytes.NewBuffer(postBody)
+	resp, err := http.Post(
+		fmt.Sprintf("http://localhost/%v/openchannel", fromName),
+		"application/json",
+		postBuf,
+	)
+	if err != nil {
+		return errors.Wrapf(err, "Sending POST request to %v/openchannel", fromName)
+	}
+	if resp.StatusCode != 200 {
+		defer resp.Body.Close()
+		body, err := io.ReadAll(resp.Body)
+		if err == nil {
+			log.Debug().Msgf("Response body to failed openchanel request was: %v", string(body))
+		}
+		return errors.Newf(
+			"Got non-200 status code from %v/openchannel: %v",
+			fromName,
+			resp.StatusCode,
+		)
+	}
+	return nil
+}

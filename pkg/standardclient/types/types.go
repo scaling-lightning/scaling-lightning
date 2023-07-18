@@ -16,7 +16,7 @@ type ConnectPeerReq struct {
 
 type OpenChannelReq struct {
 	PubKey       string `json:"pubKey"`
-	LocalAmtSats int64  `json:"localAmountSats"`
+	LocalAmtSats uint64 `json:"localAmountSats"`
 }
 
 type OpenChannelRes struct {
