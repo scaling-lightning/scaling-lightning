@@ -10,7 +10,7 @@ import (
 
 func TestMain(t *testing.T) {
 	assert := assert.New(t)
-	err := sl.Start()
+	err := sl.StartViaHelmfile("../helmfiles/helmfile.yaml")
 	assert.NoError(err)
 
 	defer sl.Stop()

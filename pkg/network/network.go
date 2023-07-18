@@ -27,7 +27,7 @@ func CheckDependencies() error {
 		return errors.Wrap(err, "Running helm plugin list command")
 	}
 	if !strings.Contains(string(hplOut), "diff\t") {
-		log.Debug().Msgf("helm plugin list output was: %v", string(hplOut))
+		log.Debug().Err(err).Msgf("helm plugin list output was: %v", string(hplOut))
 		return errors.New("Helm plugin diff not installed")
 	}
 
@@ -35,7 +35,7 @@ func CheckDependencies() error {
 	podNameCmd := exec.Command("kubectl", strings.Split(podNameCmdStr, " ")...)
 	podNameOut, err := podNameCmd.Output()
 	if err != nil {
-		log.Debug().Msgf("pod name output was: %v", string(podNameOut))
+		log.Debug().Err(err).Msgf("pod name output was: %v", string(podNameOut))
 		return errors.Wrap(err, "Getting pod name for ingress-nginx")
 	}
 
@@ -46,21 +46,32 @@ func CheckDependencies() error {
 	nginxIngressCmd := exec.Command("kubectl", strings.Split(nginxIngressCmdStr, " ")...)
 	nginxIngressOut, err := nginxIngressCmd.Output()
 	if err != nil {
-		log.Debug().Msgf("nginx-ingress-controller version output was: %v", string(nginxIngressOut))
+		log.Debug().
+			Err(err).
+			Msgf("nginx-ingress-controller version output was: %v", string(nginxIngressOut))
 		return errors.Wrap(err, "Getting nginx-ingress-controller version")
 	}
 	if !strings.Contains(strings.ToLower(string(nginxIngressOut)), "nginx ingress controller") {
-		log.Debug().Msgf("nginx-ingress-controller version output was: %v", string(nginxIngressOut))
+		log.Debug().
+			Err(err).
+			Msgf("nginx-ingress-controller version output was: %v", string(nginxIngressOut))
 		return errors.New("Ingress nginx not installed")
 	}
 
 	return nil
 }
 
-func Start() error {
+func StartViaHelmfile(helmfilePath string) error {
 	if err := CheckDependencies(); err != nil {
 		return errors.Wrap(err, "Checking dependencies")
 	}
+	helmfileCmd := exec.Command("helmfile", "apply", "-f", helmfilePath)
+	helmfileOut, err := helmfileCmd.Output()
+	if err != nil {
+		log.Debug().Msgf("helmfile output was: %v", string(helmfileOut))
+		return errors.Wrap(err, "Running helmfile apply command")
+	}
+	log.Debug().Err(err).Msgf("helmfile output was: %v", string(helmfileOut))
 	return nil
 }
 
