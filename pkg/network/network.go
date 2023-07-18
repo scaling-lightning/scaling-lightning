@@ -31,6 +31,29 @@ func CheckDependencies() error {
 		return errors.New("Helm plugin diff not installed")
 	}
 
+	podNameCmdStr := `get pods -n ingress-nginx -l app.kubernetes.io/name=ingress-nginx --field-selector=status.phase==Running -o jsonpath='{.items[0].metadata.name}'`
+	podNameCmd := exec.Command("kubectl", strings.Split(podNameCmdStr, " ")...)
+	podNameOut, err := podNameCmd.Output()
+	if err != nil {
+		log.Debug().Msgf("pod name output was: %v", string(podNameOut))
+		return errors.Wrap(err, "Getting pod name for ingress-nginx")
+	}
+
+	podNameStr := strings.ReplaceAll(string(podNameOut), "'", "")
+	nginxIngressCmdStr := `exec -n ingress-nginx -it ` + string(
+		podNameStr,
+	) + ` -- /nginx-ingress-controller --version`
+	nginxIngressCmd := exec.Command("kubectl", strings.Split(nginxIngressCmdStr, " ")...)
+	nginxIngressOut, err := nginxIngressCmd.Output()
+	if err != nil {
+		log.Debug().Msgf("nginx-ingress-controller version output was: %v", string(nginxIngressOut))
+		return errors.Wrap(err, "Getting nginx-ingress-controller version")
+	}
+	if !strings.Contains(strings.ToLower(string(nginxIngressOut)), "nginx ingress controller") {
+		log.Debug().Msgf("nginx-ingress-controller version output was: %v", string(nginxIngressOut))
+		return errors.New("Ingress nginx not installed")
+	}
+
 	return nil
 }
 
