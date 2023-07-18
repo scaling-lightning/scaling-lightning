@@ -1,13 +1,17 @@
 package network
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"os/exec"
 	"strings"
 
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
+	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/types"
 )
 
 func CheckDependencies() error {
@@ -88,16 +92,104 @@ func StopViaHelmfile(helmfilePath string) error {
 	return nil
 }
 
-func Send(from string, to string, amount int) error {
+func Send(from string, to string, amount uint64) error {
 	log.Debug().Msgf("Sending %v from %v to %v", amount, from, to)
+
+	address, err := GetNewAddress(to)
+	if err != nil {
+		return errors.Wrapf(err, "Getting new address for %v", to)
+	}
+
+	err = SendToAddress(from, address, amount)
+	if err != nil {
+		return errors.Wrapf(err, "Sending %v from %v to %v", amount, from, to)
+	}
+
+	err = Generate(from, 50)
+	if err != nil {
+		return errors.Wrapf(err, "Generating blocks for %v", from)
+	}
+
+	return nil
+}
+
+func Generate(name string, numBlocks uint64) error {
+	address, err := GetNewAddress(name)
+	if err != nil {
+		return errors.Wrapf(err, "Getting new address for %v", name)
+	}
+	req := types.GenerateToAddressReq{Address: address, NumOfBlocks: numBlocks}
+	postBody, _ := json.Marshal(req)
+	postBuf := bytes.NewBuffer(postBody)
 	resp, err := http.Post(
-		fmt.Sprintf("http://localhost/%v/newaddress", to),
+		fmt.Sprintf("http://localhost/%v/generatetoaddress", name),
+		"application/json",
+		postBuf,
+	)
+	if err != nil {
+		return errors.Wrapf(err, "Sending POST request to %v/generatetoaddress", name)
+	}
+	if resp.StatusCode != 200 {
+		defer resp.Body.Close()
+		body, err := io.ReadAll(resp.Body)
+		if err == nil {
+			log.Debug().
+				Msgf("Response body to faile generatetoaddress request was: %v", string(body))
+		}
+		return errors.Newf(
+			"Got non-200 status code from %v/generatetoaddress: %v",
+			name,
+			resp.StatusCode,
+		)
+	}
+	return nil
+}
+
+func SendToAddress(fromName string, toAddress string, amount uint64) error {
+	req := types.SendToAddressReq{Address: toAddress, AmtSats: amount}
+	postBody, _ := json.Marshal(req)
+	postBuf := bytes.NewBuffer(postBody)
+	resp, err := http.Post(
+		fmt.Sprintf("http://localhost/%v/sendtoaddress", fromName),
+		"application/json",
+		postBuf,
+	)
+	if err != nil {
+		return errors.Wrapf(err, "Sending POST request to %v/sendtoaddress", fromName)
+	}
+	if resp.StatusCode != 200 {
+		defer resp.Body.Close()
+		body, err := io.ReadAll(resp.Body)
+		if err == nil {
+			log.Debug().Msgf("Response body to faile sendtoaddress request was: %v", string(body))
+		}
+		return errors.Newf(
+			"Got non-200 status code from %v/sendtoaddress: %v",
+			fromName,
+			resp.StatusCode,
+		)
+	}
+	return nil
+}
+
+func GetNewAddress(name string) (string, error) {
+	resp, err := http.Post(
+		fmt.Sprintf("http://localhost/%v/newaddress", name),
 		"application/json",
 		nil,
 	)
 	if err != nil {
-		return errors.Wrapf(err, "Sending POST request to %v/newaddress", to)
+		return "", errors.Wrapf(err, "Sending POST request to %v/newaddress", name)
 	}
-	log.Debug().Msgf("Response from %v/newaddress was: %v", to, resp)
-	return nil
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", errors.Wrapf(err, "Reading response body from %v/newaddress", name)
+	}
+	var newAddress types.NewAddressRes
+	err = json.Unmarshal(body, &newAddress)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+	return newAddress.Address, nil
 }
