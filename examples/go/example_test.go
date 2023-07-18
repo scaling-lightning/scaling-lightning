@@ -12,8 +12,11 @@ func TestMain(t *testing.T) {
 	assert := assert.New(t)
 	err := sl.StartViaHelmfile("../helmfiles/helmfile.yaml")
 	assert.NoError(err)
+	// defer sl.StopViaHelmfile("../helmfiles/helmfile.yaml")
 
-	defer sl.Stop()
+	if err = sl.Send("btcd", "cln1", 1_000_000); err != nil {
+		log.Fatal().Err(err).Msg("Failed to send")
+	}
 
-	log.Error().Msg("Testing main")
+	log.Fatal().Msg("Testing main")
 }

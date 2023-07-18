@@ -1,6 +1,8 @@
 package network
 
 import (
+	"fmt"
+	"net/http"
 	"os/exec"
 	"strings"
 
@@ -62,19 +64,40 @@ func CheckDependencies() error {
 }
 
 func StartViaHelmfile(helmfilePath string) error {
+	log.Debug().Msg("Starting network")
 	if err := CheckDependencies(); err != nil {
 		return errors.Wrap(err, "Checking dependencies")
 	}
 	helmfileCmd := exec.Command("helmfile", "apply", "-f", helmfilePath)
 	helmfileOut, err := helmfileCmd.Output()
 	if err != nil {
-		log.Debug().Msgf("helmfile output was: %v", string(helmfileOut))
+		log.Debug().Err(err).Msgf("helmfile output was: %v", string(helmfileOut))
 		return errors.Wrap(err, "Running helmfile apply command")
 	}
-	log.Debug().Err(err).Msgf("helmfile output was: %v", string(helmfileOut))
 	return nil
 }
 
-func Stop() {
-	log.Info().Msg("Stopping network")
+func StopViaHelmfile(helmfilePath string) error {
+	log.Debug().Msg("Stopping network")
+	helmfileCmd := exec.Command("helmfile", "destroy", "-f", helmfilePath)
+	helmfileOut, err := helmfileCmd.Output()
+	if err != nil {
+		log.Debug().Err(err).Msgf("helmfile output was: %v", string(helmfileOut))
+		return errors.Wrap(err, "Running helmfile apply command")
+	}
+	return nil
+}
+
+func Send(from string, to string, amount int) error {
+	log.Debug().Msgf("Sending %v from %v to %v", amount, from, to)
+	resp, err := http.Post(
+		fmt.Sprintf("http://localhost/%v/newaddress", to),
+		"application/json",
+		nil,
+	)
+	if err != nil {
+		return errors.Wrapf(err, "Sending POST request to %v/newaddress", to)
+	}
+	log.Debug().Msgf("Response from %v/newaddress was: %v", to, resp)
+	return nil
 }
