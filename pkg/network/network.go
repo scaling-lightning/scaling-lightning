@@ -134,7 +134,7 @@ func Generate(name string, numBlocks uint64) error {
 		body, err := io.ReadAll(resp.Body)
 		if err == nil {
 			log.Debug().
-				Msgf("Response body to faile generatetoaddress request was: %v", string(body))
+				Msgf("Response body to failed generatetoaddress request was: %v", string(body))
 		}
 		return errors.Newf(
 			"Got non-200 status code from %v/generatetoaddress: %v",
@@ -161,7 +161,7 @@ func SendToAddress(fromName string, toAddress string, amount uint64) error {
 		defer resp.Body.Close()
 		body, err := io.ReadAll(resp.Body)
 		if err == nil {
-			log.Debug().Msgf("Response body to faile sendtoaddress request was: %v", string(body))
+			log.Debug().Msgf("Response body to failed sendtoaddress request was: %v", string(body))
 		}
 		return errors.Newf(
 			"Got non-200 status code from %v/sendtoaddress: %v",
