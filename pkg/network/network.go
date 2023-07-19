@@ -87,7 +87,7 @@ func StopViaHelmfile(helmfilePath string) error {
 	helmfileOut, err := helmfileCmd.Output()
 	if err != nil {
 		log.Debug().Err(err).Msgf("helmfile output was: %v", string(helmfileOut))
-		return errors.Wrap(err, "Running helmfile apply command")
+		return errors.Wrap(err, "Running helmfile destroy command")
 	}
 	return nil
 }
