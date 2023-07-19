@@ -1,45 +1,31 @@
-/*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-*/package scalinglightning
+package scalinglightning
 
 import (
 	"fmt"
 
-	// "github.com/scaling-lightning/scaling-lightning/pkg/network"
+	sl "github.com/scaling-lightning/scaling-lightning/pkg/network"
 	"github.com/spf13/cobra"
 )
 
 var helmfile string
 
-// startCmd represents the start command
 var startCmd = &cobra.Command{
 	Use:   "start",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Start the network",
+	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		// network.StartWithHelmfile()
-		fmt.Println("start called")
-		fmt.Println(helmfile)
+		fmt.Println("Starting the network")
+		err := sl.StartViaHelmfile(helmfile)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(startCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	startCmd.PersistentFlags().
+	startCmd.Flags().
 		StringVarP(&helmfile, "helmfile", "f", "", "Location of helmfile.yaml (required)")
-	startCmd.MarkPersistentFlagRequired("helmfile")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// startCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	startCmd.MarkFlagRequired("helmfile")
 }
