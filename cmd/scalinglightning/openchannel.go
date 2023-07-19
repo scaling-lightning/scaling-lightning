@@ -1,40 +1,45 @@
-/*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-
-*/
 package scalinglightning
 
 import (
 	"fmt"
 
+	"github.com/rs/zerolog/log"
+	sl "github.com/scaling-lightning/scaling-lightning/pkg/network"
 	"github.com/spf13/cobra"
 )
 
-// openchannelCmd represents the openchannel command
+var openchannelFromName string
+var openchannelToName string
+var openchannelLocalAmt uint64
+
 var openchannelCmd = &cobra.Command{
 	Use:   "openchannel",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Open a channel between two nodes",
+	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("openchannel called")
+		err := sl.OpenChannel(openchannelFromName, openchannelToName, openchannelLocalAmt)
+		if err != nil {
+			log.Error().Err(err).Msg("Error opening channel")
+			fmt.Println(err.Error())
+			return
+		}
+		fmt.Println("Open channel command received")
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(openchannelCmd)
 
-	// Here you will define your flags and configuration settings.
+	openchannelCmd.Flags().
+		StringVarP(&openchannelFromName, "from", "f", "", "Name of node to open channel from")
+	openchannelCmd.MarkFlagRequired("from")
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// openchannelCmd.PersistentFlags().String("foo", "", "A help for foo")
+	openchannelCmd.Flags().
+		StringVarP(&openchannelToName, "to", "t", "", "Name of node to open channel to")
+	openchannelCmd.MarkFlagRequired("to")
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// openchannelCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	openchannelCmd.Flags().
+		Uint64VarP(&openchannelLocalAmt, "amount", "a", 0, "Amount of satoshis to put into channel from the opening side")
+	openchannelCmd.MarkFlagRequired("amount")
+
 }
