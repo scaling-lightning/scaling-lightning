@@ -245,16 +245,16 @@ func ConnectPeer(fromName string, toName string) error {
 	if resp.StatusCode != 200 {
 		defer resp.Body.Close()
 		body, err := io.ReadAll(resp.Body)
-		if err == nil {
-			if strings.Contains(string(body), "already connected") {
-				return nil
-			}
-			log.Debug().Msgf("Response body to failed connectpeer request was: %v", string(body))
+		if err != nil {
+			return errors.Wrap(err, "Status code was not 200, and error reading response body")
+		}
+		if strings.Contains(string(body), "already connected") {
+			return nil
 		}
 		return errors.Newf(
-			"Got non-200 status code from %v/connectpeer: %v",
+			"Problem calling %v/connectpeer: %v",
 			fromName,
-			resp.StatusCode,
+			string(body),
 		)
 	}
 	return nil
@@ -280,13 +280,13 @@ func OpenChannel(fromName string, toName string, localAmtSats uint64) error {
 	if resp.StatusCode != 200 {
 		defer resp.Body.Close()
 		body, err := io.ReadAll(resp.Body)
-		if err == nil {
-			log.Debug().Msgf("Response body to failed openchanel request was: %v", string(body))
+		if err != nil {
+			return errors.Wrap(err, "Status code was not 200, and error reading response body")
 		}
 		return errors.Newf(
-			"Got non-200 status code from %v/openchannel: %v",
+			"Problem calling %v/openchannel: %v",
 			fromName,
-			resp.StatusCode,
+			string(body),
 		)
 	}
 	return nil
