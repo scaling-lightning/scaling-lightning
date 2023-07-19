@@ -1,10 +1,11 @@
-/*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-*/
 package main
 
-import "github.com/scaling-lightning/scaling-lightning/cmd/scalinglightning"
+import (
+	"github.com/rs/zerolog"
+	"github.com/scaling-lightning/scaling-lightning/cmd/scalinglightning"
+)
 
 func main() {
+	zerolog.SetGlobalLevel(zerolog.Disabled)
 	scalinglightning.Execute()
 }
