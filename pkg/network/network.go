@@ -105,9 +105,9 @@ func Send(from string, to string, amount uint64) error {
 		return errors.Wrapf(err, "Sending %v from %v to %v", amount, from, to)
 	}
 
-	err = Generate(from, 50)
+	err = Generate("bitcoind", 50)
 	if err != nil {
-		return errors.Wrapf(err, "Generating blocks for %v", from)
+		return errors.Wrapf(err, "Generating blocks for %v", "bitcoind")
 	}
 
 	return nil
@@ -288,6 +288,10 @@ func OpenChannel(fromName string, toName string, localAmtSats uint64) error {
 			fromName,
 			string(body),
 		)
+	}
+	err = Generate("bitcoind", 50)
+	if err != nil {
+		return errors.Wrapf(err, "Generating blocks for %v", "bitcoind")
 	}
 	return nil
 }
