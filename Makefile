@@ -11,6 +11,10 @@ protoc:
     --go-grpc_opt=Mnode.proto=clients/cln/grpc \
     --go-grpc_opt=Mprimitives.proto=clients/cln/grpc \
     clients/cln/grpc/primitives.proto clients/cln/grpc/node.proto
+	protoc --proto_path=pkg/standardclient/lightning/proto --go_out=. --go-grpc_out=. \
+    --go_opt=Mstd_lightning_client.proto=pkg/standardclient/lightning \
+    --go-grpc_opt=Mstd_lightning_client.proto=pkg/standardclient/lightning \
+	pkg/standardclient/lightning/proto/std_lightning_client.proto
 
 .PHONY: generate-mocks
 generate-mocks:
