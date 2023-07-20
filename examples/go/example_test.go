@@ -14,9 +14,9 @@ import (
 func TestMain(t *testing.T) {
 	assert := assert.New(t)
 
-	err := sl.StartViaHelmfile("../helmfiles/helmfile.yaml")
+	err := sl.StartViaHelmfile("../helmfiles/2cln2lnd.yaml")
 	assert.NoError(err)
-	defer sl.StopViaHelmfile("../helmfiles/helmfile.yaml")
+	defer sl.StopViaHelmfile("../helmfiles/2cln2lnd.yaml")
 
 	// this one will take a little while as the network is starting up
 	err = tools.Retry(func() error {
@@ -25,12 +25,12 @@ func TestMain(t *testing.T) {
 	assert.NoError(err)
 
 	err = tools.Retry(func() error {
-		return sl.ConnectPeer("lnd1", "cln1")
+		return sl.ConnectPeer("cln1", "cln2")
 	}, time.Second*15, time.Minute*3)
 	assert.NoError(err)
 
 	err = tools.Retry(func() error {
-		return sl.OpenChannel("cln1", "lnd1", 40_001)
+		return sl.OpenChannel("cln1", "cln2", 40_001)
 	}, time.Second*15, time.Minute*3)
 	assert.NoError(err)
 
