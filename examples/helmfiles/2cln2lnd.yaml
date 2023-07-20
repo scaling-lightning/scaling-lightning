@@ -1,0 +1,11 @@
+releases:
+  - name: bitcoind
+    chart: ../../charts/bitcoind
+  - name: cln1
+    chart: ../../charts/cln
+  - name: cln2
+    chart: ../../charts/cln
+  - name: lnd1
+    chart: ../../charts/lnd
+  - name: lnd2
+    chart: ../../charts/lnd
