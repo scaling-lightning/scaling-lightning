@@ -18,4 +18,3 @@ message NewAddressRequest {}
 message NewAddressResponse {
     string address = 1;
 }
-

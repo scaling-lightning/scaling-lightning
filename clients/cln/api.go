@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/cockroachdb/errors"
 	clnGRPC "github.com/scaling-lightning/scaling-lightning/clients/cln/grpc"
 	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/apierrors"
 	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
@@ -15,6 +16,23 @@ import (
 
 // Probably better mock against our own interface
 //go:generate mockery --dir=grpc --name=NodeClient
+
+func (s *server) WalletBalance(
+	ctx context.Context,
+	in *lightning.WalletBalanceRequest,
+) (*lightning.WalletBalanceResponse, error) {
+	response, err := s.client.ListFunds(context.Background(), &clnGRPC.ListfundsRequest{})
+	if err != nil {
+		return nil, errors.Wrap(err, "Problem listing funds")
+	}
+
+	var total uint64
+	for _, output := range response.Outputs {
+		total += output.AmountMsat.Msat
+	}
+
+	return &lightning.WalletBalanceResponse{Balance: total}, nil
+}
 
 func registerHandlers(standardclient lightning.StandardClient, clnClient clnGRPC.NodeClient) {
 	standardclient.RegisterWalletBalanceHandler(func(w http.ResponseWriter, r *http.Request) {

@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"flag"
 	"fmt"
+	"net"
 	"os"
 	"strings"
 	"time"
@@ -16,7 +17,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	clnGRPC "github.com/scaling-lightning/scaling-lightning/clients/cln/grpc"
-	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
+	standardclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
 	"github.com/scaling-lightning/scaling-lightning/pkg/tools"
 	"github.com/scaling-lightning/scaling-lightning/pkg/tools/grpc_helpers"
 	"google.golang.org/grpc"
@@ -97,15 +98,35 @@ func main() {
 		log.Fatal().Err(err).Msg("Starting CLN Client")
 	}
 
-	log.Info().Msgf("Starting API server on port %d", appConfig.apiPort)
-	// start api
-	restServer := lightning.NewStandardClient()
-	registerHandlers(restServer, client)
-	err = restServer.Start(appConfig.apiPort)
-	if err != nil {
-		log.Fatal().Err(err).Msg("Starting REST service")
-	}
+	log.Info().Msgf("Starting gRPC server on port %d", appConfig.apiPort)
+	// // start api
+	// restServer := lightning.NewStandardClient()
+	// registerHandlers(restServer, client)
+	// err = restServer.Start(appConfig.apiPort)
+	// if err != nil {
+	// 	log.Fatal().Err(err).Msg("Starting REST service")
+	// }
 
+	startGRPCServer(8484, client)
+}
+
+type server struct {
+	standardclient.UnimplementedLightningClientServer
+	client clnGRPC.NodeClient
+}
+
+func startGRPCServer(port int, client clnGRPC.NodeClient) error {
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	if err != nil {
+		return errors.Wrapf(err, "Listening on port %d", port)
+	}
+	s := grpc.NewServer()
+	standardclient.RegisterLightningClientServer(s, &server{client: client})
+	log.Info().Msgf("Starting gRPC server on port %d", port)
+	if err := s.Serve(lis); err != nil {
+		return errors.Wrap(err, "Serving gRPC server")
+	}
+	return nil
 }
 
 func parseFlags(appConfig *appConfig) error {
