@@ -2,17 +2,41 @@ package network
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os/exec"
+	"strconv"
 	"strings"
 
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
+	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
 	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/types"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 )
+
+type LightningNode struct {
+	Name string
+	Host string
+	Port int
+}
+
+type BitcoinNode struct {
+	Name string
+	Host string
+	Port int
+}
+
+type Network struct {
+	BitcoinNodes   []BitcoinNode
+	LightningNodes []LightningNode
+	Helmfile       string
+}
 
 func CheckDependencies() error {
 	_, err := exec.LookPath("helmfile")
@@ -37,33 +61,47 @@ func CheckDependencies() error {
 		return errors.New("Helm plugin diff not installed")
 	}
 
-	podNameCmdStr := `get pods -n ingress-nginx -l app.kubernetes.io/name=ingress-nginx --field-selector=status.phase==Running -o jsonpath='{.items[0].metadata.name}'`
-	podNameCmd := exec.Command("kubectl", strings.Split(podNameCmdStr, " ")...)
-	podNameOut, err := podNameCmd.Output()
-	if err != nil {
-		log.Debug().Err(err).Msgf("pod name output was: %v", string(podNameOut))
-		return errors.Wrap(err, "Getting pod name for ingress-nginx")
-	}
+	// podNameCmdStr := `get pods -n ingress-nginx -l app.kubernetes.io/name=ingress-nginx --field-selector=status.phase==Running -o jsonpath='{.items[0].metadata.name}'`
+	// podNameCmd := exec.Command("kubectl", strings.Split(podNameCmdStr, " ")...)
+	// podNameOut, err := podNameCmd.Output()
+	// if err != nil {
+	// 	log.Debug().Err(err).Msgf("pod name output was: %v", string(podNameOut))
+	// 	return errors.Wrap(err, "Getting pod name for ingress-nginx")
+	// }
 
-	podNameStr := strings.ReplaceAll(string(podNameOut), "'", "")
-	nginxIngressCmdStr := `exec -n ingress-nginx -it ` + string(
-		podNameStr,
-	) + ` -- /nginx-ingress-controller --version`
-	nginxIngressCmd := exec.Command("kubectl", strings.Split(nginxIngressCmdStr, " ")...)
-	nginxIngressOut, err := nginxIngressCmd.Output()
-	if err != nil {
-		log.Debug().
-			Err(err).
-			Msgf("nginx-ingress-controller version output was: %v", string(nginxIngressOut))
-		return errors.Wrap(err, "Getting nginx-ingress-controller version")
-	}
-	if !strings.Contains(strings.ToLower(string(nginxIngressOut)), "nginx ingress controller") {
-		log.Debug().
-			Err(err).
-			Msgf("nginx-ingress-controller version output was: %v", string(nginxIngressOut))
-		return errors.New("Ingress nginx not installed")
-	}
+	// podNameStr := strings.ReplaceAll(string(podNameOut), "'", "")
+	// nginxIngressCmdStr := `exec -n ingress-nginx -it ` + string(
+	// 	podNameStr,
+	// ) + ` -- /nginx-ingress-controller --version`
+	// nginxIngressCmd := exec.Command("kubectl", strings.Split(nginxIngressCmdStr, " ")...)
+	// nginxIngressOut, err := nginxIngressCmd.Output()
+	// if err != nil {
+	// 	log.Debug().
+	// 		Err(err).
+	// 		Msgf("nginx-ingress-controller version output was: %v", string(nginxIngressOut))
+	// 	return errors.Wrap(err, "Getting nginx-ingress-controller version")
+	// }
+	// if !strings.Contains(strings.ToLower(string(nginxIngressOut)), "nginx ingress controller") {
+	// 	log.Debug().
+	// 		Err(err).
+	// 		Msgf("nginx-ingress-controller version output was: %v", string(nginxIngressOut))
+	// 	return errors.New("Ingress nginx not installed")
+	// }
 
+	return nil
+}
+
+func (n *Network) StartViaHelmfile(helmfilePath string) error {
+	log.Debug().Msg("Starting network")
+	if err := CheckDependencies(); err != nil {
+		return errors.Wrap(err, "Checking dependencies")
+	}
+	helmfileCmd := exec.Command("helmfile", "apply", "-f", helmfilePath)
+	helmfileOut, err := helmfileCmd.Output()
+	if err != nil {
+		log.Debug().Err(err).Msgf("helmfile output was: %v", string(helmfileOut))
+		return errors.Wrap(err, "Running helmfile apply command")
+	}
 	return nil
 }
 
@@ -212,11 +250,29 @@ func GetPubKey(name string) (string, error) {
 	return pubKey.PubKey, nil
 }
 
+func clientInterceptor(
+	ctx context.Context,
+	method string,
+	req interface{},
+	reply interface{},
+	cc *grpc.ClientConn,
+	invoker grpc.UnaryInvoker,
+	opts ...grpc.CallOption,
+) error {
+	headerMap := make(map[string]string)
+	headerMap["X-Node"] = "cln1"
+	md := metadata.New(headerMap)
+	ctx = metadata.NewOutgoingContext(ctx, md)
+	return invoker(ctx, method, req, reply, cc, opts...)
+}
+
 func GetWalletBalanceSats(name string) (string, error) {
+
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(clientInterceptor),
 	}
-	conn, err := grpc.Dial("localhost:8484", opts...)
+	conn, err := grpc.Dial("localhost:80", opts...)
 	if err != nil {
 		return "", errors.Wrapf(err, "Connecting to gRPC for %v's client", name)
 	}
