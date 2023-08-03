@@ -1,44 +1,26 @@
 package network
 
 import (
-	"bytes"
-	"context"
-	"encoding/json"
-	"fmt"
-	"io"
-	"net/http"
 	"os/exec"
-	"strconv"
 	"strings"
 
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
-	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
-	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/types"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/grpc/metadata"
 )
 
-type LightningNode struct {
-	Name string
-	Host string
-	Port int
-}
-
-type BitcoinNode struct {
-	Name string
-	Host string
-	Port int
-}
-
-type Network struct {
+type SLNetwork struct {
 	BitcoinNodes   []BitcoinNode
 	LightningNodes []LightningNode
+	KubeConfig     string
 	Helmfile       string
 }
 
-func CheckDependencies() error {
+type Node interface {
+	GetNewAddress() (string, error)
+	Send(string, uint64) error
+}
+
+func (n *SLNetwork) CheckDependencies() error {
 	_, err := exec.LookPath("helmfile")
 	if err != nil {
 		return errors.Wrap(err, "Looking for helmfile executable on system")
@@ -91,9 +73,16 @@ func CheckDependencies() error {
 	return nil
 }
 
-func (n *Network) StartViaHelmfile(helmfilePath string) error {
+func New(helmfile string, kubeConfig string) SLNetwork {
+	return SLNetwork{
+		Helmfile:   helmfile,
+		KubeConfig: kubeConfig,
+	}
+}
+
+func (n *SLNetwork) StartViaHelmfile(helmfilePath string) error {
 	log.Debug().Msg("Starting network")
-	if err := CheckDependencies(); err != nil {
+	if err := n.CheckDependencies(); err != nil {
 		return errors.Wrap(err, "Checking dependencies")
 	}
 	helmfileCmd := exec.Command("helmfile", "apply", "-f", helmfilePath)
@@ -105,21 +94,7 @@ func (n *Network) StartViaHelmfile(helmfilePath string) error {
 	return nil
 }
 
-func StartViaHelmfile(helmfilePath string) error {
-	log.Debug().Msg("Starting network")
-	if err := CheckDependencies(); err != nil {
-		return errors.Wrap(err, "Checking dependencies")
-	}
-	helmfileCmd := exec.Command("helmfile", "apply", "-f", helmfilePath)
-	helmfileOut, err := helmfileCmd.Output()
-	if err != nil {
-		log.Debug().Err(err).Msgf("helmfile output was: %v", string(helmfileOut))
-		return errors.Wrap(err, "Running helmfile apply command")
-	}
-	return nil
-}
-
-func StopViaHelmfile(helmfilePath string) error {
+func (n *SLNetwork) StopViaHelmfile(helmfilePath string) error {
 	log.Debug().Msg("Stopping network")
 	helmfileCmd := exec.Command("helmfile", "destroy", "-f", helmfilePath)
 	helmfileOut, err := helmfileCmd.Output()
@@ -130,242 +105,20 @@ func StopViaHelmfile(helmfilePath string) error {
 	return nil
 }
 
-func Send(from string, to string, amount uint64) error {
-	log.Debug().Msgf("Sending %v from %v to %v", amount, from, to)
-
-	address, err := GetNewAddress(to)
-	if err != nil {
-		return errors.Wrapf(err, "Getting new address for %v", to)
-	}
-
-	err = SendToAddress(from, address, amount)
-	if err != nil {
-		return errors.Wrapf(err, "Sending %v from %v to %v", amount, from, to)
-	}
-
-	err = Generate("bitcoind", 50)
-	if err != nil {
-		return errors.Wrapf(err, "Generating blocks for %v", "bitcoind")
-	}
-
-	return nil
-}
-
-func Generate(name string, numBlocks uint64) error {
-	address, err := GetNewAddress(name)
-	if err != nil {
-		return errors.Wrapf(err, "Getting new address for %v", name)
-	}
-	req := types.GenerateToAddressReq{Address: address, NumOfBlocks: numBlocks}
-	postBody, _ := json.Marshal(req)
-	postBuf := bytes.NewBuffer(postBody)
-	resp, err := http.Post(
-		fmt.Sprintf("http://localhost/%v/generatetoaddress", name),
-		"application/json",
-		postBuf,
-	)
-	if err != nil {
-		return errors.Wrapf(err, "Sending POST request to %v/generatetoaddress", name)
-	}
-	if resp.StatusCode != 200 {
-		defer resp.Body.Close()
-		body, err := io.ReadAll(resp.Body)
-		if err == nil {
-			log.Debug().
-				Msgf("Response body to failed generatetoaddress request was: %v", string(body))
+func (n *SLNetwork) GetBitcoinNode(name string) (*BitcoinNode, error) {
+	for _, node := range n.BitcoinNodes {
+		if node.Name == name {
+			return &node, nil
 		}
-		return errors.Newf(
-			"Got non-200 status code from %v/generatetoaddress: %v",
-			name,
-			resp.StatusCode,
-		)
 	}
-	return nil
+	return nil, errors.New("Bitcoin node not found")
 }
 
-func SendToAddress(fromName string, toAddress string, amount uint64) error {
-	req := types.SendToAddressReq{Address: toAddress, AmtSats: amount}
-	postBody, _ := json.Marshal(req)
-	postBuf := bytes.NewBuffer(postBody)
-	resp, err := http.Post(
-		fmt.Sprintf("http://localhost/%v/sendtoaddress", fromName),
-		"application/json",
-		postBuf,
-	)
-	if err != nil {
-		return errors.Wrapf(err, "Sending POST request to %v/sendtoaddress", fromName)
-	}
-	if resp.StatusCode != 200 {
-		defer resp.Body.Close()
-		body, err := io.ReadAll(resp.Body)
-		if err == nil {
-			log.Debug().Msgf("Response body to failed sendtoaddress request was: %v", string(body))
+func (n *SLNetwork) GetLightningNode(name string) (*LightningNode, error) {
+	for _, node := range n.LightningNodes {
+		if node.Name == name {
+			return &node, nil
 		}
-		return errors.Newf(
-			"Got non-200 status code from %v/sendtoaddress: %v",
-			fromName,
-			resp.StatusCode,
-		)
 	}
-	return nil
-}
-
-func GetNewAddress(name string) (string, error) {
-	resp, err := http.Post(
-		fmt.Sprintf("http://localhost/%v/newaddress", name),
-		"application/json",
-		nil,
-	)
-	if err != nil {
-		return "", errors.Wrapf(err, "Sending POST request to %v/newaddress", name)
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", errors.Wrapf(err, "Reading response body from %v/newaddress", name)
-	}
-	var newAddress types.NewAddressRes
-	err = json.Unmarshal(body, &newAddress)
-	if err != nil {
-		fmt.Println("error:", err)
-	}
-	return newAddress.Address, nil
-}
-
-func GetPubKey(name string) (string, error) {
-	resp, err := http.Get(fmt.Sprintf("http://localhost/%v/pubkey", name))
-	if err != nil {
-		return "", errors.Wrapf(err, "Sending GET request to %v/pubkey", name)
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", errors.Wrapf(err, "Reading response body from %v/pubkey", name)
-	}
-	var pubKey types.PubKeyRes
-	err = json.Unmarshal(body, &pubKey)
-	if err != nil {
-		fmt.Println("error:", err)
-	}
-	return pubKey.PubKey, nil
-}
-
-func clientInterceptor(
-	ctx context.Context,
-	method string,
-	req interface{},
-	reply interface{},
-	cc *grpc.ClientConn,
-	invoker grpc.UnaryInvoker,
-	opts ...grpc.CallOption,
-) error {
-	headerMap := make(map[string]string)
-	headerMap["X-Node"] = "cln1"
-	md := metadata.New(headerMap)
-	ctx = metadata.NewOutgoingContext(ctx, md)
-	return invoker(ctx, method, req, reply, cc, opts...)
-}
-
-func GetWalletBalanceSats(name string) (string, error) {
-
-	opts := []grpc.DialOption{
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithUnaryInterceptor(clientInterceptor),
-	}
-	conn, err := grpc.Dial("localhost:80", opts...)
-	if err != nil {
-		return "", errors.Wrapf(err, "Connecting to gRPC for %v's client", name)
-	}
-	defer conn.Close()
-	client := lightning.NewLightningClientClient(conn)
-	walletBalance, err := client.WalletBalance(
-		context.Background(),
-		&lightning.WalletBalanceRequest{},
-	)
-	if err != nil {
-		return "", errors.Wrapf(err, "Getting wallet balance for %v", name)
-	}
-	return strconv.FormatUint(walletBalance.Balance, 10) + " sats", nil
-
-	// resp, err := http.Get(fmt.Sprintf("http://localhost/%v/walletbalance", name))
-	// if err != nil {
-	// 	return "", errors.Wrapf(err, "Sending GET request to %v/walletbalance", name)
-	// }
-	// defer resp.Body.Close()
-	// body, err := io.ReadAll(resp.Body)
-	// if err != nil {
-	// 	return "", errors.Wrapf(err, "Reading response body from %v/walletbalance", name)
-	// }
-	// return string(body), nil
-}
-
-func ConnectPeer(fromName string, toName string) error {
-	log.Debug().Msgf("Connecting %v to %v", fromName, toName)
-	toPubKey, err := GetPubKey(toName)
-	if err != nil {
-		return errors.Wrapf(err, "Getting pubkey for %v", toName)
-	}
-	req := types.ConnectPeerReq{PubKey: toPubKey, Host: toName, Port: 9735}
-	postBody, _ := json.Marshal(req)
-	postBuf := bytes.NewBuffer(postBody)
-	resp, err := http.Post(
-		fmt.Sprintf("http://localhost/%v/connectpeer", fromName),
-		"application/json",
-		postBuf,
-	)
-	if err != nil {
-		return errors.Wrapf(err, "Sending POST request to %v/connectpeer", fromName)
-	}
-	if resp.StatusCode != 200 {
-		defer resp.Body.Close()
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return errors.Wrap(err, "Status code was not 200, and error reading response body")
-		}
-		if strings.Contains(string(body), "already connected") {
-			return nil
-		}
-		return errors.Newf(
-			"Problem calling %v/connectpeer: %v",
-			fromName,
-			string(body),
-		)
-	}
-	return nil
-}
-
-func OpenChannel(fromName string, toName string, localAmtSats uint64) error {
-	log.Debug().Msgf("Opening channel from %v to %v for %d sats", fromName, toName, localAmtSats)
-	toPubKey, err := GetPubKey(toName)
-	if err != nil {
-		return errors.Wrapf(err, "Getting pubkey for %v", toName)
-	}
-	req := types.OpenChannelReq{PubKey: toPubKey, LocalAmtSats: localAmtSats}
-	postBody, _ := json.Marshal(req)
-	postBuf := bytes.NewBuffer(postBody)
-	resp, err := http.Post(
-		fmt.Sprintf("http://localhost/%v/openchannel", fromName),
-		"application/json",
-		postBuf,
-	)
-	if err != nil {
-		return errors.Wrapf(err, "Sending POST request to %v/openchannel", fromName)
-	}
-	if resp.StatusCode != 200 {
-		defer resp.Body.Close()
-		body, err := io.ReadAll(resp.Body)
-		if err != nil {
-			return errors.Wrap(err, "Status code was not 200, and error reading response body")
-		}
-		return errors.Newf(
-			"Problem calling %v/openchannel: %v",
-			fromName,
-			string(body),
-		)
-	}
-	err = Generate("bitcoind", 50)
-	if err != nil {
-		return errors.Wrapf(err, "Generating blocks for %v", "bitcoind")
-	}
-	return nil
+	return nil, errors.New("Lightning node not found")
 }
