@@ -27,7 +27,8 @@ var sendCmd = &cobra.Command{
 		}
 		var sendFromNode sl.Node
 		var sendToNode sl.Node
-		for _, node := range slnetwork.GetAllNodes() {
+		allNodes := slnetwork.GetAllNodes()
+		for _, node := range allNodes {
 			if node.GetName() == sendFromName {
 				sendFromNode = node
 				continue
@@ -36,18 +37,22 @@ var sendCmd = &cobra.Command{
 				sendToNode = node
 			}
 		}
+		allNames := []string{}
+		for _, node := range allNodes {
+			allNames = append(allNames, node.GetName())
+		}
 		if sendFromNode == nil {
 			fmt.Printf(
 				"Can't find node with name %v, here are the nodes that are running: %v\n",
 				sendFromName,
-				slnetwork.GetAllNodes(),
+				allNames,
 			)
 		}
 		if sendToNode == nil {
 			fmt.Printf(
 				"Can't find node with name %v, here are the nodes that are running: %v\n",
 				sendToName,
-				slnetwork.GetAllNodes(),
+				allNames,
 			)
 		}
 

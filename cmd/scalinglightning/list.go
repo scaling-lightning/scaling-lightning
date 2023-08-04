@@ -20,11 +20,11 @@ var listCmd = &cobra.Command{
 			)
 			return
 		}
-		fmt.Println("Bitcoin nodes:")
+		fmt.Printf("Bitcoin nodes:\n\n")
 		for _, node := range slnetwork.BitcoinNodes {
 			fmt.Printf("	%v\n", node.GetName())
 		}
-		fmt.Printf("\nLightning nodes:\n")
+		fmt.Printf("\nLightning nodes:\n\n")
 		for _, node := range slnetwork.LightningNodes {
 			fmt.Printf("	%v\n", node.GetName())
 		}

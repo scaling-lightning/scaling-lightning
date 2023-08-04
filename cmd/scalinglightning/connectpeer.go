@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	sl "github.com/scaling-lightning/scaling-lightning/pkg/network"
-	"github.com/scaling-lightning/scaling-lightning/pkg/types"
 	"github.com/spf13/cobra"
 )
 
@@ -35,27 +34,28 @@ var connectpeerCmd = &cobra.Command{
 				connectpeerToNode = node
 			}
 		}
+		allNames := []string{}
+		for _, node := range slnetwork.LightningNodes {
+			allNames = append(allNames, node.GetName())
+		}
 		if connectpeerFromNode.Name == "" {
 			fmt.Printf(
 				"Can't find node with name %v, here are the lightnign nodes that are running: %v\n",
 				openchannelFromName,
-				slnetwork.LightningNodes,
+				allNames,
 			)
 		}
 		if connectpeerToNode.Name == "" {
 			fmt.Printf(
 				"Can't find node with name %v, here are the lightning nodes that are running: %v\n",
 				openchannelToName,
-				slnetwork.LightningNodes,
+				allNames,
 			)
 		}
 
-		err = connectpeerFromNode.OpenChannel(
-			&connectpeerToNode,
-			types.NewAmountSats(openchannelLocalAmt),
-		)
+		err = connectpeerFromNode.ConnectPeer(&connectpeerToNode)
 		if err != nil {
-			fmt.Printf("Problem sending funds: %v\n", err.Error())
+			fmt.Printf("Problem connecting peer: %v\n", err.Error())
 			return
 		}
 

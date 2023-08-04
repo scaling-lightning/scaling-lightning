@@ -36,18 +36,22 @@ var openchannelCmd = &cobra.Command{
 				openchannelToNode = node
 			}
 		}
+		allNames := []string{}
+		for _, node := range slnetwork.LightningNodes {
+			allNames = append(allNames, node.GetName())
+		}
 		if openchannelFromNode.Name == "" {
 			fmt.Printf(
 				"Can't find node with name %v, here are the lightnign nodes that are running: %v\n",
 				openchannelFromName,
-				slnetwork.LightningNodes,
+				allNames,
 			)
 		}
 		if openchannelToNode.Name == "" {
 			fmt.Printf(
 				"Can't find node with name %v, here are the lightning nodes that are running: %v\n",
 				openchannelToName,
-				slnetwork.LightningNodes,
+				allNames,
 			)
 		}
 
@@ -56,7 +60,7 @@ var openchannelCmd = &cobra.Command{
 			types.NewAmountSats(openchannelLocalAmt),
 		)
 		if err != nil {
-			fmt.Printf("Problem sending funds: %v\n", err.Error())
+			fmt.Printf("Problem opening channel: %v\n", err.Error())
 			return
 		}
 

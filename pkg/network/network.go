@@ -175,11 +175,11 @@ func (n *SLNetwork) GetLightningNode(name string) (*LightningNode, error) {
 
 func (n *SLNetwork) GetAllNodes() []Node {
 	nodes := []Node{}
-	for _, node := range n.BitcoinNodes {
-		nodes = append(nodes, &node)
+	for i := range n.BitcoinNodes {
+		nodes = append(nodes, &n.BitcoinNodes[i])
 	}
-	for _, node := range n.LightningNodes {
-		nodes = append(nodes, &node)
+	for i := range n.LightningNodes {
+		nodes = append(nodes, &n.LightningNodes[i])
 	}
 	return nodes
 }

@@ -22,7 +22,8 @@ var walletbalanceCmd = &cobra.Command{
 			)
 			return
 		}
-		for _, node := range slnetwork.GetAllNodes() {
+		allNodes := slnetwork.GetAllNodes()
+		for _, node := range allNodes {
 			if node.GetName() == balanceNodeName {
 				walletBalance, err := node.GetWalletBalance()
 				if err != nil {
@@ -32,12 +33,16 @@ var walletbalanceCmd = &cobra.Command{
 				fmt.Printf("%d sats\n", walletBalance.AsSats())
 				return
 			}
-			fmt.Printf(
-				"Can't find node with name %v, here are the nodes that are running: %v\n",
-				balanceNodeName,
-				slnetwork.GetAllNodes(),
-			)
 		}
+		allNames := []string{}
+		for _, node := range allNodes {
+			allNames = append(allNames, node.GetName())
+		}
+		fmt.Printf(
+			"Can't find node with name %v, here are the nodes that are running: %v\n",
+			balanceNodeName,
+			allNames,
+		)
 	},
 }
 

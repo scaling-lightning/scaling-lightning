@@ -33,10 +33,15 @@ var pubkeyCmd = &cobra.Command{
 				return
 			}
 		}
+
+		allNames := []string{}
+		for _, node := range slnetwork.LightningNodes {
+			allNames = append(allNames, node.GetName())
+		}
 		fmt.Printf(
 			"Can't find node with name %v, here are the lightning nodes that are running: %v\n",
 			pubkeyNodeName,
-			slnetwork.LightningNodes,
+			allNames,
 		)
 	},
 }
