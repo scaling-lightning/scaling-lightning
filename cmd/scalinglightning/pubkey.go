@@ -14,12 +14,30 @@ var pubkeyCmd = &cobra.Command{
 	Short: "Get the pubkey of a node",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		pubkey, err := sl.GetPubKey(pubkeyNodeName)
+		slnetwork, err := sl.DiscoverStartedNetwork("")
 		if err != nil {
-			fmt.Println(err.Error())
+			fmt.Printf(
+				"Problem with network discovery, is there a network running? Error: %v\n",
+				err.Error(),
+			)
 			return
 		}
-		fmt.Println(pubkey)
+		for _, node := range slnetwork.LightningNodes {
+			if node.GetName() == pubkeyNodeName {
+				pubkey, err := node.GetPubKey()
+				if err != nil {
+					fmt.Printf("Problem getting pubkey: %v\n", err.Error())
+					return
+				}
+				fmt.Println(pubkey)
+				return
+			}
+		}
+		fmt.Printf(
+			"Can't find node with name %v, here are the lightning nodes that are running: %v\n",
+			pubkeyNodeName,
+			slnetwork.LightningNodes,
+		)
 	},
 }
 

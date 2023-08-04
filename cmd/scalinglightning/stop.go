@@ -14,8 +14,9 @@ var stopCmd = &cobra.Command{
 	Short: "Stop the network",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Stop the network")
-		err := sl.StopViaHelmfile(stopHelmfile)
+		fmt.Println("Stopping the network")
+		slnetwork := sl.NewSLNetwork(stopHelmfile, "")
+		err := slnetwork.Stop()
 		if err != nil {
 			fmt.Println(err.Error())
 		}

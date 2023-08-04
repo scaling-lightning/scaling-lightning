@@ -14,12 +14,30 @@ var walletbalanceCmd = &cobra.Command{
 	Short: "Get the onchain wallet balance of a node",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		balance, err := sl.GetWalletBalanceSats(balanceNodeName)
+		slnetwork, err := sl.DiscoverStartedNetwork("")
 		if err != nil {
-			fmt.Println(err.Error())
+			fmt.Printf(
+				"Problem with network discovery, is there a network running? Error: %v\n",
+				err.Error(),
+			)
 			return
 		}
-		fmt.Println(balance)
+		for _, node := range slnetwork.GetAllNodes() {
+			if node.GetName() == balanceNodeName {
+				walletBalance, err := node.GetWalletBalance()
+				if err != nil {
+					fmt.Printf("Problem getting wallet balance: %v\n", err.Error())
+					return
+				}
+				fmt.Printf("%d sats\n", walletBalance.AsSats())
+				return
+			}
+			fmt.Printf(
+				"Can't find node with name %v, here are the nodes that are running: %v\n",
+				balanceNodeName,
+				slnetwork.GetAllNodes(),
+			)
+		}
 	},
 }
 

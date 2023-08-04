@@ -15,7 +15,8 @@ var startCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Starting the network")
-		err := sl.StartViaHelmfile(helmfile)
+		slnetwork := sl.NewSLNetwork(stopHelmfile, "")
+		err := slnetwork.Start()
 		if err != nil {
 			fmt.Println(err.Error())
 		}

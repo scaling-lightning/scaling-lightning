@@ -214,7 +214,7 @@ func (n *LightningNode) ConnectPeer(to Node) error {
 	return nil
 }
 
-func (n *LightningNode) OpenChannel(to Node, localAmt basictypes.Amount) error {
+func (n *LightningNode) OpenChannel(to *LightningNode, localAmt basictypes.Amount) error {
 	log.Debug().
 		Msgf("Opening channel from %v to %v for %d sats", n.Name, to.GetName(), localAmt.AsSats())
 

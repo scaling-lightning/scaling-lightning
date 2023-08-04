@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	sl "github.com/scaling-lightning/scaling-lightning/pkg/network"
+	"github.com/scaling-lightning/scaling-lightning/pkg/types"
 	"github.com/spf13/cobra"
 )
 
@@ -16,11 +17,46 @@ var sendCmd = &cobra.Command{
 	Short: "Send on chain funds betwen nodes",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := sl.Send(sendFromName, sendToName, sendAmount)
+		slnetwork, err := sl.DiscoverStartedNetwork("")
 		if err != nil {
-			fmt.Println(err.Error())
+			fmt.Printf(
+				"Problem with network discovery, is there a network running? Error: %v\n",
+				err.Error(),
+			)
 			return
 		}
+		var sendFromNode sl.Node
+		var sendToNode sl.Node
+		for _, node := range slnetwork.GetAllNodes() {
+			if node.GetName() == sendFromName {
+				sendFromNode = node
+				continue
+			}
+			if node.GetName() == sendToName {
+				sendToNode = node
+			}
+		}
+		if sendFromNode == nil {
+			fmt.Printf(
+				"Can't find node with name %v, here are the nodes that are running: %v\n",
+				sendFromName,
+				slnetwork.GetAllNodes(),
+			)
+		}
+		if sendToNode == nil {
+			fmt.Printf(
+				"Can't find node with name %v, here are the nodes that are running: %v\n",
+				sendToName,
+				slnetwork.GetAllNodes(),
+			)
+		}
+
+		err = sendFromNode.Send(sendToNode, types.NewAmountSats(sendAmount))
+		if err != nil {
+			fmt.Printf("Problem sending funds: %v\n", err.Error())
+			return
+		}
+
 		fmt.Println("Sent funds")
 	},
 }

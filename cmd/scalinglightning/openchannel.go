@@ -3,8 +3,8 @@ package scalinglightning
 import (
 	"fmt"
 
-	"github.com/rs/zerolog/log"
 	sl "github.com/scaling-lightning/scaling-lightning/pkg/network"
+	"github.com/scaling-lightning/scaling-lightning/pkg/types"
 	"github.com/spf13/cobra"
 )
 
@@ -17,12 +17,49 @@ var openchannelCmd = &cobra.Command{
 	Short: "Open a channel between two nodes",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := sl.OpenChannel(openchannelFromName, openchannelToName, openchannelLocalAmt)
+		slnetwork, err := sl.DiscoverStartedNetwork("")
 		if err != nil {
-			log.Error().Err(err).Msg("Error opening channel")
-			fmt.Println(err.Error())
+			fmt.Printf(
+				"Problem with network discovery, is there a network running? Error: %v\n",
+				err.Error(),
+			)
 			return
 		}
+		var openchannelFromNode sl.LightningNode
+		var openchannelToNode sl.LightningNode
+		for _, node := range slnetwork.LightningNodes {
+			if node.GetName() == openchannelFromName {
+				openchannelFromNode = node
+				continue
+			}
+			if node.GetName() == openchannelToName {
+				openchannelToNode = node
+			}
+		}
+		if openchannelFromNode.Name == "" {
+			fmt.Printf(
+				"Can't find node with name %v, here are the lightnign nodes that are running: %v\n",
+				openchannelFromName,
+				slnetwork.LightningNodes,
+			)
+		}
+		if openchannelToNode.Name == "" {
+			fmt.Printf(
+				"Can't find node with name %v, here are the lightning nodes that are running: %v\n",
+				openchannelToName,
+				slnetwork.LightningNodes,
+			)
+		}
+
+		err = openchannelFromNode.OpenChannel(
+			&openchannelToNode,
+			types.NewAmountSats(openchannelLocalAmt),
+		)
+		if err != nil {
+			fmt.Printf("Problem sending funds: %v\n", err.Error())
+			return
+		}
+
 		fmt.Println("Open channel command received")
 	},
 }

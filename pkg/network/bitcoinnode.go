@@ -2,6 +2,7 @@ package network
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,7 +10,11 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
+	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
 	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/types"
+	"github.com/scaling-lightning/scaling-lightning/pkg/tools/grpc_helpers"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	basictypes "github.com/scaling-lightning/scaling-lightning/pkg/types"
 )
@@ -82,6 +87,29 @@ func (n *BitcoinNode) Generate(numBlocks uint64) error {
 		)
 	}
 	return nil
+}
+
+func (n *BitcoinNode) GetWalletBalance() (basictypes.Amount, error) {
+
+	opts := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(grpc_helpers.ClientInterceptor(n.Name)),
+	}
+	conn, err := grpc.Dial("localhost:80", opts...)
+	if err != nil {
+		return basictypes.Amount{}, errors.Wrapf(err, "Connecting to gRPC for %v's client", n.Name)
+	}
+	defer conn.Close()
+	client := lightning.NewLightningClientClient(conn)
+	walletBalance, err := client.WalletBalance(
+		context.Background(),
+		&lightning.WalletBalanceRequest{},
+	)
+	if err != nil {
+		return basictypes.Amount{}, errors.Wrapf(err, "Getting wallet balance for %v", n.Name)
+	}
+	return basictypes.NewAmountSats(walletBalance.Balance), nil
+
 }
 
 func (n *BitcoinNode) SendToAddress(address basictypes.Address, amount basictypes.Amount) error {

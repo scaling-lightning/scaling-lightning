@@ -17,12 +17,14 @@ type SLNetwork struct {
 	LightningNodes []LightningNode
 	kubeConfig     string
 	helmfile       string
+	endpoint       string
 }
 
 type Node interface {
 	GetNewAddress() (types.Address, error)
 	Send(Node, types.Amount) error
 	GetName() string
+	GetWalletBalance() (types.Amount, error)
 }
 
 func (n *SLNetwork) CheckDependencies() error {
@@ -85,6 +87,41 @@ func NewSLNetwork(helmfile string, kubeConfig string) SLNetwork {
 	}
 }
 
+type helmListOutput struct {
+	Name       string `json:"name"`
+	Namespace  string `json:"namespace"`
+	Revision   string `json:"revision"`
+	Updated    string `json:"updated"`
+	Status     string `json:"status"`
+	Chart      string `json:"chart"`
+	AppVersion string `json:"app_version"`
+}
+
+func DiscoverStartedNetwork(kubeconfig string) (*SLNetwork, error) {
+	helmCmd := exec.Command("helm", "list", "-o", "json")
+	helmOut, err := helmCmd.Output()
+	if err != nil {
+		log.Debug().Err(err).Msgf("helm output was: %v", string(helmOut))
+		return nil, errors.Wrap(err, "Running helmfile list command")
+	}
+	helmListOutput := []helmListOutput{}
+	err = yaml.Unmarshal(helmOut, &helmListOutput)
+	if err != nil {
+		return nil, errors.Wrap(err, "Unmarshalling helm list output")
+	}
+	slnetwork := NewSLNetwork("", kubeconfig)
+	for _, release := range helmListOutput {
+		if strings.Contains(release.Chart, "bitcoin") {
+			bitcoinNode := BitcoinNode{Name: release.Name, SLNetwork: &slnetwork}
+			slnetwork.BitcoinNodes = append(slnetwork.BitcoinNodes, bitcoinNode)
+		} else if strings.Contains(release.Chart, "lnd") || strings.Contains(release.Chart, "cln") {
+			lightningNode := LightningNode{Name: release.Name, SLNetwork: &slnetwork}
+			slnetwork.LightningNodes = append(slnetwork.LightningNodes, lightningNode)
+		}
+	}
+	return &slnetwork, nil
+}
+
 func (n *SLNetwork) Start() error {
 	log.Debug().Msg("Starting network")
 	if err := n.CheckDependencies(); err != nil {
@@ -136,6 +173,17 @@ func (n *SLNetwork) GetLightningNode(name string) (*LightningNode, error) {
 	return nil, errors.New("Lightning node not found")
 }
 
+func (n *SLNetwork) GetAllNodes() []Node {
+	nodes := []Node{}
+	for _, node := range n.BitcoinNodes {
+		nodes = append(nodes, &node)
+	}
+	for _, node := range n.LightningNodes {
+		nodes = append(nodes, &node)
+	}
+	return nodes
+}
+
 type helmFile struct {
 	Releases []struct {
 		Name  string `yaml:"name"`
@@ -146,13 +194,13 @@ type helmFile struct {
 func parseHelmfileForNodes(
 	slnetwork *SLNetwork,
 ) (lightningNodes []LightningNode, bitcoinNodes []BitcoinNode, err error) {
-	buf, err := os.ReadFile(slnetwork.helmfile)
+	bytes, err := os.ReadFile(slnetwork.helmfile)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "OS Reading helmfile")
 	}
 
 	helmFile := &helmFile{}
-	err = yaml.Unmarshal(buf, helmFile)
+	err = yaml.Unmarshal(bytes, helmFile)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "Unmarshalling helmfile")
 	}
