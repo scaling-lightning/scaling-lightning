@@ -1,12 +1,15 @@
 package network
 
 import (
+	"os"
 	"os/exec"
 	"strings"
 
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
 	"github.com/scaling-lightning/scaling-lightning/pkg/types"
+
+	"gopkg.in/yaml.v3"
 )
 
 type SLNetwork struct {
@@ -93,6 +96,14 @@ func (n *SLNetwork) Start() error {
 		log.Debug().Err(err).Msgf("helmfile output was: %v", string(helmfileOut))
 		return errors.Wrap(err, "Running helmfile apply command")
 	}
+
+	lightningNodes, bitcoinNodes, err := parseHelmfileForNodes(n)
+	if err != nil {
+		return errors.Wrap(err, "Parsing helmfile for nodes")
+	}
+	n.LightningNodes = lightningNodes
+	n.BitcoinNodes = bitcoinNodes
+
 	return nil
 }
 
@@ -123,4 +134,44 @@ func (n *SLNetwork) GetLightningNode(name string) (*LightningNode, error) {
 		}
 	}
 	return nil, errors.New("Lightning node not found")
+}
+
+type helmFile struct {
+	Releases []struct {
+		Name  string `yaml:"name"`
+		Chart string `yaml:"chart"`
+	}
+}
+
+func parseHelmfileForNodes(
+	slnetwork *SLNetwork,
+) (lightningNodes []LightningNode, bitcoinNodes []BitcoinNode, err error) {
+	buf, err := os.ReadFile(slnetwork.helmfile)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "OS Reading helmfile")
+	}
+
+	helmFile := &helmFile{}
+	err = yaml.Unmarshal(buf, helmFile)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "Unmarshalling helmfile")
+	}
+
+	for _, release := range helmFile.Releases {
+		if strings.Contains(release.Chart, "lnd") || strings.Contains(release.Chart, "cln") {
+			lightningNodes = append(
+				lightningNodes,
+				LightningNode{Name: release.Name, SLNetwork: slnetwork},
+			)
+		}
+		if strings.Contains(release.Chart, "bitcoind") {
+			bitcoinNodes = append(
+				bitcoinNodes,
+				BitcoinNode{Name: release.Name, SLNetwork: slnetwork},
+			)
+		}
+	}
+
+	return lightningNodes, bitcoinNodes, err
+
 }
