@@ -6,6 +6,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
+	"github.com/scaling-lightning/scaling-lightning/pkg/types"
 )
 
 type SLNetwork struct {
@@ -16,8 +17,8 @@ type SLNetwork struct {
 }
 
 type Node interface {
-	GetNewAddress() (string, error)
-	Send(Node, uint64) error
+	GetNewAddress() (types.Address, error)
+	Send(Node, types.Amount) error
 	GetName() string
 }
 

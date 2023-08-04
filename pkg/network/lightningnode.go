@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/cockroachdb/errors"
@@ -15,6 +14,7 @@ import (
 	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
 	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/types"
 	"github.com/scaling-lightning/scaling-lightning/pkg/tools/grpc_helpers"
+	basictypes "github.com/scaling-lightning/scaling-lightning/pkg/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -31,7 +31,7 @@ func (n *LightningNode) GetName() string {
 	return n.Name
 }
 
-func (n *LightningNode) Send(to Node, amount uint64) error {
+func (n *LightningNode) Send(to Node, amount basictypes.Amount) error {
 	log.Debug().Msgf("Sending %v from %v to %v", amount, n.Name, to)
 
 	var toNode Node
@@ -60,8 +60,11 @@ func (n *LightningNode) Send(to Node, amount uint64) error {
 	return nil
 }
 
-func (n *LightningNode) SendToAddress(toAddress string, amount uint64) error {
-	req := types.SendToAddressReq{Address: toAddress, AmtSats: amount}
+func (n *LightningNode) SendToAddress(
+	toAddress basictypes.Address,
+	amount basictypes.Amount,
+) error {
+	req := types.SendToAddressReq{Address: toAddress.AsBase58String(), AmtSats: amount.AsSats()}
 	postBody, _ := json.Marshal(req)
 	postBuf := bytes.NewBuffer(postBody)
 	resp, err := http.Post(
@@ -87,47 +90,69 @@ func (n *LightningNode) SendToAddress(toAddress string, amount uint64) error {
 	return nil
 }
 
-func (n *LightningNode) GetNewAddress() (string, error) {
+func (n *LightningNode) GetNewAddress() (basictypes.Address, error) {
 	resp, err := http.Post(
 		fmt.Sprintf("http://localhost/%v/newaddress", n.Name),
 		"application/json",
 		nil,
 	)
 	if err != nil {
-		return "", errors.Wrapf(err, "Sending POST request to %v/newaddress", n.Name)
+		return basictypes.Address{}, errors.Wrapf(
+			err,
+			"Sending POST request to %v/newaddress",
+			n.Name,
+		)
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", errors.Wrapf(err, "Reading response body from %v/newaddress", n.Name)
+		return basictypes.Address{}, errors.Wrapf(
+			err,
+			"Reading response body from %v/newaddress",
+			n.Name,
+		)
 	}
 	var newAddress types.NewAddressRes
 	err = json.Unmarshal(body, &newAddress)
 	if err != nil {
 		fmt.Println("error:", err)
 	}
-	return newAddress.Address, nil
+	return basictypes.NewAddressFromBase58String(newAddress.Address), nil
 }
 
-func (n *LightningNode) GetPubKey() (string, error) {
+func (n *LightningNode) GetPubKey() (basictypes.PubKey, error) {
 	resp, err := http.Get(fmt.Sprintf("http://localhost/%v/pubkey", n.Name))
 	if err != nil {
-		return "", errors.Wrapf(err, "Sending GET request to %v/pubkey", n.Name)
+		return basictypes.PubKey{}, errors.Wrapf(err, "Sending GET request to %v/pubkey", n.Name)
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", errors.Wrapf(err, "Reading response body from %v/pubkey", n.Name)
+		return basictypes.PubKey{}, errors.Wrapf(
+			err,
+			"Reading response body from %v/pubkey",
+			n.Name,
+		)
 	}
-	var pubKey types.PubKeyRes
-	err = json.Unmarshal(body, &pubKey)
+	var pubKeyRes types.PubKeyRes
+	err = json.Unmarshal(body, &pubKeyRes)
 	if err != nil {
-		fmt.Println("error:", err)
+		return basictypes.PubKey{}, errors.Wrapf(
+			err,
+			"Unmarshalling pubkey response body from %v",
+			n.Name,
+		)
 	}
-	return pubKey.PubKey, nil
+
+	pubKey, err := basictypes.NewPubKeyFromHexString(pubKeyRes.PubKey)
+	if err != nil {
+		return basictypes.PubKey{}, errors.Wrapf(err, "Converting pubkey from hex string")
+	}
+
+	return pubKey, nil
 }
 
-func (n *LightningNode) GetWalletBalanceSats() (string, error) {
+func (n *LightningNode) GetWalletBalance() (basictypes.Amount, error) {
 
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -135,7 +160,7 @@ func (n *LightningNode) GetWalletBalanceSats() (string, error) {
 	}
 	conn, err := grpc.Dial("localhost:80", opts...)
 	if err != nil {
-		return "", errors.Wrapf(err, "Connecting to gRPC for %v's client", n.Name)
+		return basictypes.Amount{}, errors.Wrapf(err, "Connecting to gRPC for %v's client", n.Name)
 	}
 	defer conn.Close()
 	client := lightning.NewLightningClientClient(conn)
@@ -144,9 +169,9 @@ func (n *LightningNode) GetWalletBalanceSats() (string, error) {
 		&lightning.WalletBalanceRequest{},
 	)
 	if err != nil {
-		return "", errors.Wrapf(err, "Getting wallet balance for %v", n.Name)
+		return basictypes.Amount{}, errors.Wrapf(err, "Getting wallet balance for %v", n.Name)
 	}
-	return strconv.FormatUint(walletBalance.Balance, 10) + " sats", nil
+	return basictypes.NewAmountSats(walletBalance.Balance), nil
 
 }
 
@@ -160,7 +185,7 @@ func (n *LightningNode) ConnectPeer(to Node) error {
 	if err != nil {
 		return errors.Wrapf(err, "Getting pubkey for %v", to)
 	}
-	req := types.ConnectPeerReq{PubKey: toPubKey, Host: to.GetName(), Port: 9735}
+	req := types.ConnectPeerReq{PubKey: toPubKey.AsHexString(), Host: to.GetName(), Port: 9735}
 	postBody, _ := json.Marshal(req)
 	postBuf := bytes.NewBuffer(postBody)
 	resp, err := http.Post(
@@ -189,9 +214,9 @@ func (n *LightningNode) ConnectPeer(to Node) error {
 	return nil
 }
 
-func (n *LightningNode) OpenChannel(to Node, localAmtSats uint64) error {
+func (n *LightningNode) OpenChannel(to Node, localAmt basictypes.Amount) error {
 	log.Debug().
-		Msgf("Opening channel from %v to %v for %d sats", n.Name, to.GetName(), localAmtSats)
+		Msgf("Opening channel from %v to %v for %d sats", n.Name, to.GetName(), localAmt.AsSats())
 
 	toNode, err := n.SLNetwork.GetLightningNode(to.GetName())
 	if err != nil {
@@ -201,7 +226,7 @@ func (n *LightningNode) OpenChannel(to Node, localAmtSats uint64) error {
 	if err != nil {
 		return errors.Wrapf(err, "Getting pubkey for %v", to.GetName())
 	}
-	req := types.OpenChannelReq{PubKey: toPubKey, LocalAmtSats: localAmtSats}
+	req := types.OpenChannelReq{PubKey: toPubKey.AsHexString(), LocalAmtSats: localAmt.AsSats()}
 	postBody, _ := json.Marshal(req)
 	postBuf := bytes.NewBuffer(postBody)
 	resp, err := http.Post(

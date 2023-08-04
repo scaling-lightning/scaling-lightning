@@ -10,6 +10,8 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
 	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/types"
+
+	basictypes "github.com/scaling-lightning/scaling-lightning/pkg/types"
 )
 
 type BitcoinNode struct {
@@ -21,7 +23,7 @@ func (n *BitcoinNode) GetName() string {
 	return n.Name
 }
 
-func (n *BitcoinNode) Send(to Node, amount uint64) error {
+func (n *BitcoinNode) Send(to Node, amount basictypes.Amount) error {
 	log.Debug().Msgf("Sending %v from %v to %v", amount, n.Name, to)
 
 	var toNode Node
@@ -55,7 +57,7 @@ func (n *BitcoinNode) Generate(numBlocks uint64) error {
 	if err != nil {
 		return errors.Wrapf(err, "Getting new address for %v", n.Name)
 	}
-	req := types.GenerateToAddressReq{Address: address, NumOfBlocks: numBlocks}
+	req := types.GenerateToAddressReq{Address: address.AsBase58String(), NumOfBlocks: numBlocks}
 	postBody, _ := json.Marshal(req)
 	postBuf := bytes.NewBuffer(postBody)
 	resp, err := http.Post(
@@ -82,8 +84,8 @@ func (n *BitcoinNode) Generate(numBlocks uint64) error {
 	return nil
 }
 
-func (n *BitcoinNode) SendToAddress(address string, amount uint64) error {
-	req := types.SendToAddressReq{Address: address, AmtSats: amount}
+func (n *BitcoinNode) SendToAddress(address basictypes.Address, amount basictypes.Amount) error {
+	req := types.SendToAddressReq{Address: address.AsBase58String(), AmtSats: amount.AsSats()}
 	postBody, _ := json.Marshal(req)
 	postBuf := bytes.NewBuffer(postBody)
 	resp, err := http.Post(
@@ -109,24 +111,32 @@ func (n *BitcoinNode) SendToAddress(address string, amount uint64) error {
 	return nil
 }
 
-func (n *BitcoinNode) GetNewAddress() (string, error) {
+func (n *BitcoinNode) GetNewAddress() (basictypes.Address, error) {
 	resp, err := http.Post(
 		fmt.Sprintf("http://localhost/%v/newaddress", n.Name),
 		"application/json",
 		nil,
 	)
 	if err != nil {
-		return "", errors.Wrapf(err, "Sending POST request to %v/newaddress", n.Name)
+		return basictypes.Address{}, errors.Wrapf(
+			err,
+			"Sending POST request to %v/newaddress",
+			n.Name,
+		)
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return "", errors.Wrapf(err, "Reading response body from %v/newaddress", n.Name)
+		return basictypes.Address{}, errors.Wrapf(
+			err,
+			"Reading response body from %v/newaddress",
+			n.Name,
+		)
 	}
 	var newAddress types.NewAddressRes
 	err = json.Unmarshal(body, &newAddress)
 	if err != nil {
 		fmt.Println("error:", err)
 	}
-	return newAddress.Address, nil
+	return basictypes.NewAddressFromBase58String(newAddress.Address), nil
 }
