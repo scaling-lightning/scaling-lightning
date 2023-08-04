@@ -27,25 +27,29 @@ type LightningNode struct {
 	SLNetwork   *SLNetwork
 }
 
-func (n *LightningNode) Send(to string, amount uint64) error {
+func (n *LightningNode) GetName() string {
+	return n.Name
+}
+
+func (n *LightningNode) Send(to Node, amount uint64) error {
 	log.Debug().Msgf("Sending %v from %v to %v", amount, n.Name, to)
 
 	var toNode Node
-	toNode, err := n.SLNetwork.GetLightningNode(to)
+	toNode, err := n.SLNetwork.GetLightningNode(to.GetName())
 	if err != nil {
-		toNode, err = n.SLNetwork.GetBitcoinNode(to)
+		toNode, err = n.SLNetwork.GetBitcoinNode(to.GetName())
 		if err != nil {
-			return errors.Wrapf(err, "Looking up lightning node %v", to)
+			return errors.Wrapf(err, "Looking up lightning node %v", to.GetName())
 		}
 	}
 	address, err := toNode.GetNewAddress()
 	if err != nil {
-		return errors.Wrapf(err, "Getting new address for %v", to)
+		return errors.Wrapf(err, "Getting new address for %v", to.GetName())
 	}
 
 	err = n.SendToAddress(address, amount)
 	if err != nil {
-		return errors.Wrapf(err, "Sending %v from %v to %v", amount, n.Name, to)
+		return errors.Wrapf(err, "Sending %v from %v to %v", amount, n.Name, to.GetName())
 	}
 
 	err = n.BitcoinNode.Generate(50)
@@ -146,17 +150,17 @@ func (n *LightningNode) GetWalletBalanceSats() (string, error) {
 
 }
 
-func (n *LightningNode) ConnectPeer(toName string) error {
-	log.Debug().Msgf("Connecting %v to %v", n.Name, toName)
-	toNode, err := n.SLNetwork.GetLightningNode(toName)
+func (n *LightningNode) ConnectPeer(to Node) error {
+	log.Debug().Msgf("Connecting %v to %v", n.Name, to)
+	toNode, err := n.SLNetwork.GetLightningNode(to.GetName())
 	if err != nil {
-		return errors.Wrapf(err, "Looking up lightning node for %v", toName)
+		return errors.Wrapf(err, "Looking up lightning node for %v", to.GetName())
 	}
 	toPubKey, err := toNode.GetPubKey()
 	if err != nil {
-		return errors.Wrapf(err, "Getting pubkey for %v", toName)
+		return errors.Wrapf(err, "Getting pubkey for %v", to)
 	}
-	req := types.ConnectPeerReq{PubKey: toPubKey, Host: toName, Port: 9735}
+	req := types.ConnectPeerReq{PubKey: toPubKey, Host: to.GetName(), Port: 9735}
 	postBody, _ := json.Marshal(req)
 	postBuf := bytes.NewBuffer(postBody)
 	resp, err := http.Post(
@@ -185,16 +189,17 @@ func (n *LightningNode) ConnectPeer(toName string) error {
 	return nil
 }
 
-func (n *LightningNode) OpenChannel(toName string, localAmtSats uint64) error {
-	log.Debug().Msgf("Opening channel from %v to %v for %d sats", n.Name, toName, localAmtSats)
+func (n *LightningNode) OpenChannel(to Node, localAmtSats uint64) error {
+	log.Debug().
+		Msgf("Opening channel from %v to %v for %d sats", n.Name, to.GetName(), localAmtSats)
 
-	toNode, err := n.SLNetwork.GetLightningNode(toName)
+	toNode, err := n.SLNetwork.GetLightningNode(to.GetName())
 	if err != nil {
-		return errors.Wrapf(err, "Looking up lightning node for %v", toName)
+		return errors.Wrapf(err, "Looking up lightning node for %v", to.GetName())
 	}
 	toPubKey, err := toNode.GetPubKey()
 	if err != nil {
-		return errors.Wrapf(err, "Getting pubkey for %v", toName)
+		return errors.Wrapf(err, "Getting pubkey for %v", to.GetName())
 	}
 	req := types.OpenChannelReq{PubKey: toPubKey, LocalAmtSats: localAmtSats}
 	postBody, _ := json.Marshal(req)

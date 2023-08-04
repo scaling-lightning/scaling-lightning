@@ -17,25 +17,29 @@ type BitcoinNode struct {
 	SLNetwork *SLNetwork
 }
 
-func (n *BitcoinNode) Send(to string, amount uint64) error {
+func (n *BitcoinNode) GetName() string {
+	return n.Name
+}
+
+func (n *BitcoinNode) Send(to Node, amount uint64) error {
 	log.Debug().Msgf("Sending %v from %v to %v", amount, n.Name, to)
 
 	var toNode Node
-	toNode, err := n.SLNetwork.GetLightningNode(to)
+	toNode, err := n.SLNetwork.GetLightningNode(to.GetName())
 	if err != nil {
-		toNode, err = n.SLNetwork.GetBitcoinNode(to)
+		toNode, err = n.SLNetwork.GetBitcoinNode(to.GetName())
 		if err != nil {
-			return errors.Wrapf(err, "Looking up lightning node %v", to)
+			return errors.Wrapf(err, "Looking up lightning node %v", to.GetName())
 		}
 	}
 	address, err := toNode.GetNewAddress()
 	if err != nil {
-		return errors.Wrapf(err, "Getting new address for %v", to)
+		return errors.Wrapf(err, "Getting new address for %v", to.GetName())
 	}
 
 	err = n.SendToAddress(address, amount)
 	if err != nil {
-		return errors.Wrapf(err, "Sending %v from %v to %v", amount, n.Name, to)
+		return errors.Wrapf(err, "Sending %v from %v to %v", amount, n.Name, to.GetName())
 	}
 
 	err = n.Generate(50)

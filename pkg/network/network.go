@@ -11,13 +11,14 @@ import (
 type SLNetwork struct {
 	BitcoinNodes   []BitcoinNode
 	LightningNodes []LightningNode
-	KubeConfig     string
-	Helmfile       string
+	kubeConfig     string
+	helmfile       string
 }
 
 type Node interface {
 	GetNewAddress() (string, error)
-	Send(string, uint64) error
+	Send(Node, uint64) error
+	GetName() string
 }
 
 func (n *SLNetwork) CheckDependencies() error {
@@ -73,19 +74,19 @@ func (n *SLNetwork) CheckDependencies() error {
 	return nil
 }
 
-func New(helmfile string, kubeConfig string) SLNetwork {
+func NewSLNetwork(helmfile string, kubeConfig string) SLNetwork {
 	return SLNetwork{
-		Helmfile:   helmfile,
-		KubeConfig: kubeConfig,
+		helmfile:   helmfile,
+		kubeConfig: kubeConfig,
 	}
 }
 
-func (n *SLNetwork) StartViaHelmfile(helmfilePath string) error {
+func (n *SLNetwork) Start() error {
 	log.Debug().Msg("Starting network")
 	if err := n.CheckDependencies(); err != nil {
 		return errors.Wrap(err, "Checking dependencies")
 	}
-	helmfileCmd := exec.Command("helmfile", "apply", "-f", helmfilePath)
+	helmfileCmd := exec.Command("helmfile", "apply", "-f", n.helmfile)
 	helmfileOut, err := helmfileCmd.Output()
 	if err != nil {
 		log.Debug().Err(err).Msgf("helmfile output was: %v", string(helmfileOut))
@@ -94,9 +95,9 @@ func (n *SLNetwork) StartViaHelmfile(helmfilePath string) error {
 	return nil
 }
 
-func (n *SLNetwork) StopViaHelmfile(helmfilePath string) error {
+func (n *SLNetwork) Stop() error {
 	log.Debug().Msg("Stopping network")
-	helmfileCmd := exec.Command("helmfile", "destroy", "-f", helmfilePath)
+	helmfileCmd := exec.Command("helmfile", "destroy", "-f", n.helmfile)
 	helmfileOut, err := helmfileCmd.Output()
 	if err != nil {
 		log.Debug().Err(err).Msgf("helmfile output was: %v", string(helmfileOut))
