@@ -7,14 +7,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var connectpeerFromName string
-var connectpeerToName string
-
 var connectpeerCmd = &cobra.Command{
 	Use:   "connectpeer",
 	Short: "Connect peers",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+		connectpeerFromName := cmd.Flag("from").Value.String()
+		connectpeerToName := cmd.Flag("to").Value.String()
 		slnetwork, err := sl.DiscoverStartedNetwork("")
 		if err != nil {
 			fmt.Printf(
@@ -41,14 +40,14 @@ var connectpeerCmd = &cobra.Command{
 		if connectpeerFromNode.Name == "" {
 			fmt.Printf(
 				"Can't find node with name %v, here are the lightnign nodes that are running: %v\n",
-				openchannelFromName,
+				connectpeerFromName,
 				allNames,
 			)
 		}
 		if connectpeerToNode.Name == "" {
 			fmt.Printf(
 				"Can't find node with name %v, here are the lightning nodes that are running: %v\n",
-				openchannelToName,
+				connectpeerToName,
 				allNames,
 			)
 		}
@@ -67,10 +66,10 @@ func init() {
 	rootCmd.AddCommand(connectpeerCmd)
 
 	connectpeerCmd.Flags().
-		StringVarP(&connectpeerFromName, "from", "f", "", "Name of the node to connect from")
+		StringP("from", "f", "", "Name of the node to connect from")
 	connectpeerCmd.MarkFlagRequired("from")
 
 	connectpeerCmd.Flags().
-		StringVarP(&connectpeerToName, "to", "t", "", "Name of the node to connect from")
+		StringP("to", "t", "", "Name of the node to connect from")
 	connectpeerCmd.MarkFlagRequired("from")
 }

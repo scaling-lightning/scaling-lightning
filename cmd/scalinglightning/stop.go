@@ -7,13 +7,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var stopHelmfile string
-
 var stopCmd = &cobra.Command{
 	Use:   "stop",
 	Short: "Stop the network",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+		stopHelmfile := cmd.Flag("helmfile").Value.String()
 		fmt.Println("Stopping the network")
 		slnetwork := sl.NewSLNetwork(stopHelmfile, "")
 		err := slnetwork.Stop()
@@ -27,6 +26,6 @@ func init() {
 	rootCmd.AddCommand(stopCmd)
 
 	stopCmd.Flags().
-		StringVarP(&stopHelmfile, "helmfile", "f", "", "Location of helmfile.yaml (required)")
+		StringP("helmfile", "f", "", "Location of helmfile.yaml (required)")
 	stopCmd.MarkFlagRequired("helmfile")
 }

@@ -8,15 +8,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var sendFromName string
-var sendToName string
-var sendAmount uint64
-
 var sendCmd = &cobra.Command{
 	Use:   "send",
 	Short: "Send on chain funds betwen nodes",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+		sendFromName := cmd.Flag("from").Value.String()
+		sendToName := cmd.Flag("to").Value.String()
+		sendAmount, err := cmd.Flags().GetUint64("amount")
+		if err != nil {
+			fmt.Println("Amount must be a valid number")
+			return
+		}
+
 		slnetwork, err := sl.DiscoverStartedNetwork("")
 		if err != nil {
 			fmt.Printf(
@@ -69,13 +73,13 @@ var sendCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(sendCmd)
 
-	sendCmd.Flags().StringVarP(&sendFromName, "from", "f", "", "Name of node to send from")
+	sendCmd.Flags().StringP("from", "f", "", "Name of node to send from")
 	sendCmd.MarkFlagRequired("from")
 
-	sendCmd.Flags().StringVarP(&sendToName, "to", "t", "", "Name of node to send to")
+	sendCmd.Flags().StringP("to", "t", "", "Name of node to send to")
 	sendCmd.MarkFlagRequired("to")
 
-	sendCmd.Flags().Uint64VarP(&sendAmount, "amount", "a", 0, "Amount of satoshis to send")
+	sendCmd.Flags().Uint64P("amount", "a", 0, "Amount of satoshis to send")
 	sendCmd.MarkFlagRequired("amount")
 
 }

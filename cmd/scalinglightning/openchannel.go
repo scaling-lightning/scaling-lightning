@@ -8,15 +8,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var openchannelFromName string
-var openchannelToName string
-var openchannelLocalAmt uint64
-
 var openchannelCmd = &cobra.Command{
 	Use:   "openchannel",
 	Short: "Open a channel between two nodes",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+		openchannelFromName := cmd.Flag("from").Value.String()
+		openchannelToName := cmd.Flag("to").Value.String()
+		openchannelLocalAmt, err := cmd.Flags().GetUint64("localamt")
+		if err != nil {
+			fmt.Println("Amount must be a valid number")
+			return
+		}
+
 		slnetwork, err := sl.DiscoverStartedNetwork("")
 		if err != nil {
 			fmt.Printf(
@@ -72,15 +76,15 @@ func init() {
 	rootCmd.AddCommand(openchannelCmd)
 
 	openchannelCmd.Flags().
-		StringVarP(&openchannelFromName, "from", "f", "", "Name of node to open channel from")
+		StringP("from", "f", "", "Name of node to open channel from")
 	openchannelCmd.MarkFlagRequired("from")
 
 	openchannelCmd.Flags().
-		StringVarP(&openchannelToName, "to", "t", "", "Name of node to open channel to")
+		StringP("to", "t", "", "Name of node to open channel to")
 	openchannelCmd.MarkFlagRequired("to")
 
 	openchannelCmd.Flags().
-		Uint64VarP(&openchannelLocalAmt, "amount", "a", 0, "Amount of satoshis to put into channel from the opening side")
+		Uint64P("amount", "a", 0, "Amount of satoshis to put into channel from the opening side")
 	openchannelCmd.MarkFlagRequired("amount")
 
 }

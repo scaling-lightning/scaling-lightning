@@ -7,15 +7,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var helmfile string
-
 var startCmd = &cobra.Command{
 	Use:   "start",
 	Short: "Start the network",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+		helmfile := cmd.Flag("helmfile").Value.String()
 		fmt.Println("Starting the network")
-		slnetwork := sl.NewSLNetwork(stopHelmfile, "")
+		slnetwork := sl.NewSLNetwork(helmfile, "")
 		err := slnetwork.Start()
 		if err != nil {
 			fmt.Println(err.Error())
@@ -27,6 +26,6 @@ func init() {
 	rootCmd.AddCommand(startCmd)
 
 	startCmd.Flags().
-		StringVarP(&helmfile, "helmfile", "f", "", "Location of helmfile.yaml (required)")
+		StringP("helmfile", "f", "", "Location of helmfile.yaml (required)")
 	startCmd.MarkFlagRequired("helmfile")
 }

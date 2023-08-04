@@ -7,13 +7,12 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var pubkeyNodeName string
-
 var pubkeyCmd = &cobra.Command{
 	Use:   "pubkey",
 	Short: "Get the pubkey of a node",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+		pubkeyNodeName := cmd.Flag("node").Value.String()
 		slnetwork, err := sl.DiscoverStartedNetwork("")
 		if err != nil {
 			fmt.Printf(
@@ -50,6 +49,6 @@ func init() {
 	rootCmd.AddCommand(pubkeyCmd)
 
 	pubkeyCmd.Flags().
-		StringVarP(&pubkeyNodeName, "node", "n", "", "The name of the node to get the wallet balance of")
+		StringP("node", "n", "", "The name of the node to get the wallet balance of")
 	pubkeyCmd.MarkFlagRequired("node")
 }
