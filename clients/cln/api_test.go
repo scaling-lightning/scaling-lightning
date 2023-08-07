@@ -1,130 +1,114 @@
 package main
 
-import (
-	"bytes"
-	"encoding/hex"
-	"encoding/json"
-	"io"
-	"net/http"
-	"net/http/httptest"
-	"testing"
+// func TestHandleWalletBalance(t *testing.T) {
+// 	mockClient := mocks.NewNodeClient(t)
 
-	clnGRPC "github.com/scaling-lightning/scaling-lightning/clients/cln/grpc"
-	"github.com/scaling-lightning/scaling-lightning/clients/cln/mocks"
-	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/types"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-)
+// 	mockClient.On("ListFunds", mock.Anything, mock.Anything).
+// 		Return(&clnGRPC.ListfundsResponse{
+// 			Outputs: []*clnGRPC.ListfundsOutputs{
+// 				{AmountMsat: &clnGRPC.Amount{Msat: 20}},
+// 				{AmountMsat: &clnGRPC.Amount{Msat: 1}}}}, nil)
 
-func TestHandleWalletBalance(t *testing.T) {
-	mockClient := mocks.NewNodeClient(t)
+// 	req := httptest.NewRequest(http.MethodGet, "/", nil)
+// 	res := httptest.NewRecorder()
 
-	mockClient.On("ListFunds", mock.Anything, mock.Anything).
-		Return(&clnGRPC.ListfundsResponse{
-			Outputs: []*clnGRPC.ListfundsOutputs{
-				{AmountMsat: &clnGRPC.Amount{Msat: 20}},
-				{AmountMsat: &clnGRPC.Amount{Msat: 1}}}}, nil)
+// 	handleWalletBalance(res, req, mockClient)
 
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	res := httptest.NewRecorder()
+// 	bodyBytes, err := io.ReadAll(res.Result().Body)
+// 	assert.Nil(t, err)
+// 	assert.Contains(t, string(bodyBytes), "21")
+// }
 
-	handleWalletBalance(res, req, mockClient)
+// func TestHandleNewAddress(t *testing.T) {
+// 	mockClient := mocks.NewNodeClient(t)
 
-	bodyBytes, err := io.ReadAll(res.Result().Body)
-	assert.Nil(t, err)
-	assert.Contains(t, string(bodyBytes), "21")
-}
+// 	address := "bcrt1qddzehdyj5e7w4sfya3h9qznnm80etc9gkpk0qd"
+// 	mockClient.On("NewAddr", mock.Anything, mock.Anything).
+// 		Return(&clnGRPC.NewaddrResponse{Bech32: &address}, nil)
 
-func TestHandleNewAddress(t *testing.T) {
-	mockClient := mocks.NewNodeClient(t)
+// 	req := httptest.NewRequest(http.MethodPost, "/", nil)
+// 	res := httptest.NewRecorder()
 
-	address := "bcrt1qddzehdyj5e7w4sfya3h9qznnm80etc9gkpk0qd"
-	mockClient.On("NewAddr", mock.Anything, mock.Anything).
-		Return(&clnGRPC.NewaddrResponse{Bech32: &address}, nil)
+// 	handleNewAddress(res, req, mockClient)
 
-	req := httptest.NewRequest(http.MethodPost, "/", nil)
-	res := httptest.NewRecorder()
+// 	bodyBytes, err := io.ReadAll(res.Result().Body)
+// 	assert.Nil(t, err)
+// 	assert.Contains(t, string(bodyBytes), address)
+// }
 
-	handleNewAddress(res, req, mockClient)
+// func TestHandlePubKey(t *testing.T) {
+// 	mockClient := mocks.NewNodeClient(t)
 
-	bodyBytes, err := io.ReadAll(res.Result().Body)
-	assert.Nil(t, err)
-	assert.Contains(t, string(bodyBytes), address)
-}
+// 	pubKey := "02c3d4d2b6b4b8e2f5f9c6e3f0b1e8d5a2c3d4d2b6b4b8e2f5f9c6e3f0b1e8d5"
+// 	pubKeyBinary, err := hex.DecodeString(pubKey)
+// 	assert.Nil(t, err)
 
-func TestHandlePubKey(t *testing.T) {
-	mockClient := mocks.NewNodeClient(t)
+// 	mockClient.On("Getinfo", mock.Anything, mock.Anything).
+// 		Return(&clnGRPC.GetinfoResponse{Id: pubKeyBinary}, nil)
 
-	pubKey := "02c3d4d2b6b4b8e2f5f9c6e3f0b1e8d5a2c3d4d2b6b4b8e2f5f9c6e3f0b1e8d5"
-	pubKeyBinary, err := hex.DecodeString(pubKey)
-	assert.Nil(t, err)
+// 	req := httptest.NewRequest(http.MethodGet, "/", nil)
+// 	res := httptest.NewRecorder()
 
-	mockClient.On("Getinfo", mock.Anything, mock.Anything).
-		Return(&clnGRPC.GetinfoResponse{Id: pubKeyBinary}, nil)
+// 	handlePubKey(res, req, mockClient)
 
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	res := httptest.NewRecorder()
+// 	bodyBytes, err := io.ReadAll(res.Result().Body)
+// 	assert.Nil(t, err)
+// 	assert.Contains(t, string(bodyBytes), pubKey)
+// }
 
-	handlePubKey(res, req, mockClient)
+// func TestHandleConnectPeer(t *testing.T) {
+// 	assert := assert.New(t)
+// 	mockClient := mocks.NewNodeClient(t)
 
-	bodyBytes, err := io.ReadAll(res.Result().Body)
-	assert.Nil(t, err)
-	assert.Contains(t, string(bodyBytes), pubKey)
-}
+// 	mockClient.On("ConnectPeer", mock.Anything, mock.Anything).
+// 		Return(&clnGRPC.ConnectResponse{}, nil)
 
-func TestHandleConnectPeer(t *testing.T) {
-	assert := assert.New(t)
-	mockClient := mocks.NewNodeClient(t)
+// 	pubKey := "037c70cddec9b27c92af73a6b04cf09672fb29b18eca86890d835779979ff61c40"
+// 	host := "lnd1.myfancysats.com"
+// 	port := 9745
 
-	mockClient.On("ConnectPeer", mock.Anything, mock.Anything).
-		Return(&clnGRPC.ConnectResponse{}, nil)
+// 	connectPeerReq := types.ConnectPeerReq{PubKey: pubKey, Host: host, Port: port}
+// 	connectPeerBytes, err := json.Marshal(connectPeerReq)
 
-	pubKey := "037c70cddec9b27c92af73a6b04cf09672fb29b18eca86890d835779979ff61c40"
-	host := "lnd1.myfancysats.com"
-	port := 9745
+// 	assert.Nil(err)
 
-	connectPeerReq := types.ConnectPeerReq{PubKey: pubKey, Host: host, Port: port}
-	connectPeerBytes, err := json.Marshal(connectPeerReq)
+// 	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(connectPeerBytes))
+// 	res := httptest.NewRecorder()
 
-	assert.Nil(err)
+// 	handleConnectPeer(res, req, mockClient)
 
-	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(connectPeerBytes))
-	res := httptest.NewRecorder()
+// 	bodyBytes, err := io.ReadAll(res.Result().Body)
+// 	assert.Nil(err)
+// 	assert.Contains(string(bodyBytes), "request received")
+// }
 
-	handleConnectPeer(res, req, mockClient)
+// func TestHandleOpenChannel(t *testing.T) {
+// 	assert := assert.New(t)
+// 	mockClient := mocks.NewNodeClient(t)
 
-	bodyBytes, err := io.ReadAll(res.Result().Body)
-	assert.Nil(err)
-	assert.Contains(string(bodyBytes), "request received")
-}
+// 	outIndex := 615
+// 	txIdString := "71c73940758ac6ebe34a8f228e28300e"
+// 	TxId, err := hex.DecodeString(txIdString) // real one would be larger
+// 	assert.Nil(err)
 
-func TestHandleOpenChannel(t *testing.T) {
-	assert := assert.New(t)
-	mockClient := mocks.NewNodeClient(t)
+// 	mockClient.On("FundChannel", mock.Anything, mock.Anything).
+// 		Return(&clnGRPC.FundchannelResponse{Txid: TxId, Outnum: uint32(outIndex)}, nil)
 
-	outIndex := 615
-	txIdString := "71c73940758ac6ebe34a8f228e28300e"
-	TxId, err := hex.DecodeString(txIdString) // real one would be larger
-	assert.Nil(err)
+// 	pubKey := "037c70cddec9b27c92af73a6b04cf09672fb29b18eca86890d835779979ff61c40"
+// 	amount := 1000000
 
-	mockClient.On("FundChannel", mock.Anything, mock.Anything).
-		Return(&clnGRPC.FundchannelResponse{Txid: TxId, Outnum: uint32(outIndex)}, nil)
+// 	openChannelReq := types.OpenChannelReq{PubKey: pubKey, LocalAmtSats: uint64(amount)}
+// 	openChannelBytes, err := json.Marshal(openChannelReq)
 
-	pubKey := "037c70cddec9b27c92af73a6b04cf09672fb29b18eca86890d835779979ff61c40"
-	amount := 1000000
+// 	assert.Nil(err)
 
-	openChannelReq := types.OpenChannelReq{PubKey: pubKey, LocalAmtSats: uint64(amount)}
-	openChannelBytes, err := json.Marshal(openChannelReq)
+// 	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(openChannelBytes))
+// 	res := httptest.NewRecorder()
 
-	assert.Nil(err)
+// 	handleOpenChannel(res, req, mockClient)
 
-	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(openChannelBytes))
-	res := httptest.NewRecorder()
-
-	handleOpenChannel(res, req, mockClient)
-
-	bodyBytes, err := io.ReadAll(res.Result().Body)
-	assert.Nil(err)
-	assert.Contains(string(bodyBytes), "615")
-	assert.Contains(string(bodyBytes), "615")
-}
+// 	bodyBytes, err := io.ReadAll(res.Result().Body)
+// 	assert.Nil(err)
+// 	assert.Contains(string(bodyBytes), "615")
+// 	assert.Contains(string(bodyBytes), "615")
+// }

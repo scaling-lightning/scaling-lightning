@@ -105,6 +105,217 @@ func (x *PubKeyResponse) GetPubKey() []byte {
 	return nil
 }
 
+type ConnectPeerRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	PubKey []byte `protobuf:"bytes,1,opt,name=pubKey,proto3" json:"pubKey,omitempty"`
+	Host   string `protobuf:"bytes,2,opt,name=host,proto3" json:"host,omitempty"`
+	Port   uint32 `protobuf:"varint,3,opt,name=port,proto3" json:"port,omitempty"`
+}
+
+func (x *ConnectPeerRequest) Reset() {
+	*x = ConnectPeerRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_std_lightning_client_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ConnectPeerRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectPeerRequest) ProtoMessage() {}
+
+func (x *ConnectPeerRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_std_lightning_client_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectPeerRequest.ProtoReflect.Descriptor instead.
+func (*ConnectPeerRequest) Descriptor() ([]byte, []int) {
+	return file_std_lightning_client_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ConnectPeerRequest) GetPubKey() []byte {
+	if x != nil {
+		return x.PubKey
+	}
+	return nil
+}
+
+func (x *ConnectPeerRequest) GetHost() string {
+	if x != nil {
+		return x.Host
+	}
+	return ""
+}
+
+func (x *ConnectPeerRequest) GetPort() uint32 {
+	if x != nil {
+		return x.Port
+	}
+	return 0
+}
+
+type ConnectPeerResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *ConnectPeerResponse) Reset() {
+	*x = ConnectPeerResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_std_lightning_client_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ConnectPeerResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ConnectPeerResponse) ProtoMessage() {}
+
+func (x *ConnectPeerResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_std_lightning_client_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ConnectPeerResponse.ProtoReflect.Descriptor instead.
+func (*ConnectPeerResponse) Descriptor() ([]byte, []int) {
+	return file_std_lightning_client_proto_rawDescGZIP(), []int{3}
+}
+
+type OpenChannelRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	PubKey       []byte `protobuf:"bytes,1,opt,name=pubKey,proto3" json:"pubKey,omitempty"`
+	LocalAmtSats uint64 `protobuf:"varint,2,opt,name=localAmtSats,proto3" json:"localAmtSats,omitempty"`
+}
+
+func (x *OpenChannelRequest) Reset() {
+	*x = OpenChannelRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_std_lightning_client_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *OpenChannelRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OpenChannelRequest) ProtoMessage() {}
+
+func (x *OpenChannelRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_std_lightning_client_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OpenChannelRequest.ProtoReflect.Descriptor instead.
+func (*OpenChannelRequest) Descriptor() ([]byte, []int) {
+	return file_std_lightning_client_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *OpenChannelRequest) GetPubKey() []byte {
+	if x != nil {
+		return x.PubKey
+	}
+	return nil
+}
+
+func (x *OpenChannelRequest) GetLocalAmtSats() uint64 {
+	if x != nil {
+		return x.LocalAmtSats
+	}
+	return 0
+}
+
+type OpenChannelResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	FundingTxId          []byte `protobuf:"bytes,1,opt,name=fundingTxId,proto3" json:"fundingTxId,omitempty"`
+	FundingTxOutputIndex uint32 `protobuf:"varint,2,opt,name=fundingTxOutputIndex,proto3" json:"fundingTxOutputIndex,omitempty"`
+}
+
+func (x *OpenChannelResponse) Reset() {
+	*x = OpenChannelResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_std_lightning_client_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *OpenChannelResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OpenChannelResponse) ProtoMessage() {}
+
+func (x *OpenChannelResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_std_lightning_client_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OpenChannelResponse.ProtoReflect.Descriptor instead.
+func (*OpenChannelResponse) Descriptor() ([]byte, []int) {
+	return file_std_lightning_client_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *OpenChannelResponse) GetFundingTxId() []byte {
+	if x != nil {
+		return x.FundingTxId
+	}
+	return nil
+}
+
+func (x *OpenChannelResponse) GetFundingTxOutputIndex() uint32 {
+	if x != nil {
+		return x.FundingTxOutputIndex
+	}
+	return 0
+}
+
 var File_std_lightning_client_proto protoreflect.FileDescriptor
 
 var file_std_lightning_client_proto_rawDesc = []byte{
@@ -113,11 +324,37 @@ var file_std_lightning_client_proto_rawDesc = []byte{
 	0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x28, 0x0a,
 	0x0e, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
 	0x16, 0x0a, 0x06, 0x70, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52,
-	0x06, 0x70, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x32, 0x38, 0x0a, 0x09, 0x4c, 0x69, 0x67, 0x68, 0x74,
-	0x6e, 0x69, 0x6e, 0x67, 0x12, 0x2b, 0x0a, 0x06, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x12, 0x0e,
-	0x2e, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0f,
-	0x2e, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
-	0x00, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x06, 0x70, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x22, 0x54, 0x0a, 0x12, 0x43, 0x6f, 0x6e, 0x6e, 0x65,
+	0x63, 0x74, 0x50, 0x65, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x16, 0x0a,
+	0x06, 0x70, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x06, 0x70,
+	0x75, 0x62, 0x4b, 0x65, 0x79, 0x12, 0x12, 0x0a, 0x04, 0x68, 0x6f, 0x73, 0x74, 0x18, 0x02, 0x20,
+	0x01, 0x28, 0x09, 0x52, 0x04, 0x68, 0x6f, 0x73, 0x74, 0x12, 0x12, 0x0a, 0x04, 0x70, 0x6f, 0x72,
+	0x74, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x04, 0x70, 0x6f, 0x72, 0x74, 0x22, 0x15, 0x0a,
+	0x13, 0x43, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x50, 0x65, 0x65, 0x72, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x22, 0x50, 0x0a, 0x12, 0x4f, 0x70, 0x65, 0x6e, 0x43, 0x68, 0x61, 0x6e,
+	0x6e, 0x65, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x16, 0x0a, 0x06, 0x70, 0x75,
+	0x62, 0x4b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52, 0x06, 0x70, 0x75, 0x62, 0x4b,
+	0x65, 0x79, 0x12, 0x22, 0x0a, 0x0c, 0x6c, 0x6f, 0x63, 0x61, 0x6c, 0x41, 0x6d, 0x74, 0x53, 0x61,
+	0x74, 0x73, 0x18, 0x02, 0x20, 0x01, 0x28, 0x04, 0x52, 0x0c, 0x6c, 0x6f, 0x63, 0x61, 0x6c, 0x41,
+	0x6d, 0x74, 0x53, 0x61, 0x74, 0x73, 0x22, 0x6b, 0x0a, 0x13, 0x4f, 0x70, 0x65, 0x6e, 0x43, 0x68,
+	0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x20, 0x0a,
+	0x0b, 0x66, 0x75, 0x6e, 0x64, 0x69, 0x6e, 0x67, 0x54, 0x78, 0x49, 0x64, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x0c, 0x52, 0x0b, 0x66, 0x75, 0x6e, 0x64, 0x69, 0x6e, 0x67, 0x54, 0x78, 0x49, 0x64, 0x12,
+	0x32, 0x0a, 0x14, 0x66, 0x75, 0x6e, 0x64, 0x69, 0x6e, 0x67, 0x54, 0x78, 0x4f, 0x75, 0x74, 0x70,
+	0x75, 0x74, 0x49, 0x6e, 0x64, 0x65, 0x78, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x14, 0x66,
+	0x75, 0x6e, 0x64, 0x69, 0x6e, 0x67, 0x54, 0x78, 0x4f, 0x75, 0x74, 0x70, 0x75, 0x74, 0x49, 0x6e,
+	0x64, 0x65, 0x78, 0x32, 0xb0, 0x01, 0x0a, 0x09, 0x4c, 0x69, 0x67, 0x68, 0x74, 0x6e, 0x69, 0x6e,
+	0x67, 0x12, 0x2b, 0x0a, 0x06, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x12, 0x0e, 0x2e, 0x50, 0x75,
+	0x62, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0f, 0x2e, 0x50, 0x75,
+	0x62, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x3a,
+	0x0a, 0x0b, 0x43, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x50, 0x65, 0x65, 0x72, 0x12, 0x13, 0x2e,
+	0x43, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x50, 0x65, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x1a, 0x14, 0x2e, 0x43, 0x6f, 0x6e, 0x6e, 0x65, 0x63, 0x74, 0x50, 0x65, 0x65, 0x72,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x3a, 0x0a, 0x0b, 0x4f, 0x70,
+	0x65, 0x6e, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x12, 0x13, 0x2e, 0x4f, 0x70, 0x65, 0x6e,
+	0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x14,
+	0x2e, 0x4f, 0x70, 0x65, 0x6e, 0x43, 0x68, 0x61, 0x6e, 0x6e, 0x65, 0x6c, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -132,16 +369,24 @@ func file_std_lightning_client_proto_rawDescGZIP() []byte {
 	return file_std_lightning_client_proto_rawDescData
 }
 
-var file_std_lightning_client_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_std_lightning_client_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_std_lightning_client_proto_goTypes = []interface{}{
-	(*PubKeyRequest)(nil),  // 0: PubKeyRequest
-	(*PubKeyResponse)(nil), // 1: PubKeyResponse
+	(*PubKeyRequest)(nil),       // 0: PubKeyRequest
+	(*PubKeyResponse)(nil),      // 1: PubKeyResponse
+	(*ConnectPeerRequest)(nil),  // 2: ConnectPeerRequest
+	(*ConnectPeerResponse)(nil), // 3: ConnectPeerResponse
+	(*OpenChannelRequest)(nil),  // 4: OpenChannelRequest
+	(*OpenChannelResponse)(nil), // 5: OpenChannelResponse
 }
 var file_std_lightning_client_proto_depIdxs = []int32{
 	0, // 0: Lightning.PubKey:input_type -> PubKeyRequest
-	1, // 1: Lightning.PubKey:output_type -> PubKeyResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	2, // 1: Lightning.ConnectPeer:input_type -> ConnectPeerRequest
+	4, // 2: Lightning.OpenChannel:input_type -> OpenChannelRequest
+	1, // 3: Lightning.PubKey:output_type -> PubKeyResponse
+	3, // 4: Lightning.ConnectPeer:output_type -> ConnectPeerResponse
+	5, // 5: Lightning.OpenChannel:output_type -> OpenChannelResponse
+	3, // [3:6] is the sub-list for method output_type
+	0, // [0:3] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -177,6 +422,54 @@ func file_std_lightning_client_proto_init() {
 				return nil
 			}
 		}
+		file_std_lightning_client_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ConnectPeerRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_std_lightning_client_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ConnectPeerResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_std_lightning_client_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*OpenChannelRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_std_lightning_client_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*OpenChannelResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -184,7 +477,7 @@ func file_std_lightning_client_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_std_lightning_client_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

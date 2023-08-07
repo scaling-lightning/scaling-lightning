@@ -2,9 +2,27 @@ syntax = "proto3";
 
 service Lightning {
   rpc PubKey(PubKeyRequest) returns (PubKeyResponse) {}
+  rpc ConnectPeer(ConnectPeerRequest) returns (ConnectPeerResponse) {}
+  rpc OpenChannel(OpenChannelRequest) returns (OpenChannelResponse) {}
 }
 
 message PubKeyRequest {}
 message PubKeyResponse {
   bytes pubKey = 1;
+}
+
+message ConnectPeerRequest {
+  bytes pubKey = 1;
+  string host = 2;
+  uint32 port = 3;
+}
+message ConnectPeerResponse {}
+
+message OpenChannelRequest {
+  bytes pubKey = 1;
+  uint64 localAmtSats = 2;
+}
+message OpenChannelResponse {
+  bytes fundingTxId = 1;
+  uint32 fundingTxOutputIndex = 2;
 }

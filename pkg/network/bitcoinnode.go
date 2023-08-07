@@ -100,7 +100,7 @@ func (n *BitcoinNode) GetWalletBalance() (basictypes.Amount, error) {
 		return basictypes.Amount{}, errors.Wrapf(err, "Connecting to gRPC for %v's client", n.Name)
 	}
 	defer conn.Close()
-	client := lightning.NewLightningClientClient(conn)
+	client := lightning.NewCommonClient(conn)
 	walletBalance, err := client.WalletBalance(
 		context.Background(),
 		&lightning.WalletBalanceRequest{},

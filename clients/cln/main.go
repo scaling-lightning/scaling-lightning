@@ -109,8 +109,12 @@ func main() {
 	startGRPCServer(appConfig.apiPort, client)
 }
 
-type server struct {
-	standardclient.UnimplementedLightningClientServer
+type lightningServer struct {
+	standardclient.UnimplementedLightningServer
+	client clnGRPC.NodeClient
+}
+type commonServer struct {
+	standardclient.UnimplementedCommonServer
 	client clnGRPC.NodeClient
 }
 
@@ -120,7 +124,9 @@ func startGRPCServer(port int, client clnGRPC.NodeClient) error {
 		return errors.Wrapf(err, "Listening on port %d", port)
 	}
 	s := grpc.NewServer()
-	standardclient.RegisterLightningClientServer(s, &server{client: client})
+	standardclient.RegisterCommonServer(s, &commonServer{client: client})
+	standardclient.RegisterLightningServer(s, &lightningServer{client: client})
+
 	log.Info().Msgf("Starting gRPC server on port %d", port)
 	if err := s.Serve(lis); err != nil {
 		return errors.Wrap(err, "Serving gRPC server")
@@ -146,7 +152,7 @@ func parseFlags(appConfig *appConfig) error {
 	)
 	flag.IntVar(&appConfig.grpcPort, "grpcport", 8383, "Optional: CLN's gRPC port")
 	flag.StringVar(&appConfig.grpcAddress, "grpcaddress", "", "CLN's gRPC address")
-	flag.IntVar(&appConfig.apiPort, "apiport", 8181, "Optional: Port to run REST API on")
+	flag.IntVar(&appConfig.apiPort, "apiport", 8181, "Optional: Port to run gRPC API on")
 
 	flag.Parse()
 

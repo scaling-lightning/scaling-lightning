@@ -23,6 +23,8 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type LightningClient interface {
 	PubKey(ctx context.Context, in *PubKeyRequest, opts ...grpc.CallOption) (*PubKeyResponse, error)
+	ConnectPeer(ctx context.Context, in *ConnectPeerRequest, opts ...grpc.CallOption) (*ConnectPeerResponse, error)
+	OpenChannel(ctx context.Context, in *OpenChannelRequest, opts ...grpc.CallOption) (*OpenChannelResponse, error)
 }
 
 type lightningClient struct {
@@ -42,11 +44,31 @@ func (c *lightningClient) PubKey(ctx context.Context, in *PubKeyRequest, opts ..
 	return out, nil
 }
 
+func (c *lightningClient) ConnectPeer(ctx context.Context, in *ConnectPeerRequest, opts ...grpc.CallOption) (*ConnectPeerResponse, error) {
+	out := new(ConnectPeerResponse)
+	err := c.cc.Invoke(ctx, "/Lightning/ConnectPeer", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *lightningClient) OpenChannel(ctx context.Context, in *OpenChannelRequest, opts ...grpc.CallOption) (*OpenChannelResponse, error) {
+	out := new(OpenChannelResponse)
+	err := c.cc.Invoke(ctx, "/Lightning/OpenChannel", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // LightningServer is the server API for Lightning service.
 // All implementations must embed UnimplementedLightningServer
 // for forward compatibility
 type LightningServer interface {
 	PubKey(context.Context, *PubKeyRequest) (*PubKeyResponse, error)
+	ConnectPeer(context.Context, *ConnectPeerRequest) (*ConnectPeerResponse, error)
+	OpenChannel(context.Context, *OpenChannelRequest) (*OpenChannelResponse, error)
 	mustEmbedUnimplementedLightningServer()
 }
 
@@ -56,6 +78,12 @@ type UnimplementedLightningServer struct {
 
 func (UnimplementedLightningServer) PubKey(context.Context, *PubKeyRequest) (*PubKeyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PubKey not implemented")
+}
+func (UnimplementedLightningServer) ConnectPeer(context.Context, *ConnectPeerRequest) (*ConnectPeerResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ConnectPeer not implemented")
+}
+func (UnimplementedLightningServer) OpenChannel(context.Context, *OpenChannelRequest) (*OpenChannelResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OpenChannel not implemented")
 }
 func (UnimplementedLightningServer) mustEmbedUnimplementedLightningServer() {}
 
@@ -88,6 +116,42 @@ func _Lightning_PubKey_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Lightning_ConnectPeer_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ConnectPeerRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LightningServer).ConnectPeer(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Lightning/ConnectPeer",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LightningServer).ConnectPeer(ctx, req.(*ConnectPeerRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Lightning_OpenChannel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(OpenChannelRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LightningServer).OpenChannel(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Lightning/OpenChannel",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LightningServer).OpenChannel(ctx, req.(*OpenChannelRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Lightning_ServiceDesc is the grpc.ServiceDesc for Lightning service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +162,14 @@ var Lightning_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PubKey",
 			Handler:    _Lightning_PubKey_Handler,
+		},
+		{
+			MethodName: "ConnectPeer",
+			Handler:    _Lightning_ConnectPeer_Handler,
+		},
+		{
+			MethodName: "OpenChannel",
+			Handler:    _Lightning_OpenChannel_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
