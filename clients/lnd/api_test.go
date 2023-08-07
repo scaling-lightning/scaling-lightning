@@ -1,115 +1,100 @@
 package main
 
-import (
-	"bytes"
-	"encoding/json"
-	"io"
-	"net/http"
-	"net/http/httptest"
-	"testing"
+// func TestHandleWalletBalance(t *testing.T) {
+// 	mockClient := mocks.NewLightningClient(t)
 
-	"github.com/lightningnetwork/lnd/lnrpc"
-	"github.com/scaling-lightning/scaling-lightning/clients/lnd/mocks"
-	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/types"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-)
+// 	mockClient.On("WalletBalance", mock.Anything, mock.Anything).
+// 		Return(&lnrpc.WalletBalanceResponse{TotalBalance: 21}, nil)
 
-func TestHandleWalletBalance(t *testing.T) {
-	mockClient := mocks.NewLightningClient(t)
+// 	req := httptest.NewRequest(http.MethodGet, "/", nil)
+// 	res := httptest.NewRecorder()
 
-	mockClient.On("WalletBalance", mock.Anything, mock.Anything).
-		Return(&lnrpc.WalletBalanceResponse{TotalBalance: 21}, nil)
+// 	handleWalletBalance(res, req, mockClient)
 
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	res := httptest.NewRecorder()
+// 	bodyBytes, err := io.ReadAll(res.Result().Body)
+// 	assert.Nil(t, err)
+// 	assert.Contains(t, string(bodyBytes), "21")
+// }
 
-	handleWalletBalance(res, req, mockClient)
+// func TestHandleNewAddress(t *testing.T) {
+// 	mockClient := mocks.NewLightningClient(t)
 
-	bodyBytes, err := io.ReadAll(res.Result().Body)
-	assert.Nil(t, err)
-	assert.Contains(t, string(bodyBytes), "21")
-}
+// 	req := httptest.NewRequest(http.MethodPost, "/", nil)
+// 	res := httptest.NewRecorder()
 
-func TestHandleNewAddress(t *testing.T) {
-	mockClient := mocks.NewLightningClient(t)
+// 	addressStr := "bcrt1qddzehdyj5e7w4sfya3h9qznnm80etc9gkpk0qd"
+// 	mockClient.On("NewAddress", mock.Anything, mock.Anything).
+// 		Return(&lnrpc.NewAddressResponse{Address: addressStr}, nil)
 
-	req := httptest.NewRequest(http.MethodPost, "/", nil)
-	res := httptest.NewRecorder()
+// 	handleNewAddress(res, req, mockClient)
 
-	addressStr := "bcrt1qddzehdyj5e7w4sfya3h9qznnm80etc9gkpk0qd"
-	mockClient.On("NewAddress", mock.Anything, mock.Anything).
-		Return(&lnrpc.NewAddressResponse{Address: addressStr}, nil)
+// 	bodyBytes, err := io.ReadAll(res.Result().Body)
+// 	assert.Nil(t, err)
+// 	assert.Contains(t, string(bodyBytes), addressStr)
+// }
 
-	handleNewAddress(res, req, mockClient)
+// func TestHandlePubKey(t *testing.T) {
+// 	mockClient := mocks.NewLightningClient(t)
 
-	bodyBytes, err := io.ReadAll(res.Result().Body)
-	assert.Nil(t, err)
-	assert.Contains(t, string(bodyBytes), addressStr)
-}
+// 	req := httptest.NewRequest(http.MethodGet, "/", nil)
+// 	res := httptest.NewRecorder()
 
-func TestHandlePubKey(t *testing.T) {
-	mockClient := mocks.NewLightningClient(t)
+// 	pubKey := "037c70cddec9b27c92af73a6b04cf09672fb29b18eca86890d835779979ff61c40"
+// 	mockClient.On("GetInfo", mock.Anything, mock.Anything).
+// 		Return(&lnrpc.GetInfoResponse{IdentityPubkey: pubKey}, nil)
 
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	res := httptest.NewRecorder()
+// 	handlePubKey(res, req, mockClient)
 
-	pubKey := "037c70cddec9b27c92af73a6b04cf09672fb29b18eca86890d835779979ff61c40"
-	mockClient.On("GetInfo", mock.Anything, mock.Anything).
-		Return(&lnrpc.GetInfoResponse{IdentityPubkey: pubKey}, nil)
+// 	bodyBytes, err := io.ReadAll(res.Result().Body)
+// 	assert.Nil(t, err)
+// 	assert.Contains(t, string(bodyBytes), pubKey)
+// }
 
-	handlePubKey(res, req, mockClient)
+// func TestHandleConnectPeer(t *testing.T) {
+// 	mockClient := mocks.NewLightningClient(t)
+// 	assert := assert.New(t)
 
-	bodyBytes, err := io.ReadAll(res.Result().Body)
-	assert.Nil(t, err)
-	assert.Contains(t, string(bodyBytes), pubKey)
-}
+// 	pubKey := "037c70cddec9b27c92af73a6b04cf09672fb29b18eca86890d835779979ff61c40"
+// 	host := "lnd1.myfancysats.com"
+// 	port := 9745
 
-func TestHandleConnectPeer(t *testing.T) {
-	mockClient := mocks.NewLightningClient(t)
-	assert := assert.New(t)
+// 	connectPeerReq := types.ConnectPeerReq{PubKey: pubKey, Host: host, Port: port}
+// 	connectPeerBytes, err := json.Marshal(connectPeerReq)
+// 	assert.Nil(err)
 
-	pubKey := "037c70cddec9b27c92af73a6b04cf09672fb29b18eca86890d835779979ff61c40"
-	host := "lnd1.myfancysats.com"
-	port := 9745
+// 	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(connectPeerBytes))
+// 	res := httptest.NewRecorder()
 
-	connectPeerReq := types.ConnectPeerReq{PubKey: pubKey, Host: host, Port: port}
-	connectPeerBytes, err := json.Marshal(connectPeerReq)
-	assert.Nil(err)
+// 	mockClient.On("ConnectPeer", mock.Anything, mock.Anything).
+// 		Return(&lnrpc.ConnectPeerResponse{}, nil)
 
-	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(connectPeerBytes))
-	res := httptest.NewRecorder()
+// 	handleConnectPeer(res, req, mockClient)
 
-	mockClient.On("ConnectPeer", mock.Anything, mock.Anything).
-		Return(&lnrpc.ConnectPeerResponse{}, nil)
+// 	bodyBytes, err := io.ReadAll(res.Result().Body)
+// 	assert.Nil(err)
+// 	assert.Contains(string(bodyBytes), "request received")
+// }
 
-	handleConnectPeer(res, req, mockClient)
+// func TestHandleOpenChannel(t *testing.T) {
+// 	mockClient := mocks.NewLightningClient(t)
+// 	assert := assert.New(t)
 
-	bodyBytes, err := io.ReadAll(res.Result().Body)
-	assert.Nil(err)
-	assert.Contains(string(bodyBytes), "request received")
-}
+// 	pubKey := "037c70cddec9b27c92af73a6b04cf09672fb29b18eca86890d835779979ff61c40"
+// 	localAmt := 20001
 
-func TestHandleOpenChannel(t *testing.T) {
-	mockClient := mocks.NewLightningClient(t)
-	assert := assert.New(t)
+// 	openChannelReq := types.OpenChannelReq{PubKey: pubKey, LocalAmtSats: uint64(localAmt)}
+// 	openChannelReqBytes, err := json.Marshal(openChannelReq)
+// 	assert.Nil(err)
 
-	pubKey := "037c70cddec9b27c92af73a6b04cf09672fb29b18eca86890d835779979ff61c40"
-	localAmt := 20001
+// 	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(openChannelReqBytes))
+// 	res := httptest.NewRecorder()
 
-	openChannelReq := types.OpenChannelReq{PubKey: pubKey, LocalAmtSats: uint64(localAmt)}
-	openChannelReqBytes, err := json.Marshal(openChannelReq)
-	assert.Nil(err)
+// 	mockClient.On("OpenChannelSync", mock.Anything, mock.Anything).
+// 		Return(&lnrpc.ChannelPoint{OutputIndex: uint32(615)}, nil)
 
-	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(openChannelReqBytes))
-	res := httptest.NewRecorder()
+// 	handleOpenChannel(res, req, mockClient)
 
-	mockClient.On("OpenChannelSync", mock.Anything, mock.Anything).
-		Return(&lnrpc.ChannelPoint{OutputIndex: uint32(615)}, nil)
-
-	handleOpenChannel(res, req, mockClient)
-
-	bodyBytes, err := io.ReadAll(res.Result().Body)
-	assert.Nil(err)
-	assert.Contains(string(bodyBytes), "615")
-}
+// 	bodyBytes, err := io.ReadAll(res.Result().Body)
+// 	assert.Nil(err)
+// 	assert.Contains(string(bodyBytes), "615")
+// }

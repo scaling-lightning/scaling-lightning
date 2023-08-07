@@ -2,136 +2,94 @@ package main
 
 import (
 	"context"
-	"encoding/hex"
-	"encoding/json"
 	"fmt"
-	"net/http"
 
+	"github.com/cockroachdb/errors"
 	"github.com/lightningnetwork/lnd/lnrpc"
-	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/apierrors"
-	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
-	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/types"
+	stdcommonclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/common"
+	stdlightningclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
+	basictypes "github.com/scaling-lightning/scaling-lightning/pkg/types"
 )
 
 // Probably better mock against our own interface
 //go:generate mockery --srcpkg=github.com/lightningnetwork/lnd/lnrpc --name=LightningClient
 
-func registerHandlers(standardclient lightning.StandardClient, lndClient lnrpc.LightningClient) {
-	standardclient.RegisterWalletBalanceHandler(func(w http.ResponseWriter, r *http.Request) {
-		handleWalletBalance(w, r, lndClient)
-	})
-	standardclient.RegisterNewAddressHandler(func(w http.ResponseWriter, r *http.Request) {
-		handleNewAddress(w, r, lndClient)
-	})
-	standardclient.RegisterPubKeyHandler(func(w http.ResponseWriter, r *http.Request) {
-		handlePubKey(w, r, lndClient)
-	})
-	standardclient.RegisterConnectPeerHandler(func(w http.ResponseWriter, r *http.Request) {
-		handleConnectPeer(w, r, lndClient)
-	})
-	standardclient.RegisterOpenChannelHandler(func(w http.ResponseWriter, r *http.Request) {
-		handleOpenChannel(w, r, lndClient)
-	})
+func (s *commonServer) WalletBalance(
+	ctx context.Context,
+	in *stdcommonclient.WalletBalanceRequest,
+) (*stdcommonclient.WalletBalanceResponse, error) {
+	balance, err := s.client.WalletBalance(context.Background(), &lnrpc.WalletBalanceRequest{})
+	if err != nil {
+		return nil, errors.Wrap(err, "Getting wallet balance from LND's gRPC")
+	}
+
+	return &stdcommonclient.WalletBalanceResponse{Balance: uint64(balance.TotalBalance)}, nil
 }
 
-func handleWalletBalance(w http.ResponseWriter, r *http.Request, lndClient lnrpc.LightningClient) {
-	response, err := lndClient.WalletBalance(context.Background(), &lnrpc.WalletBalanceRequest{})
+func (s *commonServer) NewAddress(
+	ctx context.Context,
+	in *stdcommonclient.NewAddressRequest,
+) (*stdcommonclient.NewAddressResponse, error) {
+	response, err := s.client.NewAddress(context.Background(), &lnrpc.NewAddressRequest{})
 	if err != nil {
-		apierrors.SendServerErrorFromErr(w, err, "Problem getting wallet balance")
-		return
+		return nil, errors.Wrap(err, "Getting new address from LND's gRPC")
 	}
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintf("Wallet balance is: %v", response.TotalBalance)))
+	return &stdcommonclient.NewAddressResponse{Address: *&response.Address}, nil
 }
 
-func handleNewAddress(w http.ResponseWriter, r *http.Request, lndClient lnrpc.LightningClient) {
-	newAddress, err := lndClient.NewAddress(context.Background(), &lnrpc.NewAddressRequest{})
+func (s *lightningServer) PubKey(
+	ctx context.Context,
+	in *stdlightningclient.PubKeyRequest,
+) (*stdlightningclient.PubKeyResponse, error) {
+	response, err := s.client.GetInfo(context.Background(), &lnrpc.GetInfoRequest{})
 	if err != nil {
-		apierrors.SendServerErrorFromErr(w, err, "Problem getting new address")
-		return
+		return nil, errors.Wrap(err, "Getting node info from LND's gRPC")
 	}
-	response := types.NewAddressRes{Address: newAddress.Address}
-	responseJson, err := json.Marshal(response)
+	pubkey, err := basictypes.NewPubKeyFromHexString(response.IdentityPubkey)
 	if err != nil {
-		apierrors.SendServerErrorFromErr(w, err, "Problem marshalling new address json")
+		return nil, errors.Wrap(err, "Problem converting pubkey to hex")
 	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(responseJson)
+	return &stdlightningclient.PubKeyResponse{PubKey: pubkey.AsBytes()}, nil
 }
 
-func handlePubKey(w http.ResponseWriter, r *http.Request, lndClient lnrpc.LightningClient) {
-	pubKey, err := lndClient.GetInfo(context.Background(), &lnrpc.GetInfoRequest{})
-	if err != nil {
-		apierrors.SendServerErrorFromErr(w, err, "Problem getting node info")
-		return
-	}
-	response := types.PubKeyRes{PubKey: pubKey.IdentityPubkey}
-	responseJson, err := json.Marshal(response)
-	if err != nil {
-		apierrors.SendServerErrorFromErr(w, err, "Problem marshalling pubkey json")
-	}
+func (s *lightningServer) ConnectPeer(
+	ctx context.Context,
+	req *stdlightningclient.ConnectPeerRequest,
+) (*stdlightningclient.ConnectPeerResponse, error) {
 
-	w.WriteHeader(http.StatusOK)
-	w.Write(responseJson)
-}
-
-func handleConnectPeer(w http.ResponseWriter, r *http.Request, lndClient lnrpc.LightningClient) {
-	var connectPeerReq types.ConnectPeerReq
-	if err := json.NewDecoder(r.Body).Decode(&connectPeerReq); err != nil {
-		apierrors.SendBadRequestFromErr(w, err, "Problem reading request")
-		return
-	}
-
-	peerAddress := fmt.Sprintf("%v:%v", connectPeerReq.Host, connectPeerReq.Port)
-	_, err := lndClient.ConnectPeer(
+	peerAddress := fmt.Sprintf("%v:%v", req.Host, req.Port)
+	_, err := s.client.ConnectPeer(
 		context.Background(),
 		&lnrpc.ConnectPeerRequest{
-			Addr: &lnrpc.LightningAddress{Pubkey: connectPeerReq.PubKey, Host: peerAddress},
+			Addr: &lnrpc.LightningAddress{
+				Pubkey: basictypes.NewPubKeyFromByte(req.PubKey).AsHexString(),
+				Host:   peerAddress,
+			},
 		},
 	)
 	if err != nil {
-		apierrors.SendServerErrorFromErr(w, err, "Problem connecting to peer")
-		return
+		return nil, errors.Wrap(err, "Problem connecting to peer")
 	}
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Connect peer request received"))
+	return &stdlightningclient.ConnectPeerResponse{}, nil
 }
 
-func handleOpenChannel(w http.ResponseWriter, r *http.Request, lndClient lnrpc.LightningClient) {
-	var openChannelReq types.OpenChannelReq
-	if err := json.NewDecoder(r.Body).Decode(&openChannelReq); err != nil {
-		apierrors.SendBadRequestFromErr(w, err, "Problem reading request")
-		return
-	}
-
-	pubKeyHex, err := hex.DecodeString(openChannelReq.PubKey)
-	if err != nil {
-		apierrors.SendBadRequestFromErr(w, err, "Problem decoding pubKey to hex")
-		return
-	}
-
-	chanPoint, err := lndClient.OpenChannelSync(
+func (s *lightningServer) OpenChannel(
+	ctx context.Context,
+	req *stdlightningclient.OpenChannelRequest,
+) (*stdlightningclient.OpenChannelResponse, error) {
+	chanPoint, err := s.client.OpenChannelSync(
 		context.Background(),
 		&lnrpc.OpenChannelRequest{
-			NodePubkey:         pubKeyHex,
-			LocalFundingAmount: int64(openChannelReq.LocalAmtSats),
+			NodePubkey:         req.PubKey,
+			LocalFundingAmount: int64(req.LocalAmtSats),
 		},
 	)
 	if err != nil {
-		apierrors.SendServerErrorFromErr(w, err, "Problem opening channel")
-		return
+		return nil, errors.Wrap(err, "Problem opening channel")
 	}
 
-	response := types.OpenChannelRes{
-		FundingTx:   chanPoint.GetFundingTxidStr(),
-		OutputIndex: chanPoint.OutputIndex,
-	}
-	responseJson, err := json.Marshal(response)
-	if err != nil {
-		apierrors.SendServerErrorFromErr(w, err, "Problem marshalling funding tx and index json")
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(responseJson)
+	return &stdlightningclient.OpenChannelResponse{
+		FundingTxId:          chanPoint.GetFundingTxidBytes(),
+		FundingTxOutputIndex: chanPoint.OutputIndex,
+	}, nil
 }

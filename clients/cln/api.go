@@ -13,7 +13,7 @@ import (
 // Probably better mock against our own interface
 //go:generate mockery --dir=grpc --name=NodeClient
 
-func (s *lightningServer) WalletBalance(
+func (s *commonServer) WalletBalance(
 	ctx context.Context,
 	in *stdcommonclient.WalletBalanceRequest,
 ) (*stdcommonclient.WalletBalanceResponse, error) {
@@ -30,7 +30,7 @@ func (s *lightningServer) WalletBalance(
 	return &stdcommonclient.WalletBalanceResponse{Balance: total}, nil
 }
 
-func (s *lightningServer) NewAddress(
+func (s *commonServer) NewAddress(
 	ctx context.Context,
 	in *stdcommonclient.NewAddressRequest,
 ) (*stdcommonclient.NewAddressResponse, error) {
@@ -41,7 +41,7 @@ func (s *lightningServer) NewAddress(
 	return &stdcommonclient.NewAddressResponse{Address: *response.Bech32}, nil
 }
 
-func (s *commonServer) PubKey(
+func (s *lightningServer) PubKey(
 	ctx context.Context,
 	in *stdlightningclient.PubKeyRequest,
 ) (*stdlightningclient.PubKeyResponse, error) {

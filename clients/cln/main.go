@@ -99,15 +99,11 @@ func main() {
 		log.Fatal().Err(err).Msg("Starting CLN Client")
 	}
 
-	// // start api
-	// restServer := lightning.NewStandardClient()
-	// registerHandlers(restServer, client)
-	// err = restServer.Start(appConfig.apiPort)
-	// if err != nil {
-	// 	log.Fatal().Err(err).Msg("Starting REST service")
-	// }
-
-	startGRPCServer(appConfig.apiPort, client)
+	// start api
+	err = startGRPCServer(appConfig.apiPort, client)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Starting gRPC api server")
+	}
 }
 
 type lightningServer struct {
