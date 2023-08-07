@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+service Lightning {
+  rpc PubKey(PubKeyRequest) returns (PubKeyResponse) {}
+}
+
+message PubKeyRequest {}
+message PubKeyResponse {
+  bytes pubKey = 1;
+}

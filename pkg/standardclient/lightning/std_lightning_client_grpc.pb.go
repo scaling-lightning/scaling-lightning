@@ -18,122 +18,86 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// LightningClientClient is the client API for LightningClient service.
+// LightningClient is the client API for Lightning service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type LightningClientClient interface {
-	WalletBalance(ctx context.Context, in *WalletBalanceRequest, opts ...grpc.CallOption) (*WalletBalanceResponse, error)
-	NewAddress(ctx context.Context, in *NewAddressRequest, opts ...grpc.CallOption) (*NewAddressResponse, error)
+type LightningClient interface {
+	PubKey(ctx context.Context, in *PubKeyRequest, opts ...grpc.CallOption) (*PubKeyResponse, error)
 }
 
-type lightningClientClient struct {
+type lightningClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewLightningClientClient(cc grpc.ClientConnInterface) LightningClientClient {
-	return &lightningClientClient{cc}
+func NewLightningClient(cc grpc.ClientConnInterface) LightningClient {
+	return &lightningClient{cc}
 }
 
-func (c *lightningClientClient) WalletBalance(ctx context.Context, in *WalletBalanceRequest, opts ...grpc.CallOption) (*WalletBalanceResponse, error) {
-	out := new(WalletBalanceResponse)
-	err := c.cc.Invoke(ctx, "/lightning.LightningClient/WalletBalance", in, out, opts...)
+func (c *lightningClient) PubKey(ctx context.Context, in *PubKeyRequest, opts ...grpc.CallOption) (*PubKeyResponse, error) {
+	out := new(PubKeyResponse)
+	err := c.cc.Invoke(ctx, "/Lightning/PubKey", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *lightningClientClient) NewAddress(ctx context.Context, in *NewAddressRequest, opts ...grpc.CallOption) (*NewAddressResponse, error) {
-	out := new(NewAddressResponse)
-	err := c.cc.Invoke(ctx, "/lightning.LightningClient/NewAddress", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-// LightningClientServer is the server API for LightningClient service.
-// All implementations must embed UnimplementedLightningClientServer
+// LightningServer is the server API for Lightning service.
+// All implementations must embed UnimplementedLightningServer
 // for forward compatibility
-type LightningClientServer interface {
-	WalletBalance(context.Context, *WalletBalanceRequest) (*WalletBalanceResponse, error)
-	NewAddress(context.Context, *NewAddressRequest) (*NewAddressResponse, error)
-	mustEmbedUnimplementedLightningClientServer()
+type LightningServer interface {
+	PubKey(context.Context, *PubKeyRequest) (*PubKeyResponse, error)
+	mustEmbedUnimplementedLightningServer()
 }
 
-// UnimplementedLightningClientServer must be embedded to have forward compatible implementations.
-type UnimplementedLightningClientServer struct {
+// UnimplementedLightningServer must be embedded to have forward compatible implementations.
+type UnimplementedLightningServer struct {
 }
 
-func (UnimplementedLightningClientServer) WalletBalance(context.Context, *WalletBalanceRequest) (*WalletBalanceResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method WalletBalance not implemented")
+func (UnimplementedLightningServer) PubKey(context.Context, *PubKeyRequest) (*PubKeyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PubKey not implemented")
 }
-func (UnimplementedLightningClientServer) NewAddress(context.Context, *NewAddressRequest) (*NewAddressResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method NewAddress not implemented")
-}
-func (UnimplementedLightningClientServer) mustEmbedUnimplementedLightningClientServer() {}
+func (UnimplementedLightningServer) mustEmbedUnimplementedLightningServer() {}
 
-// UnsafeLightningClientServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to LightningClientServer will
+// UnsafeLightningServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to LightningServer will
 // result in compilation errors.
-type UnsafeLightningClientServer interface {
-	mustEmbedUnimplementedLightningClientServer()
+type UnsafeLightningServer interface {
+	mustEmbedUnimplementedLightningServer()
 }
 
-func RegisterLightningClientServer(s grpc.ServiceRegistrar, srv LightningClientServer) {
-	s.RegisterService(&LightningClient_ServiceDesc, srv)
+func RegisterLightningServer(s grpc.ServiceRegistrar, srv LightningServer) {
+	s.RegisterService(&Lightning_ServiceDesc, srv)
 }
 
-func _LightningClient_WalletBalance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(WalletBalanceRequest)
+func _Lightning_PubKey_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PubKeyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(LightningClientServer).WalletBalance(ctx, in)
+		return srv.(LightningServer).PubKey(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/lightning.LightningClient/WalletBalance",
+		FullMethod: "/Lightning/PubKey",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LightningClientServer).WalletBalance(ctx, req.(*WalletBalanceRequest))
+		return srv.(LightningServer).PubKey(ctx, req.(*PubKeyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _LightningClient_NewAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(NewAddressRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(LightningClientServer).NewAddress(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/lightning.LightningClient/NewAddress",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(LightningClientServer).NewAddress(ctx, req.(*NewAddressRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-// LightningClient_ServiceDesc is the grpc.ServiceDesc for LightningClient service.
+// Lightning_ServiceDesc is the grpc.ServiceDesc for Lightning service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var LightningClient_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "lightning.LightningClient",
-	HandlerType: (*LightningClientServer)(nil),
+var Lightning_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "Lightning",
+	HandlerType: (*LightningServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "WalletBalance",
-			Handler:    _LightningClient_WalletBalance_Handler,
-		},
-		{
-			MethodName: "NewAddress",
-			Handler:    _LightningClient_NewAddress_Handler,
+			MethodName: "PubKey",
+			Handler:    _Lightning_PubKey_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

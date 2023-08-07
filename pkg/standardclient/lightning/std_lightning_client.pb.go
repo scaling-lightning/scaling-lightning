@@ -20,14 +20,14 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type WalletBalanceRequest struct {
+type PubKeyRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 }
 
-func (x *WalletBalanceRequest) Reset() {
-	*x = WalletBalanceRequest{}
+func (x *PubKeyRequest) Reset() {
+	*x = PubKeyRequest{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_std_lightning_client_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -35,13 +35,13 @@ func (x *WalletBalanceRequest) Reset() {
 	}
 }
 
-func (x *WalletBalanceRequest) String() string {
+func (x *PubKeyRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*WalletBalanceRequest) ProtoMessage() {}
+func (*PubKeyRequest) ProtoMessage() {}
 
-func (x *WalletBalanceRequest) ProtoReflect() protoreflect.Message {
+func (x *PubKeyRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_std_lightning_client_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -53,21 +53,21 @@ func (x *WalletBalanceRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use WalletBalanceRequest.ProtoReflect.Descriptor instead.
-func (*WalletBalanceRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use PubKeyRequest.ProtoReflect.Descriptor instead.
+func (*PubKeyRequest) Descriptor() ([]byte, []int) {
 	return file_std_lightning_client_proto_rawDescGZIP(), []int{0}
 }
 
-type WalletBalanceResponse struct {
+type PubKeyResponse struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Balance uint64 `protobuf:"varint,1,opt,name=balance,proto3" json:"balance,omitempty"`
+	PubKey []byte `protobuf:"bytes,1,opt,name=pubKey,proto3" json:"pubKey,omitempty"`
 }
 
-func (x *WalletBalanceResponse) Reset() {
-	*x = WalletBalanceResponse{}
+func (x *PubKeyResponse) Reset() {
+	*x = PubKeyResponse{}
 	if protoimpl.UnsafeEnabled {
 		mi := &file_std_lightning_client_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -75,13 +75,13 @@ func (x *WalletBalanceResponse) Reset() {
 	}
 }
 
-func (x *WalletBalanceResponse) String() string {
+func (x *PubKeyResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*WalletBalanceResponse) ProtoMessage() {}
+func (*PubKeyResponse) ProtoMessage() {}
 
-func (x *WalletBalanceResponse) ProtoReflect() protoreflect.Message {
+func (x *PubKeyResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_std_lightning_client_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -93,135 +93,31 @@ func (x *WalletBalanceResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use WalletBalanceResponse.ProtoReflect.Descriptor instead.
-func (*WalletBalanceResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use PubKeyResponse.ProtoReflect.Descriptor instead.
+func (*PubKeyResponse) Descriptor() ([]byte, []int) {
 	return file_std_lightning_client_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *WalletBalanceResponse) GetBalance() uint64 {
+func (x *PubKeyResponse) GetPubKey() []byte {
 	if x != nil {
-		return x.Balance
+		return x.PubKey
 	}
-	return 0
-}
-
-type NewAddressRequest struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-}
-
-func (x *NewAddressRequest) Reset() {
-	*x = NewAddressRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_std_lightning_client_proto_msgTypes[2]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *NewAddressRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*NewAddressRequest) ProtoMessage() {}
-
-func (x *NewAddressRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_std_lightning_client_proto_msgTypes[2]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use NewAddressRequest.ProtoReflect.Descriptor instead.
-func (*NewAddressRequest) Descriptor() ([]byte, []int) {
-	return file_std_lightning_client_proto_rawDescGZIP(), []int{2}
-}
-
-type NewAddressResponse struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Address string `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
-}
-
-func (x *NewAddressResponse) Reset() {
-	*x = NewAddressResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_std_lightning_client_proto_msgTypes[3]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *NewAddressResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*NewAddressResponse) ProtoMessage() {}
-
-func (x *NewAddressResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_std_lightning_client_proto_msgTypes[3]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use NewAddressResponse.ProtoReflect.Descriptor instead.
-func (*NewAddressResponse) Descriptor() ([]byte, []int) {
-	return file_std_lightning_client_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *NewAddressResponse) GetAddress() string {
-	if x != nil {
-		return x.Address
-	}
-	return ""
+	return nil
 }
 
 var File_std_lightning_client_proto protoreflect.FileDescriptor
 
 var file_std_lightning_client_proto_rawDesc = []byte{
 	0x0a, 0x1a, 0x73, 0x74, 0x64, 0x5f, 0x6c, 0x69, 0x67, 0x68, 0x74, 0x6e, 0x69, 0x6e, 0x67, 0x5f,
-	0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x09, 0x6c, 0x69,
-	0x67, 0x68, 0x74, 0x6e, 0x69, 0x6e, 0x67, 0x22, 0x16, 0x0a, 0x14, 0x57, 0x61, 0x6c, 0x6c, 0x65,
-	0x74, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22,
-	0x31, 0x0a, 0x15, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65,
-	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x62, 0x61, 0x6c, 0x61,
-	0x6e, 0x63, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x07, 0x62, 0x61, 0x6c, 0x61, 0x6e,
-	0x63, 0x65, 0x22, 0x13, 0x0a, 0x11, 0x4e, 0x65, 0x77, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73,
-	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x2e, 0x0a, 0x12, 0x4e, 0x65, 0x77, 0x41, 0x64,
-	0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a,
-	0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07,
-	0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x32, 0xb4, 0x01, 0x0a, 0x0f, 0x4c, 0x69, 0x67, 0x68,
-	0x74, 0x6e, 0x69, 0x6e, 0x67, 0x43, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x12, 0x54, 0x0a, 0x0d, 0x57,
-	0x61, 0x6c, 0x6c, 0x65, 0x74, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x12, 0x1f, 0x2e, 0x6c,
-	0x69, 0x67, 0x68, 0x74, 0x6e, 0x69, 0x6e, 0x67, 0x2e, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x42,
-	0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x20, 0x2e,
-	0x6c, 0x69, 0x67, 0x68, 0x74, 0x6e, 0x69, 0x6e, 0x67, 0x2e, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74,
-	0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
-	0x00, 0x12, 0x4b, 0x0a, 0x0a, 0x4e, 0x65, 0x77, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x12,
-	0x1c, 0x2e, 0x6c, 0x69, 0x67, 0x68, 0x74, 0x6e, 0x69, 0x6e, 0x67, 0x2e, 0x4e, 0x65, 0x77, 0x41,
-	0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1d, 0x2e,
-	0x6c, 0x69, 0x67, 0x68, 0x74, 0x6e, 0x69, 0x6e, 0x67, 0x2e, 0x4e, 0x65, 0x77, 0x41, 0x64, 0x64,
-	0x72, 0x65, 0x73, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x42, 0x4d,
-	0x5a, 0x4b, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x73, 0x63, 0x61,
-	0x6c, 0x69, 0x6e, 0x67, 0x2d, 0x6c, 0x69, 0x67, 0x68, 0x74, 0x6e, 0x69, 0x6e, 0x67, 0x2f, 0x73,
-	0x63, 0x61, 0x6c, 0x69, 0x6e, 0x67, 0x2d, 0x6c, 0x69, 0x67, 0x68, 0x74, 0x6e, 0x69, 0x6e, 0x67,
-	0x2f, 0x70, 0x6b, 0x67, 0x2f, 0x73, 0x74, 0x61, 0x6e, 0x64, 0x61, 0x72, 0x64, 0x63, 0x6c, 0x69,
-	0x65, 0x6e, 0x74, 0x2f, 0x6c, 0x69, 0x67, 0x68, 0x74, 0x6e, 0x69, 0x6e, 0x67, 0x62, 0x06, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x0f, 0x0a, 0x0d,
+	0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x28, 0x0a,
+	0x0e, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
+	0x16, 0x0a, 0x06, 0x70, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0c, 0x52,
+	0x06, 0x70, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x32, 0x38, 0x0a, 0x09, 0x4c, 0x69, 0x67, 0x68, 0x74,
+	0x6e, 0x69, 0x6e, 0x67, 0x12, 0x2b, 0x0a, 0x06, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x12, 0x0e,
+	0x2e, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x0f,
+	0x2e, 0x50, 0x75, 0x62, 0x4b, 0x65, 0x79, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
+	0x00, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -236,20 +132,16 @@ func file_std_lightning_client_proto_rawDescGZIP() []byte {
 	return file_std_lightning_client_proto_rawDescData
 }
 
-var file_std_lightning_client_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_std_lightning_client_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_std_lightning_client_proto_goTypes = []interface{}{
-	(*WalletBalanceRequest)(nil),  // 0: lightning.WalletBalanceRequest
-	(*WalletBalanceResponse)(nil), // 1: lightning.WalletBalanceResponse
-	(*NewAddressRequest)(nil),     // 2: lightning.NewAddressRequest
-	(*NewAddressResponse)(nil),    // 3: lightning.NewAddressResponse
+	(*PubKeyRequest)(nil),  // 0: PubKeyRequest
+	(*PubKeyResponse)(nil), // 1: PubKeyResponse
 }
 var file_std_lightning_client_proto_depIdxs = []int32{
-	0, // 0: lightning.LightningClient.WalletBalance:input_type -> lightning.WalletBalanceRequest
-	2, // 1: lightning.LightningClient.NewAddress:input_type -> lightning.NewAddressRequest
-	1, // 2: lightning.LightningClient.WalletBalance:output_type -> lightning.WalletBalanceResponse
-	3, // 3: lightning.LightningClient.NewAddress:output_type -> lightning.NewAddressResponse
-	2, // [2:4] is the sub-list for method output_type
-	0, // [0:2] is the sub-list for method input_type
+	0, // 0: Lightning.PubKey:input_type -> PubKeyRequest
+	1, // 1: Lightning.PubKey:output_type -> PubKeyResponse
+	1, // [1:2] is the sub-list for method output_type
+	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name
@@ -262,7 +154,7 @@ func file_std_lightning_client_proto_init() {
 	}
 	if !protoimpl.UnsafeEnabled {
 		file_std_lightning_client_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*WalletBalanceRequest); i {
+			switch v := v.(*PubKeyRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -274,31 +166,7 @@ func file_std_lightning_client_proto_init() {
 			}
 		}
 		file_std_lightning_client_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*WalletBalanceResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_std_lightning_client_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*NewAddressRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_std_lightning_client_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*NewAddressResponse); i {
+			switch v := v.(*PubKeyResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -316,7 +184,7 @@ func file_std_lightning_client_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_std_lightning_client_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   4,
+			NumMessages:   2,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

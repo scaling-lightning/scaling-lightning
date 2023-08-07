@@ -1,10 +1,6 @@
 syntax = "proto3";
 
-option go_package =	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning";
-
-package lightning;
-
-service LightningClient {
+service Common {
   rpc WalletBalance(WalletBalanceRequest) returns (WalletBalanceResponse) {}
   rpc NewAddress(NewAddressRequest) returns (NewAddressResponse) {}
 }
