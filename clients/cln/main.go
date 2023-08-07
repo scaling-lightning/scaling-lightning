@@ -17,7 +17,8 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	clnGRPC "github.com/scaling-lightning/scaling-lightning/clients/cln/grpc"
-	standardclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
+	stdcommonclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/common"
+	stdlightningclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
 	"github.com/scaling-lightning/scaling-lightning/pkg/tools"
 	"github.com/scaling-lightning/scaling-lightning/pkg/tools/grpc_helpers"
 	"google.golang.org/grpc"
@@ -110,11 +111,11 @@ func main() {
 }
 
 type lightningServer struct {
-	standardclient.UnimplementedLightningServer
+	stdlightningclient.UnimplementedLightningServer
 	client clnGRPC.NodeClient
 }
 type commonServer struct {
-	standardclient.UnimplementedCommonServer
+	stdcommonclient.UnimplementedCommonServer
 	client clnGRPC.NodeClient
 }
 
@@ -124,8 +125,8 @@ func startGRPCServer(port int, client clnGRPC.NodeClient) error {
 		return errors.Wrapf(err, "Listening on port %d", port)
 	}
 	s := grpc.NewServer()
-	standardclient.RegisterCommonServer(s, &commonServer{client: client})
-	standardclient.RegisterLightningServer(s, &lightningServer{client: client})
+	stdcommonclient.RegisterCommonServer(s, &commonServer{client: client})
+	stdlightningclient.RegisterLightningServer(s, &lightningServer{client: client})
 
 	log.Info().Msgf("Starting gRPC server on port %d", port)
 	if err := s.Serve(lis); err != nil {

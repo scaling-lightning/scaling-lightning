@@ -3,13 +3,16 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net"
 	"time"
 
 	"github.com/btcsuite/btcd/rpcclient"
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
-	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/bitcoin"
+	stdbitcoinclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/bitcoin"
+	stdcommonclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/common"
 	"github.com/scaling-lightning/scaling-lightning/pkg/tools"
+	"google.golang.org/grpc"
 )
 
 const walletName = "scalinglightning"
@@ -73,25 +76,63 @@ func main() {
 	}
 	log.Info().Msgf("Block count: %d", blockCount)
 
-	log.Info().Msg("Waiting for command")
-
 	// start api
-	restServer := bitcoin.NewStandardClient()
-	registerHandlers(restServer, client)
-	err = restServer.Start(appConfig.apiPort)
+	err = startGRPCServer(appConfig.apiPort, client)
 	if err != nil {
-		log.Fatal().Err(err).Msg("Starting REST service")
+		log.Fatal().Err(err).Msg("Problem starting gRPC api server")
 	}
+
+	log.Info().Msg("Waiting for command")
+}
+
+type bitcoinServer struct {
+	stdbitcoinclient.UnimplementedBitcoinServer
+	client rpcClient
+}
+
+type commonServer struct {
+	stdcommonclient.UnimplementedCommonServer
+	client rpcClient
+}
+
+func startGRPCServer(port int, client rpcClient) error {
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
+	if err != nil {
+		return errors.Wrapf(err, "Listening on port %d", port)
+	}
+	s := grpc.NewServer()
+	stdcommonclient.RegisterCommonServer(s, &commonServer{client: client})
+	stdbitcoinclient.RegisterBitcoinServer(s, &bitcoinServer{client: client})
+	log.Info().Msgf("Starting gRPC server on port %d", port)
+	if err := s.Serve(lis); err != nil {
+		return errors.Wrap(err, "Serving gRPC server")
+	}
+	return nil
 }
 
 func parseFlags(appConfig *appConfig) error {
 	var help = flag.Bool("help", false, "Show help")
 
-	flag.StringVar(&appConfig.rpcCookieFile, "rpccookiefile", "", "File location for Bitcoind's .cookie file")
+	flag.StringVar(
+		&appConfig.rpcCookieFile,
+		"rpccookiefile",
+		"",
+		"File location for Bitcoind's .cookie file",
+	)
 	flag.StringVar(&appConfig.rpcHost, "rpchost", "", "Bitcoind's RPC host")
-	flag.IntVar(&appConfig.rpcPort, "rpcport", 0, "Optional: Bitcoind's RPC port, will use defaults specified by -chain if not set")
-	flag.StringVar(&appConfig.chain, "chain", "regtest", "Current chain. Valid options: regtest, signet")
-	flag.IntVar(&appConfig.apiPort, "apiport", 8080, "Optional: Port to run REST API on")
+	flag.IntVar(
+		&appConfig.rpcPort,
+		"rpcport",
+		0,
+		"Optional: Bitcoind's RPC port, will use defaults specified by -chain if not set",
+	)
+	flag.StringVar(
+		&appConfig.chain,
+		"chain",
+		"regtest",
+		"Current chain. Valid options: regtest, signet",
+	)
+	flag.IntVar(&appConfig.apiPort, "apiport", 8080, "Optional: Port to run gRPC API on")
 
 	flag.Parse()
 

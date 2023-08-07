@@ -5,7 +5,9 @@ service bitcoin {
 }
 
 message GenerateToAddressRequest {
-    bytes address = 1;
+    string address = 1;
+    uint32 numOfBlocks = 2;
 }
 message GenerateToAddressResponse {
+  repeated string hashes = 1;
 }

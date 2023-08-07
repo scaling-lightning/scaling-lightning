@@ -1,105 +1,87 @@
 package main
 
-import (
-	"bytes"
-	"encoding/json"
-	"io"
-	"net/http"
-	"net/http/httptest"
-	"strings"
-	"testing"
+// func TestHandleWalletBalance(t *testing.T) {
+// 	mockClient := mocks.NewRpcClient(t)
+// 	assert := assert.New(t)
 
-	"github.com/btcsuite/btcd/btcutil"
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/scaling-lightning/scaling-lightning/clients/bitcoind/mocks"
-	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/types"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-)
+// 	mockClient.On("GetBalance", mock.AnythingOfType("string")).Return(btcutil.Amount(615), nil)
 
-func TestHandleWalletBalance(t *testing.T) {
-	mockClient := mocks.NewRpcClient(t)
-	assert := assert.New(t)
+// 	req := httptest.NewRequest(http.MethodGet, "/", nil)
+// 	res := httptest.NewRecorder()
 
-	mockClient.On("GetBalance", mock.AnythingOfType("string")).Return(btcutil.Amount(615), nil)
+// 	handleWalletBalance(res, req, mockClient)
 
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	res := httptest.NewRecorder()
+// 	bodyBytes, err := io.ReadAll(res.Result().Body)
+// 	assert.Nil(err)
+// 	assert.Contains(string(bodyBytes), "615")
+// }
 
-	handleWalletBalance(res, req, mockClient)
+// func TestHandleSendToAddress(t *testing.T) {
+// 	mockClient := mocks.NewRpcClient(t)
+// 	assert := assert.New(t)
 
-	bodyBytes, err := io.ReadAll(res.Result().Body)
-	assert.Nil(err)
-	assert.Contains(string(bodyBytes), "615")
-}
+// 	addressStr := "bcrt1qddzehdyj5e7w4sfya3h9qznnm80etc9gkpk0qd"
+// 	amount := 615
+// 	newAddress, _ := btcutil.DecodeAddress(addressStr, &chaincfg.Params{Name: "regtest"})
 
-func TestHandleSendToAddress(t *testing.T) {
-	mockClient := mocks.NewRpcClient(t)
-	assert := assert.New(t)
+// 	hash, err := chainhash.NewHashFromStr("0")
+// 	assert.Nil(err)
+// 	mockClient.On("SendToAddress", newAddress, btcutil.Amount(amount)).Return(hash, nil)
 
-	addressStr := "bcrt1qddzehdyj5e7w4sfya3h9qznnm80etc9gkpk0qd"
-	amount := 615
-	newAddress, _ := btcutil.DecodeAddress(addressStr, &chaincfg.Params{Name: "regtest"})
+// 	sendReq := types.SendToAddressReq{Address: addressStr, AmtSats: uint64(amount)}
+// 	sendReqBytes, err := json.Marshal(sendReq)
+// 	assert.Nil(err)
 
-	hash, err := chainhash.NewHashFromStr("0")
-	assert.Nil(err)
-	mockClient.On("SendToAddress", newAddress, btcutil.Amount(amount)).Return(hash, nil)
+// 	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(sendReqBytes))
+// 	res := httptest.NewRecorder()
 
-	sendReq := types.SendToAddressReq{Address: addressStr, AmtSats: uint64(amount)}
-	sendReqBytes, err := json.Marshal(sendReq)
-	assert.Nil(err)
+// 	handleSendToAddress(res, req, mockClient)
 
-	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(sendReqBytes))
-	res := httptest.NewRecorder()
+// 	bodyBytes, err := io.ReadAll(res.Result().Body)
+// 	assert.Nil(err)
+// 	assert.Contains(strings.ToLower(string(bodyBytes)), "payment sent")
+// }
 
-	handleSendToAddress(res, req, mockClient)
+// // GenerateToAddress(numBlocks int64, address btcutil.Address, maxTries *int64) ([]*chainhash.Hash, error)
+// func TestHandleGenerateToAddress(t *testing.T) {
+// 	mockClient := mocks.NewRpcClient(t)
+// 	assert := assert.New(t)
 
-	bodyBytes, err := io.ReadAll(res.Result().Body)
-	assert.Nil(err)
-	assert.Contains(strings.ToLower(string(bodyBytes)), "payment sent")
-}
+// 	hash, err := chainhash.NewHashFromStr("0")
+// 	assert.Nil(err)
+// 	mockClient.On("GenerateToAddress", mock.AnythingOfType("int64"), mock.Anything, mock.AnythingOfType("*int64")).
+// 		Return([]*chainhash.Hash{hash}, nil)
 
-// GenerateToAddress(numBlocks int64, address btcutil.Address, maxTries *int64) ([]*chainhash.Hash, error)
-func TestHandleGenerateToAddress(t *testing.T) {
-	mockClient := mocks.NewRpcClient(t)
-	assert := assert.New(t)
+// 	addressStr := "bcrt1qddzehdyj5e7w4sfya3h9qznnm80etc9gkpk0qd"
+// 	genReq := types.GenerateToAddressReq{Address: addressStr, NumOfBlocks: uint64(20)}
+// 	genReqBytes, err := json.Marshal(genReq)
+// 	assert.Nil(err)
 
-	hash, err := chainhash.NewHashFromStr("0")
-	assert.Nil(err)
-	mockClient.On("GenerateToAddress", mock.AnythingOfType("int64"), mock.Anything, mock.AnythingOfType("*int64")).
-		Return([]*chainhash.Hash{hash}, nil)
+// 	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(genReqBytes))
+// 	res := httptest.NewRecorder()
 
-	addressStr := "bcrt1qddzehdyj5e7w4sfya3h9qznnm80etc9gkpk0qd"
-	genReq := types.GenerateToAddressReq{Address: addressStr, NumOfBlocks: uint64(20)}
-	genReqBytes, err := json.Marshal(genReq)
-	assert.Nil(err)
+// 	handleGenerateToAddress(res, req, mockClient)
 
-	req := httptest.NewRequest(http.MethodPost, "/", bytes.NewReader(genReqBytes))
-	res := httptest.NewRecorder()
+// 	bodyBytes, err := io.ReadAll(res.Result().Body)
+// 	assert.Nil(err)
+// 	assert.Contains(string(bodyBytes), hash.String())
+// }
 
-	handleGenerateToAddress(res, req, mockClient)
+// func TestHandleNewAddress(t *testing.T) {
+// 	mockClient := mocks.NewRpcClient(t)
+// 	assert := assert.New(t)
 
-	bodyBytes, err := io.ReadAll(res.Result().Body)
-	assert.Nil(err)
-	assert.Contains(string(bodyBytes), hash.String())
-}
+// 	req := httptest.NewRequest(http.MethodPost, "/", nil)
+// 	res := httptest.NewRecorder()
 
-func TestHandleNewAddress(t *testing.T) {
-	mockClient := mocks.NewRpcClient(t)
-	assert := assert.New(t)
+// 	addressStr := "bcrt1qddzehdyj5e7w4sfya3h9qznnm80etc9gkpk0qd"
+// 	address, _ := btcutil.DecodeAddress(addressStr, &chaincfg.Params{Name: "regtest"})
 
-	req := httptest.NewRequest(http.MethodPost, "/", nil)
-	res := httptest.NewRecorder()
+// 	mockClient.On("GetNewAddress", mock.AnythingOfType("string")).Return(address, nil)
 
-	addressStr := "bcrt1qddzehdyj5e7w4sfya3h9qznnm80etc9gkpk0qd"
-	address, _ := btcutil.DecodeAddress(addressStr, &chaincfg.Params{Name: "regtest"})
+// 	handleNewAddress(res, req, mockClient)
 
-	mockClient.On("GetNewAddress", mock.AnythingOfType("string")).Return(address, nil)
-
-	handleNewAddress(res, req, mockClient)
-
-	bodyBytes, err := io.ReadAll(res.Result().Body)
-	assert.Nil(err)
-	assert.Contains(string(bodyBytes), addressStr)
-}
+// 	bodyBytes, err := io.ReadAll(res.Result().Body)
+// 	assert.Nil(err)
+// 	assert.Contains(string(bodyBytes), addressStr)
+// }

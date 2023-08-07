@@ -1,111 +1,84 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"net/http"
+	"context"
 
 	"github.com/btcsuite/btcd/btcutil"
 	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/apierrors"
-	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/bitcoin"
-	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/types"
+	"github.com/cockroachdb/errors"
+	stdbitcoinclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/bitcoin"
+	stdcommonclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/common"
 )
 
-func registerHandlers(standardclient bitcoin.StandardClient, rpcClient rpcClient) {
-	standardclient.RegisterWalletBalanceHandler(func(w http.ResponseWriter, r *http.Request) {
-		handleWalletBalance(w, r, rpcClient)
-	})
-	standardclient.RegisterSendToAddressHandler(func(w http.ResponseWriter, r *http.Request) {
-		handleSendToAddress(w, r, rpcClient)
-	})
-	standardclient.RegisterGenerateToAddressHandler(func(w http.ResponseWriter, r *http.Request) {
-		handleGenerateToAddress(w, r, rpcClient)
-	})
-	standardclient.RegisterNewAddressHandler(func(w http.ResponseWriter, r *http.Request) {
-		handleNewAddress(w, r, rpcClient)
-	})
-}
-
-func handleWalletBalance(w http.ResponseWriter, r *http.Request, rpcClient rpcClient) {
-	response, err := rpcClient.GetBalance("*")
+func (s *commonServer) WalletBalance(ctx context.Context,
+	in *stdcommonclient.WalletBalanceRequest,
+) (*stdcommonclient.WalletBalanceResponse, error) {
+	walletBalance, err := s.client.GetBalance("*")
 	if err != nil {
-		apierrors.SendServerErrorFromErr(w, err, "Problem getting wallet balance")
-		return
+		return nil, errors.Wrap(err, "Getting wallet balance from Bitcoin RPC")
 	}
-	w.Write([]byte(fmt.Sprintf("Wallet balance is: %v", response.String())))
+	return &stdcommonclient.WalletBalanceResponse{Balance: uint64(walletBalance)}, nil
 }
 
-func handleSendToAddress(w http.ResponseWriter, r *http.Request, rpcClient rpcClient) {
-	var sendToAddressReq types.SendToAddressReq
-	if err := json.NewDecoder(r.Body).Decode(&sendToAddressReq); err != nil {
-		apierrors.SendBadRequestFromErr(w, err, "Problem reading request")
-		return
+func (s *commonServer) NewAddress(
+	ctx context.Context,
+	in *stdcommonclient.NewAddressRequest,
+) (*stdcommonclient.NewAddressResponse, error) {
+	newAddress, err := s.client.GetNewAddress(walletName)
+	if err != nil {
+		return nil, errors.Wrap(err, "Getting new address from Bitcoin RPC")
 	}
+	return &stdcommonclient.NewAddressResponse{Address: newAddress.String()}, nil
+}
+
+func (s *commonServer) Send(
+	ctx context.Context,
+	req *stdcommonclient.SendRequest,
+) (*stdcommonclient.SendResponse, error) {
 
 	// TODO: pass in real network
 	newAddress, err := btcutil.DecodeAddress(
-		sendToAddressReq.Address,
+		req.Address,
 		&chaincfg.Params{Name: "regtest"},
 	)
 	if err != nil {
-		apierrors.SendBadRequestFromErr(w, err, "Unable to decode address")
-		return
+		return nil, errors.Wrap(err, "Decoding address")
 	}
-	response, err := rpcClient.SendToAddress(newAddress, btcutil.Amount(sendToAddressReq.AmtSats))
+
+	txid, err := s.client.SendToAddress(
+		newAddress,
+		btcutil.Amount(req.Amount),
+	)
 	if err != nil {
-		apierrors.SendServerErrorFromErr(w, err, "Problem sending to address")
-		return
+		return nil, errors.Wrap(err, "Sending to address from Bitcoin RPC")
 	}
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintf("Payment sent. Hash: %v", response.String())))
+	return &stdcommonclient.SendResponse{TxId: txid.String()}, nil
 }
 
-func handleGenerateToAddress(w http.ResponseWriter, r *http.Request, rpcClient rpcClient) {
-	var generateToAddressReq types.GenerateToAddressReq
-	if err := json.NewDecoder(r.Body).Decode(&generateToAddressReq); err != nil {
-		apierrors.SendBadRequestFromErr(w, err, "Problem reading request")
-		return
-	}
-
+func (s *bitcoinServer) GenerateToAddress(
+	ctx context.Context,
+	req *stdbitcoinclient.GenerateToAddressRequest,
+) (*stdbitcoinclient.GenerateToAddressResponse, error) {
 	// TODO: pass in real network
 	address, err := btcutil.DecodeAddress(
-		generateToAddressReq.Address,
+		req.Address,
 		&chaincfg.Params{Name: "regtest"},
 	)
 	if err != nil {
-		apierrors.SendBadRequestFromErr(w, err, "Unable to decode address")
-		return
+		return nil, errors.Wrap(err, "Decoding address")
 	}
-	response, err := rpcClient.GenerateToAddress(
-		int64(generateToAddressReq.NumOfBlocks),
+	genHashes, err := s.client.GenerateToAddress(
+		int64(req.NumOfBlocks),
 		address,
 		nil,
 	)
 	if err != nil {
-		apierrors.SendServerErrorFromErr(w, err, "Problem generating to address")
-		return
+		return nil, errors.Wrap(err, "Generating to address from Bitcoin RPC")
 	}
-	w.WriteHeader(http.StatusOK)
+
 	hashes := []string{}
-	for _, hash := range response {
+	for _, hash := range genHashes {
 		hashes = append(hashes, hash.String()+"\n")
 	}
-	w.Write([]byte(fmt.Sprintf("Generated. Hashes: %v", hashes)))
-}
-
-func handleNewAddress(w http.ResponseWriter, r *http.Request, rpcClient rpcClient) {
-	newAddress, err := rpcClient.GetNewAddress(walletName)
-	if err != nil {
-		apierrors.SendServerErrorFromErr(w, err, "Problem generating to address")
-		return
-	}
-	response := types.NewAddressRes{Address: newAddress.String()}
-	responseJson, err := json.Marshal(response)
-	if err != nil {
-		apierrors.SendServerErrorFromErr(w, err, "Problem marshalling new address json")
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Write(responseJson)
+	return &stdbitcoinclient.GenerateToAddressResponse{Hashes: hashes}, nil
 }

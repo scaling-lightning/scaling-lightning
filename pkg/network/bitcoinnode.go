@@ -139,14 +139,14 @@ func (n *BitcoinNode) SendToAddress(address basictypes.Address, amount basictype
 	return nil
 }
 
-func (n *BitcoinNode) GetNewAddress() (basictypes.Address, error) {
+func (n *BitcoinNode) GetNewAddress() (string, error) {
 	resp, err := http.Post(
 		fmt.Sprintf("http://localhost/%v/newaddress", n.Name),
 		"application/json",
 		nil,
 	)
 	if err != nil {
-		return basictypes.Address{}, errors.Wrapf(
+		return "", errors.Wrapf(
 			err,
 			"Sending POST request to %v/newaddress",
 			n.Name,
@@ -155,16 +155,11 @@ func (n *BitcoinNode) GetNewAddress() (basictypes.Address, error) {
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return basictypes.Address{}, errors.Wrapf(
+		return "", errors.Wrapf(
 			err,
 			"Reading response body from %v/newaddress",
 			n.Name,
 		)
 	}
-	var newAddress types.NewAddressRes
-	err = json.Unmarshal(body, &newAddress)
-	if err != nil {
-		fmt.Println("error:", err)
-	}
-	return basictypes.NewAddressFromBase58String(newAddress.Address), nil
+	return string(body), nil
 }

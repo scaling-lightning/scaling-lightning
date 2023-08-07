@@ -3,6 +3,7 @@ syntax = "proto3";
 service Common {
   rpc WalletBalance(WalletBalanceRequest) returns (WalletBalanceResponse) {}
   rpc NewAddress(NewAddressRequest) returns (NewAddressResponse) {}
+  rpc Send(SendRequest) returns (SendResponse) {}
 }
 
 message WalletBalanceRequest {}
@@ -12,5 +13,13 @@ message WalletBalanceResponse {
 
 message NewAddressRequest {}
 message NewAddressResponse {
-    string address = 1;
+  string address = 1;
+}
+
+message SendRequest {
+  string address = 1;
+  uint64 amount = 2;
+}
+message SendResponse {
+  string txId = 1;
 }

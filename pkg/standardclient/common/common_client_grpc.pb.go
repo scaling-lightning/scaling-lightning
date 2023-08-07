@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 type CommonClient interface {
 	WalletBalance(ctx context.Context, in *WalletBalanceRequest, opts ...grpc.CallOption) (*WalletBalanceResponse, error)
 	NewAddress(ctx context.Context, in *NewAddressRequest, opts ...grpc.CallOption) (*NewAddressResponse, error)
+	Send(ctx context.Context, in *SendRequest, opts ...grpc.CallOption) (*SendResponse, error)
 }
 
 type commonClient struct {
@@ -52,12 +53,22 @@ func (c *commonClient) NewAddress(ctx context.Context, in *NewAddressRequest, op
 	return out, nil
 }
 
+func (c *commonClient) Send(ctx context.Context, in *SendRequest, opts ...grpc.CallOption) (*SendResponse, error) {
+	out := new(SendResponse)
+	err := c.cc.Invoke(ctx, "/Common/Send", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // CommonServer is the server API for Common service.
 // All implementations must embed UnimplementedCommonServer
 // for forward compatibility
 type CommonServer interface {
 	WalletBalance(context.Context, *WalletBalanceRequest) (*WalletBalanceResponse, error)
 	NewAddress(context.Context, *NewAddressRequest) (*NewAddressResponse, error)
+	Send(context.Context, *SendRequest) (*SendResponse, error)
 	mustEmbedUnimplementedCommonServer()
 }
 
@@ -70,6 +81,9 @@ func (UnimplementedCommonServer) WalletBalance(context.Context, *WalletBalanceRe
 }
 func (UnimplementedCommonServer) NewAddress(context.Context, *NewAddressRequest) (*NewAddressResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method NewAddress not implemented")
+}
+func (UnimplementedCommonServer) Send(context.Context, *SendRequest) (*SendResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Send not implemented")
 }
 func (UnimplementedCommonServer) mustEmbedUnimplementedCommonServer() {}
 
@@ -120,6 +134,24 @@ func _Common_NewAddress_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Common_Send_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SendRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CommonServer).Send(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Common/Send",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CommonServer).Send(ctx, req.(*SendRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Common_ServiceDesc is the grpc.ServiceDesc for Common service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -134,6 +166,10 @@ var Common_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "NewAddress",
 			Handler:    _Common_NewAddress_Handler,
+		},
+		{
+			MethodName: "Send",
+			Handler:    _Common_Send_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
