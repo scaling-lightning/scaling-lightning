@@ -2,9 +2,9 @@
 // versions:
 // 	protoc-gen-go v1.27.1
 // 	protoc        v4.23.3
-// source: common.proto
+// source: common_client.proto
 
-package lightning
+package common
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -29,7 +29,7 @@ type WalletBalanceRequest struct {
 func (x *WalletBalanceRequest) Reset() {
 	*x = WalletBalanceRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_common_proto_msgTypes[0]
+		mi := &file_common_client_proto_msgTypes[0]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -42,7 +42,7 @@ func (x *WalletBalanceRequest) String() string {
 func (*WalletBalanceRequest) ProtoMessage() {}
 
 func (x *WalletBalanceRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_common_proto_msgTypes[0]
+	mi := &file_common_client_proto_msgTypes[0]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -55,7 +55,7 @@ func (x *WalletBalanceRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WalletBalanceRequest.ProtoReflect.Descriptor instead.
 func (*WalletBalanceRequest) Descriptor() ([]byte, []int) {
-	return file_common_proto_rawDescGZIP(), []int{0}
+	return file_common_client_proto_rawDescGZIP(), []int{0}
 }
 
 type WalletBalanceResponse struct {
@@ -69,7 +69,7 @@ type WalletBalanceResponse struct {
 func (x *WalletBalanceResponse) Reset() {
 	*x = WalletBalanceResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_common_proto_msgTypes[1]
+		mi := &file_common_client_proto_msgTypes[1]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -82,7 +82,7 @@ func (x *WalletBalanceResponse) String() string {
 func (*WalletBalanceResponse) ProtoMessage() {}
 
 func (x *WalletBalanceResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_common_proto_msgTypes[1]
+	mi := &file_common_client_proto_msgTypes[1]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -95,7 +95,7 @@ func (x *WalletBalanceResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use WalletBalanceResponse.ProtoReflect.Descriptor instead.
 func (*WalletBalanceResponse) Descriptor() ([]byte, []int) {
-	return file_common_proto_rawDescGZIP(), []int{1}
+	return file_common_client_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *WalletBalanceResponse) GetBalance() uint64 {
@@ -114,7 +114,7 @@ type NewAddressRequest struct {
 func (x *NewAddressRequest) Reset() {
 	*x = NewAddressRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_common_proto_msgTypes[2]
+		mi := &file_common_client_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -127,7 +127,7 @@ func (x *NewAddressRequest) String() string {
 func (*NewAddressRequest) ProtoMessage() {}
 
 func (x *NewAddressRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_common_proto_msgTypes[2]
+	mi := &file_common_client_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -140,7 +140,7 @@ func (x *NewAddressRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NewAddressRequest.ProtoReflect.Descriptor instead.
 func (*NewAddressRequest) Descriptor() ([]byte, []int) {
-	return file_common_proto_rawDescGZIP(), []int{2}
+	return file_common_client_proto_rawDescGZIP(), []int{2}
 }
 
 type NewAddressResponse struct {
@@ -154,7 +154,7 @@ type NewAddressResponse struct {
 func (x *NewAddressResponse) Reset() {
 	*x = NewAddressResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_common_proto_msgTypes[3]
+		mi := &file_common_client_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -167,7 +167,7 @@ func (x *NewAddressResponse) String() string {
 func (*NewAddressResponse) ProtoMessage() {}
 
 func (x *NewAddressResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_common_proto_msgTypes[3]
+	mi := &file_common_client_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -180,7 +180,7 @@ func (x *NewAddressResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use NewAddressResponse.ProtoReflect.Descriptor instead.
 func (*NewAddressResponse) Descriptor() ([]byte, []int) {
-	return file_common_proto_rawDescGZIP(), []int{3}
+	return file_common_client_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *NewAddressResponse) GetAddress() string {
@@ -190,50 +190,51 @@ func (x *NewAddressResponse) GetAddress() string {
 	return ""
 }
 
-var File_common_proto protoreflect.FileDescriptor
+var File_common_client_proto protoreflect.FileDescriptor
 
-var file_common_proto_rawDesc = []byte{
-	0x0a, 0x0c, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x16,
-	0x0a, 0x14, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x52,
-	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x31, 0x0a, 0x15, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74,
-	0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
-	0x18, 0x0a, 0x07, 0x62, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04,
-	0x52, 0x07, 0x62, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x22, 0x13, 0x0a, 0x11, 0x4e, 0x65, 0x77,
-	0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x2e,
-	0x0a, 0x12, 0x4e, 0x65, 0x77, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x65, 0x73, 0x70,
-	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x32, 0x83,
-	0x01, 0x0a, 0x06, 0x43, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x12, 0x40, 0x0a, 0x0d, 0x57, 0x61, 0x6c,
-	0x6c, 0x65, 0x74, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x12, 0x15, 0x2e, 0x57, 0x61, 0x6c,
-	0x6c, 0x65, 0x74, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
-	0x74, 0x1a, 0x16, 0x2e, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63,
-	0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x37, 0x0a, 0x0a, 0x4e,
-	0x65, 0x77, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x12, 0x12, 0x2e, 0x4e, 0x65, 0x77, 0x41,
-	0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x13, 0x2e,
-	0x4e, 0x65, 0x77, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
-	0x73, 0x65, 0x22, 0x00, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+var file_common_client_proto_rawDesc = []byte{
+	0x0a, 0x13, 0x63, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e, 0x5f, 0x63, 0x6c, 0x69, 0x65, 0x6e, 0x74, 0x2e,
+	0x70, 0x72, 0x6f, 0x74, 0x6f, 0x22, 0x16, 0x0a, 0x14, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x42,
+	0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x31, 0x0a,
+	0x15, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x62, 0x61, 0x6c, 0x61, 0x6e, 0x63,
+	0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x07, 0x62, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65,
+	0x22, 0x13, 0x0a, 0x11, 0x4e, 0x65, 0x77, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x2e, 0x0a, 0x12, 0x4e, 0x65, 0x77, 0x41, 0x64, 0x64, 0x72,
+	0x65, 0x73, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x61,
+	0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x61, 0x64,
+	0x64, 0x72, 0x65, 0x73, 0x73, 0x32, 0x83, 0x01, 0x0a, 0x06, 0x43, 0x6f, 0x6d, 0x6d, 0x6f, 0x6e,
+	0x12, 0x40, 0x0a, 0x0d, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63,
+	0x65, 0x12, 0x15, 0x2e, 0x57, 0x61, 0x6c, 0x6c, 0x65, 0x74, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63,
+	0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x16, 0x2e, 0x57, 0x61, 0x6c, 0x6c, 0x65,
+	0x74, 0x42, 0x61, 0x6c, 0x61, 0x6e, 0x63, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x22, 0x00, 0x12, 0x37, 0x0a, 0x0a, 0x4e, 0x65, 0x77, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73,
+	0x12, 0x12, 0x2e, 0x4e, 0x65, 0x77, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x1a, 0x13, 0x2e, 0x4e, 0x65, 0x77, 0x41, 0x64, 0x64, 0x72, 0x65, 0x73,
+	0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x62, 0x06, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x33,
 }
 
 var (
-	file_common_proto_rawDescOnce sync.Once
-	file_common_proto_rawDescData = file_common_proto_rawDesc
+	file_common_client_proto_rawDescOnce sync.Once
+	file_common_client_proto_rawDescData = file_common_client_proto_rawDesc
 )
 
-func file_common_proto_rawDescGZIP() []byte {
-	file_common_proto_rawDescOnce.Do(func() {
-		file_common_proto_rawDescData = protoimpl.X.CompressGZIP(file_common_proto_rawDescData)
+func file_common_client_proto_rawDescGZIP() []byte {
+	file_common_client_proto_rawDescOnce.Do(func() {
+		file_common_client_proto_rawDescData = protoimpl.X.CompressGZIP(file_common_client_proto_rawDescData)
 	})
-	return file_common_proto_rawDescData
+	return file_common_client_proto_rawDescData
 }
 
-var file_common_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
-var file_common_proto_goTypes = []interface{}{
+var file_common_client_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_common_client_proto_goTypes = []interface{}{
 	(*WalletBalanceRequest)(nil),  // 0: WalletBalanceRequest
 	(*WalletBalanceResponse)(nil), // 1: WalletBalanceResponse
 	(*NewAddressRequest)(nil),     // 2: NewAddressRequest
 	(*NewAddressResponse)(nil),    // 3: NewAddressResponse
 }
-var file_common_proto_depIdxs = []int32{
+var file_common_client_proto_depIdxs = []int32{
 	0, // 0: Common.WalletBalance:input_type -> WalletBalanceRequest
 	2, // 1: Common.NewAddress:input_type -> NewAddressRequest
 	1, // 2: Common.WalletBalance:output_type -> WalletBalanceResponse
@@ -245,13 +246,13 @@ var file_common_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_common_proto_init() }
-func file_common_proto_init() {
-	if File_common_proto != nil {
+func init() { file_common_client_proto_init() }
+func file_common_client_proto_init() {
+	if File_common_client_proto != nil {
 		return
 	}
 	if !protoimpl.UnsafeEnabled {
-		file_common_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+		file_common_client_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*WalletBalanceRequest); i {
 			case 0:
 				return &v.state
@@ -263,7 +264,7 @@ func file_common_proto_init() {
 				return nil
 			}
 		}
-		file_common_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+		file_common_client_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*WalletBalanceResponse); i {
 			case 0:
 				return &v.state
@@ -275,7 +276,7 @@ func file_common_proto_init() {
 				return nil
 			}
 		}
-		file_common_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+		file_common_client_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*NewAddressRequest); i {
 			case 0:
 				return &v.state
@@ -287,7 +288,7 @@ func file_common_proto_init() {
 				return nil
 			}
 		}
-		file_common_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+		file_common_client_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*NewAddressResponse); i {
 			case 0:
 				return &v.state
@@ -304,18 +305,18 @@ func file_common_proto_init() {
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: file_common_proto_rawDesc,
+			RawDescriptor: file_common_client_proto_rawDesc,
 			NumEnums:      0,
 			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_common_proto_goTypes,
-		DependencyIndexes: file_common_proto_depIdxs,
-		MessageInfos:      file_common_proto_msgTypes,
+		GoTypes:           file_common_client_proto_goTypes,
+		DependencyIndexes: file_common_client_proto_depIdxs,
+		MessageInfos:      file_common_client_proto_msgTypes,
 	}.Build()
-	File_common_proto = out.File
-	file_common_proto_rawDesc = nil
-	file_common_proto_goTypes = nil
-	file_common_proto_depIdxs = nil
+	File_common_client_proto = out.File
+	file_common_client_proto_rawDesc = nil
+	file_common_client_proto_goTypes = nil
+	file_common_client_proto_depIdxs = nil
 }

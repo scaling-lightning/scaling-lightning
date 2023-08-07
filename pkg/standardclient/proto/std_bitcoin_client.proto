@@ -1,7 +1,0 @@
-syntax = "proto3";
-
-option go_package =	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/bitcoin";
-
-package bitcoin;
-
-import "common.proto";

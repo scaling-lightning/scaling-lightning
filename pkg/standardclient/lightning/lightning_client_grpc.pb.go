@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v4.23.3
-// source: std_lightning_client.proto
+// source: lightning_client.proto
 
 package lightning
 
@@ -173,5 +173,5 @@ var Lightning_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "std_lightning_client.proto",
+	Metadata: "lightning_client.proto",
 }

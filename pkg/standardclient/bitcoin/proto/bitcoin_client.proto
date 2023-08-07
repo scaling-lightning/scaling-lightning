@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+service bitcoin {
+  rpc GenerateToAddress(GenerateToAddressRequest) returns (GenerateToAddressResponse) {}
+}
+
+message GenerateToAddressRequest {
+    bytes address = 1;
+}
+message GenerateToAddressResponse {
+}

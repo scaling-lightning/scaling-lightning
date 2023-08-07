@@ -2,9 +2,9 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v4.23.3
-// source: common.proto
+// source: common_client.proto
 
-package lightning
+package common
 
 import (
 	context "context"
@@ -137,5 +137,5 @@ var Common_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "common.proto",
+	Metadata: "common_client.proto",
 }
