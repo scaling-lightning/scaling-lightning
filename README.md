@@ -76,6 +76,31 @@ Example go test command with extra timeout:
 
     go test -run ^TestMain$ github.com/scaling-lightning/scaling-lightning/examples/go -count=1 -v -timeout=15m
 
+### Helpful Kubernetes commands
+
+    # list pods
+    kubectl get pods
+
+    # describe cln1 pod in more detail
+    kubectl describe pod cln1-0
+
+    # view logs of lnd1 node
+    kubectl logs -f lnd1-0
+
+    # view logs of a crashed bitcoind pod
+    kubectl logs -previous bitcoind-0
+
+    # view logs of lnd1's scaling lightning sidecar client (it handles our api requests and forwards them to the node)
+    kubectl logs -f -c lnd-client lnd1-0
+
+    # same for cln and bitcoind
+    kubectl logs -f -c cln-client cln1-0 
+    kubectl logs -f -c bitcoind-client bitcoind-0
+
+    # get shell into lnd1
+    kubectl exec -it lnd1-0 -- bash
+
+
 ### Your own configuration
 
 This project is still in its infancy, so we don't have a lot of configuration options yet. 
