@@ -74,7 +74,7 @@ See [examples/go/example_test.go](examples/go/example_test.go). This test takes 
 
 Example go test command with extra timeout: 
 
-    go test -timeout 30s -run ^TestMain$ github.com/scaling-lightning/scaling-lightning/examples/go -count=1 -v -timeout=15m
+    go test -run ^TestMain$ github.com/scaling-lightning/scaling-lightning/examples/go -count=1 -v -timeout=15m
 
 ### Your own configuration
 
