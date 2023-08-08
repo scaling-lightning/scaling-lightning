@@ -1,6 +1,6 @@
 package types
 
 type ChannelPoint struct {
-	FundingTxid []byte
+	FundingTx   Transaction
 	OutputIndex uint
 }

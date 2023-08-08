@@ -28,7 +28,7 @@ var pubkeyCmd = &cobra.Command{
 					fmt.Printf("Problem getting pubkey: %v\n", err.Error())
 					return
 				}
-				fmt.Println(pubkey)
+				fmt.Println(pubkey.AsHexString())
 				return
 			}
 		}

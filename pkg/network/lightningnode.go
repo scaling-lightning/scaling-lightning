@@ -93,6 +93,7 @@ func (n *LightningNode) GetNewAddress() (string, error) {
 }
 
 func (n *LightningNode) GetPubKey() (basictypes.PubKey, error) {
+	log.Warn().Msgf("Getting pubkey for %v", n.Name)
 	conn, err := connectToGRPCServer(n.SLNetwork.ApiHost, n.SLNetwork.ApiPort, n.Name)
 	if err != nil {
 		return basictypes.PubKey{}, errors.Wrapf(err, "Connecting to gRPC for %v's client", n.Name)
@@ -100,7 +101,7 @@ func (n *LightningNode) GetPubKey() (basictypes.PubKey, error) {
 	defer conn.Close()
 	client := stdlightningclient.NewLightningClient(conn)
 
-	pubKeyRes, err := client.PubKey(context.Background(), &stdlightningclient.PubKeyRequest{}, nil)
+	pubKeyRes, err := client.PubKey(context.Background(), &stdlightningclient.PubKeyRequest{})
 	if err != nil {
 		return basictypes.PubKey{}, errors.Wrapf(err, "Getting pubkey for %v", n.Name)
 	}
@@ -210,7 +211,7 @@ func (n *LightningNode) OpenChannel(
 		return basictypes.ChannelPoint{}, errors.Wrapf(err, "Generating blocks for %v", "bitcoind")
 	}
 	return basictypes.ChannelPoint{
-		FundingTxid: openChannelRes.FundingTxId,
+		FundingTx:   basictypes.NewTransactionFromByte(openChannelRes.FundingTxId),
 		OutputIndex: uint(openChannelRes.FundingTxOutputIndex),
 	}, nil
 }

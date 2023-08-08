@@ -15,7 +15,7 @@ var openchannelCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		openchannelFromName := cmd.Flag("from").Value.String()
 		openchannelToName := cmd.Flag("to").Value.String()
-		openchannelLocalAmt, err := cmd.Flags().GetUint64("localamt")
+		openchannelLocalAmt, err := cmd.Flags().GetUint64("amount")
 		if err != nil {
 			fmt.Println("Amount must be a valid number")
 			return
@@ -70,7 +70,7 @@ var openchannelCmd = &cobra.Command{
 
 		fmt.Printf(
 			"Open channel command received. Txid: %v OutputIndex: %d",
-			chanPoint.FundingTxid,
+			chanPoint.FundingTx.IdAsHexString(),
 			chanPoint.OutputIndex,
 		)
 	},
