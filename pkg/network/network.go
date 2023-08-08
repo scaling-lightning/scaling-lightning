@@ -230,7 +230,11 @@ func parseHelmfileForNodes(
 		if strings.Contains(release.Chart, "lnd") || strings.Contains(release.Chart, "cln") {
 			lightningNodes = append(
 				lightningNodes,
-				LightningNode{Name: release.Name, SLNetwork: slnetwork},
+				LightningNode{
+					Name:        release.Name,
+					SLNetwork:   slnetwork,
+					BitcoinNode: &BitcoinNode{Name: "bitcoind", SLNetwork: slnetwork},
+				},
 			)
 		}
 		if strings.Contains(release.Chart, "bitcoind") {
