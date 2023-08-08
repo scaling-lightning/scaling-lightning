@@ -34,7 +34,7 @@ The goal is to collaborate as an industry to help scale the Lightning Network an
 
 ### Starting a Network
 
-To spin up de default network with 4 nodes, run:
+To spin up an example network with 2 cln nodes and 4 lnd nodes, run:
 
     go run . start -f examples/helmfiles/helmfile.yaml
 
@@ -49,7 +49,7 @@ This project is still in its infancy, so we don't have a lot of configuration op
 But you can create your own `helmfile.yaml` in the `helmfiles` folder with the following content:
 
 ```yaml
-# helmfiles/my-helmfile.yaml
+# examples/helmfiles/my-helmfile.yaml
 # All files except helmfile.yaml are ignored by git, so you can add them safely.
 releases:
     - name: bitcoind
@@ -86,6 +86,36 @@ releases:
           - gRPCNodePort: 30012
           - lndHostPath: {{env "PWD"}}/volumes/lnd4
 ```
+### Example CLI Commands
+
+    # list nodes on the network
+    go run . list
+    
+    # get wallet balance of node named bitcoind
+    go run . walletbalance -n bitcoind
+    
+    # get wallet balance of node named lnd2
+    go run . walletbalance -n lnd2
+
+    # send on-chain 1 million satoshis from bitcoind to cln1
+    go run . send -f bitcoind -t cln1 -a 1000000
+
+    # get the pubkey of a node named lnd1
+    go run . pubkey -n lnd1
+
+    # peer lnd1 and cln1 from lnd1
+    go run . connectpeer -f lnd1 -t cln1
+
+    # open channel between cln1 and lnd1 with a local balance on cln1 of 70k satoshis
+    go run . openchannel -f cln1 -t lnd1 -a 70000
+
+    # have bitcoind generate some blocks and pay itself the block reward
+    go run . generate -n bitcoind
+
+### Run the above from code
+
+    See [examples/go/example_test.go](examples/go/example_test.go) 
+
 
 ## Why is this important?
 
