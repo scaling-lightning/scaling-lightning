@@ -5,8 +5,8 @@ import (
 
 	"github.com/cockroachdb/errors"
 	clnGRPC "github.com/scaling-lightning/scaling-lightning/clients/cln/grpc"
-	stdlightningclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
 	stdcommonclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/common"
+	stdlightningclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
 	"github.com/scaling-lightning/scaling-lightning/pkg/types"
 )
 
@@ -24,7 +24,7 @@ func (s *commonServer) WalletBalance(
 
 	var total uint64
 	for _, output := range response.Outputs {
-		total += output.AmountMsat.Msat
+		total += output.AmountMsat.Msat / 1000
 	}
 
 	return &stdcommonclient.WalletBalanceResponse{Balance: total}, nil
