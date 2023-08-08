@@ -68,11 +68,15 @@ To destroy the network run:
     # have bitcoind generate some blocks and pay itself the block reward
     go run . generate -n bitcoind
 
-### Run the above from code
+### Run the above from code instead of CLI
 
-See [examples/go/example_test.go](examples/go/example_test.go) 
+See [examples/go/example_test.go](examples/go/example_test.go). This test takes around 3 minutes to pass on an M1 Macbook Pro so you may need to adjust your test runner's default timeout.
 
-#### Your own configuration
+Example go test command with extra timeout: 
+
+    go test -timeout 30s -run ^TestMain$ github.com/scaling-lightning/scaling-lightning/examples/go -count=1 -v -timeout=15m
+
+### Your own configuration
 
 This project is still in its infancy, so we don't have a lot of configuration options yet. 
 But you can create your own `helmfile.yaml` in the `helmfiles` folder with the following content:
