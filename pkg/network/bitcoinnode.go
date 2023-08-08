@@ -1,20 +1,12 @@
 package network
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
-	"fmt"
-	"io"
-	"net/http"
 
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
-	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
-	"github.com/scaling-lightning/scaling-lightning/pkg/standardclient/types"
-	"github.com/scaling-lightning/scaling-lightning/pkg/tools/grpc_helpers"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	stdbitcoinclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/bitcoin"
+	stdcommonclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/common"
 
 	basictypes "github.com/scaling-lightning/scaling-lightning/pkg/types"
 )
@@ -28,82 +20,67 @@ func (n *BitcoinNode) GetName() string {
 	return n.Name
 }
 
-func (n *BitcoinNode) Send(to Node, amount basictypes.Amount) error {
+func (n *BitcoinNode) Send(to Node, amount basictypes.Amount) (string, error) {
 	log.Debug().Msgf("Sending %v from %v to %v", amount, n.Name, to)
 
-	var toNode Node
-	toNode, err := n.SLNetwork.GetLightningNode(to.GetName())
+	toNode, err := n.SLNetwork.GetNode(to.GetName())
 	if err != nil {
-		toNode, err = n.SLNetwork.GetBitcoinNode(to.GetName())
-		if err != nil {
-			return errors.Wrapf(err, "Looking up lightning node %v", to.GetName())
-		}
+		return "", errors.Wrapf(err, "Looking up lightning node %v", to.GetName())
 	}
 	address, err := toNode.GetNewAddress()
 	if err != nil {
-		return errors.Wrapf(err, "Getting new address for %v", to.GetName())
+		return "", errors.Wrapf(err, "Getting new address for %v", to.GetName())
 	}
 
-	err = n.SendToAddress(address, amount)
+	addressRes, err := n.SendToAddress(address, amount)
 	if err != nil {
-		return errors.Wrapf(err, "Sending %v from %v to %v", amount, n.Name, to.GetName())
+		return "", errors.Wrapf(err, "Sending %v from %v to %v", amount, n.Name, to.GetName())
 	}
 
-	err = n.Generate(50)
+	_, err = n.Generate(50)
 	if err != nil {
-		return errors.Wrapf(err, "Generating blocks for %v", "bitcoind")
+		return "", errors.Wrapf(err, "Generating blocks for %v", "bitcoind")
 	}
 
-	return nil
+	return addressRes, nil
 }
 
-func (n *BitcoinNode) Generate(numBlocks uint64) error {
+func (n *BitcoinNode) Generate(numBlocks uint32) (hashes []string, err error) {
+	conn, err := connectToGRPCServer(n.SLNetwork.ApiHost, n.SLNetwork.ApiPort, n.Name)
+	if err != nil {
+		return []string{}, errors.Wrapf(err, "Connecting to gRPC for %v's client", n.Name)
+	}
+	defer conn.Close()
+	client := stdbitcoinclient.NewBitcoinClient(conn)
+
 	address, err := n.GetNewAddress()
 	if err != nil {
-		return errors.Wrapf(err, "Getting new address for %v", n.Name)
+		return []string{}, errors.Wrapf(err, "Getting new address for %v", n.Name)
 	}
-	req := types.GenerateToAddressReq{Address: address.AsBase58String(), NumOfBlocks: numBlocks}
-	postBody, _ := json.Marshal(req)
-	postBuf := bytes.NewBuffer(postBody)
-	resp, err := http.Post(
-		fmt.Sprintf("http://localhost/%v/generatetoaddress", n.Name),
-		"application/json",
-		postBuf,
+	generateRes, err := client.GenerateToAddress(
+		context.Background(),
+		&stdbitcoinclient.GenerateToAddressRequest{
+			Address:     address,
+			NumOfBlocks: numBlocks,
+		},
 	)
 	if err != nil {
-		return errors.Wrapf(err, "Sending POST request to %v/generatetoaddress", n.Name)
+		return []string{}, errors.Wrapf(err, "Generating %v blocks for %v", numBlocks, n.Name)
 	}
-	if resp.StatusCode != 200 {
-		defer resp.Body.Close()
-		body, err := io.ReadAll(resp.Body)
-		if err == nil {
-			log.Debug().
-				Msgf("Response body to failed generatetoaddress request was: %v", string(body))
-		}
-		return errors.Newf(
-			"Got non-200 status code from %v/generatetoaddress: %v",
-			n.Name,
-			resp.StatusCode,
-		)
-	}
-	return nil
+
+	return generateRes.Hashes, nil
 }
 
 func (n *BitcoinNode) GetWalletBalance() (basictypes.Amount, error) {
-
-	opts := []grpc.DialOption{
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithUnaryInterceptor(grpc_helpers.ClientInterceptor(n.Name)),
-	}
-	conn, err := grpc.Dial("localhost:80", opts...)
+	conn, err := connectToGRPCServer(n.SLNetwork.ApiHost, n.SLNetwork.ApiPort, n.Name)
 	if err != nil {
 		return basictypes.Amount{}, errors.Wrapf(err, "Connecting to gRPC for %v's client", n.Name)
 	}
 	defer conn.Close()
-	client := lightning.NewCommonClient(conn)
+	client := stdcommonclient.NewCommonClient(conn)
 	walletBalance, err := client.WalletBalance(
 		context.Background(),
-		&lightning.WalletBalanceRequest{},
+		&stdcommonclient.WalletBalanceRequest{},
 	)
 	if err != nil {
 		return basictypes.Amount{}, errors.Wrapf(err, "Getting wallet balance for %v", n.Name)
@@ -112,54 +89,43 @@ func (n *BitcoinNode) GetWalletBalance() (basictypes.Amount, error) {
 
 }
 
-func (n *BitcoinNode) SendToAddress(address basictypes.Address, amount basictypes.Amount) error {
-	req := types.SendToAddressReq{Address: address.AsBase58String(), AmtSats: amount.AsSats()}
-	postBody, _ := json.Marshal(req)
-	postBuf := bytes.NewBuffer(postBody)
-	resp, err := http.Post(
-		fmt.Sprintf("http://localhost/%v/sendtoaddress", n.Name),
-		"application/json",
-		postBuf,
+func (n *BitcoinNode) SendToAddress(address string, amount basictypes.Amount) (string, error) {
+
+	conn, err := connectToGRPCServer(n.SLNetwork.ApiHost, n.SLNetwork.ApiPort, n.Name)
+	if err != nil {
+		return "", errors.Wrapf(err, "Connecting to gRPC for %v's client", n.Name)
+	}
+	defer conn.Close()
+	client := stdcommonclient.NewCommonClient(conn)
+
+	sendRes, err := client.Send(
+		context.Background(),
+		&stdcommonclient.SendRequest{
+			Address: address,
+			Amount:  amount.AsSats(),
+		},
 	)
 	if err != nil {
-		return errors.Wrapf(err, "Sending POST request to %v/sendtoaddress", n.Name)
+		return "", errors.Wrapf(err, "Sending %v to %v", amount, address)
 	}
-	if resp.StatusCode != 200 {
-		defer resp.Body.Close()
-		body, err := io.ReadAll(resp.Body)
-		if err == nil {
-			log.Debug().Msgf("Response body to failed sendtoaddress request was: %v", string(body))
-		}
-		return errors.Newf(
-			"Got non-200 status code from %v/sendtoaddress: %v",
-			n.Name,
-			resp.StatusCode,
-		)
-	}
-	return nil
+	return sendRes.TxId, nil
 }
 
 func (n *BitcoinNode) GetNewAddress() (string, error) {
-	resp, err := http.Post(
-		fmt.Sprintf("http://localhost/%v/newaddress", n.Name),
-		"application/json",
-		nil,
+	conn, err := connectToGRPCServer(n.SLNetwork.ApiHost, n.SLNetwork.ApiPort, n.Name)
+	if err != nil {
+		return "", errors.Wrapf(err, "Connecting to gRPC for %v's client", n.Name)
+	}
+	defer conn.Close()
+	client := stdcommonclient.NewCommonClient(conn)
+
+	newAddress, err := client.NewAddress(
+		context.Background(),
+		&stdcommonclient.NewAddressRequest{},
 	)
 	if err != nil {
-		return "", errors.Wrapf(
-			err,
-			"Sending POST request to %v/newaddress",
-			n.Name,
-		)
+		return "", errors.Wrapf(err, "Getting new address for %v", n.Name)
 	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return "", errors.Wrapf(
-			err,
-			"Reading response body from %v/newaddress",
-			n.Name,
-		)
-	}
-	return string(body), nil
+
+	return newAddress.Address, nil
 }

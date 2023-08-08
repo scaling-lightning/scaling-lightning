@@ -1,13 +1,17 @@
 package network
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"strings"
 
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
+	"github.com/scaling-lightning/scaling-lightning/pkg/tools/grpc_helpers"
 	"github.com/scaling-lightning/scaling-lightning/pkg/types"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 
 	"gopkg.in/yaml.v3"
 )
@@ -17,12 +21,13 @@ type SLNetwork struct {
 	LightningNodes []LightningNode
 	kubeConfig     string
 	helmfile       string
-	endpoint       string
+	ApiHost        string
+	ApiPort        uint16
 }
 
 type Node interface {
-	GetNewAddress() (types.Address, error)
-	Send(Node, types.Amount) error
+	GetNewAddress() (string, error)
+	Send(Node, types.Amount) (string, error)
 	GetName() string
 	GetWalletBalance() (types.Amount, error)
 }
@@ -173,6 +178,22 @@ func (n *SLNetwork) GetLightningNode(name string) (*LightningNode, error) {
 	return nil, errors.New("Lightning node not found")
 }
 
+func (n *SLNetwork) GetNode(name string) (Node, error) {
+	var node Node
+	node, err := n.GetLightningNode(name)
+	if err != nil {
+		node, err = n.GetBitcoinNode(name)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Looking up node %v", name)
+		}
+	}
+	if node.GetName() != name {
+		return nil, errors.New("Node not found")
+	}
+
+	return node, nil
+}
+
 func (n *SLNetwork) GetAllNodes() []Node {
 	nodes := []Node{}
 	for i := range n.BitcoinNodes {
@@ -222,4 +243,16 @@ func parseHelmfileForNodes(
 
 	return lightningNodes, bitcoinNodes, err
 
+}
+
+func connectToGRPCServer(host string, port uint16, nodeName string) (*grpc.ClientConn, error) {
+	opts := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithUnaryInterceptor(grpc_helpers.ClientInterceptor(nodeName)),
+	}
+	conn, err := grpc.Dial(fmt.Sprintf("%v:%d", host, port), opts...)
+	if err != nil {
+		return nil, errors.Wrap(err, "Connecting to gRPC")
+	}
+	return conn, nil
 }

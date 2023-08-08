@@ -59,7 +59,7 @@ var openchannelCmd = &cobra.Command{
 			)
 		}
 
-		err = openchannelFromNode.OpenChannel(
+		chanPoint, err := openchannelFromNode.OpenChannel(
 			&openchannelToNode,
 			types.NewAmountSats(openchannelLocalAmt),
 		)
@@ -68,7 +68,11 @@ var openchannelCmd = &cobra.Command{
 			return
 		}
 
-		fmt.Println("Open channel command received")
+		fmt.Printf(
+			"Open channel command received. Txid: %v OutputIndex: %d",
+			chanPoint.FundingTxid,
+			chanPoint.OutputIndex,
+		)
 	},
 }
 

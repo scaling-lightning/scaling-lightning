@@ -60,13 +60,13 @@ var sendCmd = &cobra.Command{
 			)
 		}
 
-		err = sendFromNode.Send(sendToNode, types.NewAmountSats(sendAmount))
+		sendRes, err := sendFromNode.Send(sendToNode, types.NewAmountSats(sendAmount))
 		if err != nil {
 			fmt.Printf("Problem sending funds: %v\n", err.Error())
 			return
 		}
 
-		fmt.Println("Sent funds")
+		fmt.Printf("Sent funds, txid: %v\n", sendRes)
 	},
 }
 

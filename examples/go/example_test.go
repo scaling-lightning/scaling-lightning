@@ -32,7 +32,8 @@ func TestMain(t *testing.T) {
 
 	// this one will take a little while as the network is starting up
 	err = tools.Retry(func() error {
-		return bitcoind.Send(cln1, types.NewAmountSats(1_000_000))
+		_, err := bitcoind.Send(cln1, types.NewAmountSats(1_000_000))
+		return err
 	}, time.Second*15, time.Minute*2)
 	assert.NoError(err)
 
@@ -42,7 +43,8 @@ func TestMain(t *testing.T) {
 	assert.NoError(err)
 
 	err = tools.Retry(func() error {
-		return cln1.OpenChannel(cln2, types.NewAmountSats(40_001))
+		_, err := cln1.OpenChannel(cln2, types.NewAmountSats(40_001))
+		return err
 	}, time.Second*15, time.Minute*3)
 	assert.NoError(err)
 
