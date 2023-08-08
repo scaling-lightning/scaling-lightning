@@ -10,7 +10,7 @@ image:
   pullPolicy: IfNotPresent
 
 clientImage:
-  repository: bitcoind-client
+  repository: scalingln/bitcoind-client
   tag: latest
   pullPolicy: IfNotPresent
 

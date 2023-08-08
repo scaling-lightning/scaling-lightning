@@ -10,7 +10,7 @@ image:
   pullPolicy: IfNotPresent
 
 clientImage:
-  repository: lnd-client
+  repository: scalingln/lnd-client
   tag: latest
   pullPolicy: IfNotPresent
 
