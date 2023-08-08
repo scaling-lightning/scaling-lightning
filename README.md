@@ -44,7 +44,7 @@ To destroy the network run:
     
 ### Example CLI Commands
 
-    # list nodes on the network
+    # list nodes on the network (names were taken from the helmfile)
     go run . list
     
     # get wallet balance of node named bitcoind
