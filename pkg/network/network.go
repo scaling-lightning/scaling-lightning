@@ -120,7 +120,7 @@ func DiscoverStartedNetwork(kubeconfig string) (*SLNetwork, error) {
 			bitcoinNode := BitcoinNode{Name: release.Name, SLNetwork: &slnetwork}
 			slnetwork.BitcoinNodes = append(slnetwork.BitcoinNodes, bitcoinNode)
 		} else if strings.Contains(release.Chart, "lnd") || strings.Contains(release.Chart, "cln") {
-			lightningNode := LightningNode{Name: release.Name, SLNetwork: &slnetwork}
+			lightningNode := LightningNode{Name: release.Name, SLNetwork: &slnetwork, BitcoinNode: &BitcoinNode{Name: "bitcoind", SLNetwork: &slnetwork}}
 			slnetwork.LightningNodes = append(slnetwork.LightningNodes, lightningNode)
 		}
 	}
@@ -249,6 +249,12 @@ func connectToGRPCServer(host string, port uint16, nodeName string) (*grpc.Clien
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithUnaryInterceptor(grpc_helpers.ClientInterceptor(nodeName)),
+	}
+	if host == "" {
+		host = "localhost"
+	}
+	if port == 0 {
+		port = 80
 	}
 	conn, err := grpc.Dial(fmt.Sprintf("%v:%d", host, port), opts...)
 	if err != nil {
