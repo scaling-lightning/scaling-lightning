@@ -93,7 +93,6 @@ func (n *LightningNode) GetNewAddress() (string, error) {
 }
 
 func (n *LightningNode) GetPubKey() (basictypes.PubKey, error) {
-	log.Warn().Msgf("Getting pubkey for %v", n.Name)
 	conn, err := connectToGRPCServer(n.SLNetwork.ApiHost, n.SLNetwork.ApiPort, n.Name)
 	if err != nil {
 		return basictypes.PubKey{}, errors.Wrapf(err, "Connecting to gRPC for %v's client", n.Name)
