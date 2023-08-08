@@ -114,7 +114,7 @@ releases:
 
 ### Run the above from code
 
-    See [examples/go/example_test.go](examples/go/example_test.go) 
+See [examples/go/example_test.go](examples/go/example_test.go) 
 
 
 ## Why is this important?
