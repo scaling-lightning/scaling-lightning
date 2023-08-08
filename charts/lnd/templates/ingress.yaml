@@ -12,3 +12,4 @@ spec:
       services:
         - name: {{ include "lnd.fullname" . }}
           port: client
+          scheme: h2c

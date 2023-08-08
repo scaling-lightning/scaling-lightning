@@ -12,3 +12,4 @@ spec:
       services:
         - name: {{ include "bitcoind.fullname" . }}
           port: client
+          scheme: h2c
