@@ -26,19 +26,22 @@ The goal is to collaborate as an industry to help scale the Lightning Network an
 
       helm plugin install https://github.com/databus23/helm-diff
 
-* Ingress nginx:
+* Traefik:
 
-      kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.0/deploy/static/provider/cloud/deploy.yaml
+      helm repo add traefik https://traefik.github.io/charts
+      helm repo update
+      helm install traefik traefik/traefik -n traefik --create-namespace
 
 ### Starting a Network
 
 To spin up de default network with 4 nodes, run:
 
-    helmfile apply --file helmfiles/helmfile.yaml
+    go run . start -f examples/helmfiles/helmfile.yaml
 
 To destroy the network run: 
+
+    go run . stop -f examples/helmfiles/helmfile.yaml
     
-    helmfile destroy --file helmfiles/helmfile.yaml
 
 #### Your own configuration
 
