@@ -12,9 +12,10 @@ var connectpeerCmd = &cobra.Command{
 	Short: "Connect peers",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+		processDebugFlag(cmd)
 		connectpeerFromName := cmd.Flag("from").Value.String()
 		connectpeerToName := cmd.Flag("to").Value.String()
-		slnetwork, err := sl.DiscoverStartedNetwork("")
+		slnetwork, err := sl.DiscoverStartedNetwork(kubeConfigPath)
 		if err != nil {
 			fmt.Printf(
 				"Problem with network discovery, is there a network running? Error: %v\n",

@@ -12,6 +12,7 @@ var generateCmd = &cobra.Command{
 	Short: "Generate bitcoin blocks",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+		processDebugFlag(cmd)
 		nodeName := cmd.Flag("node").Value.String()
 		numOfBlocks, err := cmd.Flags().GetUint32("blocks")
 		if err != nil {
@@ -19,7 +20,7 @@ var generateCmd = &cobra.Command{
 			return
 		}
 
-		slnetwork, err := sl.DiscoverStartedNetwork("")
+		slnetwork, err := sl.DiscoverStartedNetwork(kubeConfigPath)
 		if err != nil {
 			fmt.Printf(
 				"Problem with network discovery, is there a network running? Error: %v\n",

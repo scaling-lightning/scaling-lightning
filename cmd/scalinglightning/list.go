@@ -12,7 +12,8 @@ var listCmd = &cobra.Command{
 	Short: "List the nodes in the network",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		slnetwork, err := sl.DiscoverStartedNetwork("")
+		processDebugFlag(cmd)
+		slnetwork, err := sl.DiscoverStartedNetwork(kubeConfigPath)
 		if err != nil {
 			fmt.Printf(
 				"Problem with network discovery, is there a network running? Error: %v\n",

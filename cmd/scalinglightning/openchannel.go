@@ -13,6 +13,7 @@ var openchannelCmd = &cobra.Command{
 	Short: "Open a channel between two nodes",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+		processDebugFlag(cmd)
 		openchannelFromName := cmd.Flag("from").Value.String()
 		openchannelToName := cmd.Flag("to").Value.String()
 		openchannelLocalAmt, err := cmd.Flags().GetUint64("amount")
@@ -21,7 +22,7 @@ var openchannelCmd = &cobra.Command{
 			return
 		}
 
-		slnetwork, err := sl.DiscoverStartedNetwork("")
+		slnetwork, err := sl.DiscoverStartedNetwork(kubeConfigPath)
 		if err != nil {
 			fmt.Printf(
 				"Problem with network discovery, is there a network running? Error: %v\n",

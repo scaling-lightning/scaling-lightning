@@ -12,8 +12,9 @@ var walletbalanceCmd = &cobra.Command{
 	Short: "Get the onchain wallet balance of a node",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+		processDebugFlag(cmd)
 		balanceNodeName := cmd.Flag("node").Value.String()
-		slnetwork, err := sl.DiscoverStartedNetwork("")
+		slnetwork, err := sl.DiscoverStartedNetwork(kubeConfigPath)
 		if err != nil {
 			fmt.Printf(
 				"Problem with network discovery, is there a network running? Error: %v\n",

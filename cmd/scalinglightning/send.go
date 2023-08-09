@@ -13,6 +13,7 @@ var sendCmd = &cobra.Command{
 	Short: "Send on chain funds betwen nodes",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+		processDebugFlag(cmd)
 		sendFromName := cmd.Flag("from").Value.String()
 		sendToName := cmd.Flag("to").Value.String()
 		sendAmount, err := cmd.Flags().GetUint64("amount")
@@ -21,7 +22,7 @@ var sendCmd = &cobra.Command{
 			return
 		}
 
-		slnetwork, err := sl.DiscoverStartedNetwork("")
+		slnetwork, err := sl.DiscoverStartedNetwork(kubeConfigPath)
 		if err != nil {
 			fmt.Printf(
 				"Problem with network discovery, is there a network running? Error: %v\n",
