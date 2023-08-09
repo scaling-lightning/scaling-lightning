@@ -14,7 +14,7 @@ import (
 // will need a longish (few mins) timeout
 func TestMain(t *testing.T) {
 	assert := assert.New(t)
-	network := sl.NewSLNetwork("../helmfiles/2cln2lnd.yaml", "")
+	network := sl.NewSLNetwork("../helmfiles/2cln2lnd.yaml", "~/.kube/config")
 	err := network.Start()
 	assert.NoError(err)
 

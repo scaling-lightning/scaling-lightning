@@ -46,7 +46,7 @@ func (n *SLNetwork) CheckDependencies() error {
 		return errors.Wrap(err, "Looking for kubectl executable on system")
 	}
 	hplCmd := exec.Command("helm", "plugin", "list")
-	hplOut, err := hplCmd.Output()
+	hplOut, err := hplCmd.CombinedOutput()
 	if err != nil {
 		return errors.Wrap(err, "Running helm plugin list command")
 	}
@@ -104,7 +104,7 @@ type helmListOutput struct {
 
 func DiscoverStartedNetwork(kubeconfig string) (*SLNetwork, error) {
 	helmCmd := exec.Command("helm", "list", "-o", "json")
-	helmOut, err := helmCmd.Output()
+	helmOut, err := helmCmd.CombinedOutput()
 	if err != nil {
 		log.Debug().Err(err).Msgf("helm output was: %v", string(helmOut))
 		return nil, errors.Wrap(err, "Running helmfile list command")
@@ -124,7 +124,58 @@ func DiscoverStartedNetwork(kubeconfig string) (*SLNetwork, error) {
 			slnetwork.LightningNodes = append(slnetwork.LightningNodes, lightningNode)
 		}
 	}
+
+	loadbalancer, err := GetLoadbalancerHostname("traefik", "traefik", kubeconfig)
+	if err != nil {
+		return nil, errors.Wrap(err, "Getting loadbalancer hostname")
+	}
+	slnetwork.ApiHost = loadbalancer
+	slnetwork.ApiPort = 80
+
 	return &slnetwork, nil
+}
+
+type k8sService struct {
+	Status struct {
+		LoadBalancer struct {
+			Ingress []struct {
+				Hostname string `json:"hostname"`
+			} `json:"ingress"`
+		} `json:"loadBalancer"`
+	} `json:"status"`
+}
+
+func GetLoadbalancerHostname(
+	serviceName string,
+	namespace string,
+	kubeconfig string,
+) (string, error) {
+	kubectlCmd := exec.Command(
+		"kubectl",
+		"--kubeconfig",
+		kubeconfig,
+		"get",
+		"service",
+		serviceName,
+		"-n",
+		namespace,
+		"-o",
+		"json",
+	)
+	kubectlOut, err := kubectlCmd.CombinedOutput()
+	if err != nil {
+		log.Debug().Err(err).Msgf("kubectl output was: %v", string(kubectlOut))
+		return "", errors.Wrap(err, "Running kubectl get service command")
+	}
+	k8sService := k8sService{}
+	err = yaml.Unmarshal(kubectlOut, &k8sService)
+	if err != nil {
+		return "", errors.Wrap(err, "Unmarshalling kubectl get service output")
+	}
+	if len(k8sService.Status.LoadBalancer.Ingress) == 0 {
+		return "", errors.New("No loadbalancer ingress found")
+	}
+	return k8sService.Status.LoadBalancer.Ingress[0].Hostname, nil
 }
 
 func (n *SLNetwork) Start() error {
@@ -132,8 +183,14 @@ func (n *SLNetwork) Start() error {
 	if err := n.CheckDependencies(); err != nil {
 		return errors.Wrap(err, "Checking dependencies")
 	}
-	helmfileCmd := exec.Command("helmfile", "apply", "-f", n.helmfile)
-	helmfileOut, err := helmfileCmd.Output()
+	helmfileCmd := exec.Command(
+		"helmfile",
+		"apply",
+		"-f",
+		n.helmfile,
+	)
+	helmfileCmd.Env = append(os.Environ(), "KUBECONFIG="+n.kubeConfig)
+	helmfileOut, err := helmfileCmd.CombinedOutput()
 	if err != nil {
 		log.Debug().Err(err).Msgf("helmfile output was: %v", string(helmfileOut))
 		return errors.Wrap(err, "Running helmfile apply command")
@@ -146,13 +203,27 @@ func (n *SLNetwork) Start() error {
 	n.LightningNodes = lightningNodes
 	n.BitcoinNodes = bitcoinNodes
 
+	loadbalancer, err := GetLoadbalancerHostname("traefik", "traefik", n.kubeConfig)
+	if err != nil {
+		return errors.Wrap(err, "Getting loadbalancer hostname")
+	}
+	n.ApiHost = loadbalancer
+	n.ApiPort = 80
+
 	return nil
 }
 
 func (n *SLNetwork) Stop() error {
 	log.Debug().Msg("Stopping network")
-	helmfileCmd := exec.Command("helmfile", "destroy", "-f", n.helmfile)
-	helmfileOut, err := helmfileCmd.Output()
+
+	helmfileCmd := exec.Command(
+		"helmfile",
+		"destroy",
+		"-f",
+		n.helmfile,
+	)
+	helmfileCmd.Env = append(os.Environ(), "KUBECONFIG="+n.kubeConfig)
+	helmfileOut, err := helmfileCmd.CombinedOutput()
 	if err != nil {
 		log.Debug().Err(err).Msgf("helmfile output was: %v", string(helmfileOut))
 		return errors.Wrap(err, "Running helmfile destroy command")
