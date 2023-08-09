@@ -9,7 +9,7 @@ COPY go.sum .
 RUN go mod download
 COPY pkg/ ./pkg
 COPY clients/bitcoind/ .
-RUN CGO_ENABLED=0 GOOS=linux go build -o bitcoind-client .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bitcoind-client .
 
 # final stage
 FROM debian:buster-slim

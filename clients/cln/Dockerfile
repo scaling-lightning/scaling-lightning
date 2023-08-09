@@ -9,7 +9,7 @@ COPY go.sum .
 RUN go mod download
 COPY pkg ./pkg
 COPY clients/cln ./clients/cln
-RUN CGO_ENABLED=0 GOOS=linux go build -o cln-client ./clients/cln
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o cln-client ./clients/cln
 
 # final stage
 FROM debian:buster-slim
