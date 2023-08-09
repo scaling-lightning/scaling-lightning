@@ -62,7 +62,7 @@ spec:
             - -startupnotify=chmod o+rx /home/bitcoin/.bitcoin && chmod o+r /home/bitcoin/.bitcoin/regtest/.cookie
         - name: {{ .Chart.Name }}-client
           image: {{ .Values.clientImage.repository }}:{{ .Values.clientImage.tag | default "latest" }}
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.clientImage.pullPolicy }}
           ports:
             - name: client
               containerPort: 8080

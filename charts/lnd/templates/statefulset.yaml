@@ -57,7 +57,7 @@ spec:
             - --tlsextradomain={{ include "lnd.fullname" . }}
         - name: {{ .Chart.Name }}-client
           image: {{ .Values.clientImage.repository }}:{{ .Values.clientImage.tag | default "latest" }}
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.clientImage.pullPolicy }}
           volumeMounts:
             - name: tlsmacaroon
               mountPath: /lnd

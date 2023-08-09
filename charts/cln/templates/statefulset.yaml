@@ -48,7 +48,7 @@ spec:
             - --bitcoin-retry-timeout=600
         - name: {{ .Chart.Name }}-client
           image: {{ .Values.clientImage.repository }}:{{ .Values.clientImage.tag | default "latest" }}
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.clientImage.pullPolicy }}
           volumeMounts:
             - name: clientcerts
               mountPath: /cln
