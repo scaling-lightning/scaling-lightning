@@ -12,7 +12,7 @@ image:
 clientImage:
   repository: scalingln/lnd-client
   tag: latest
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 rpcPort: 8332
 

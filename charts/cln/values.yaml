@@ -9,7 +9,7 @@ image:
 clientImage:
   repository: scalingln/cln-client
   tag: latest
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 bitcoind:
   rpcPort: 18443
