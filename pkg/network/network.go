@@ -1,6 +1,7 @@
 package network
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -103,10 +104,11 @@ type helmListOutput struct {
 }
 
 func DiscoverStartedNetwork(kubeconfig string) (*SLNetwork, error) {
-	helmCmd := exec.Command("helm", "list", "-o", "json")
-	helmOut, err := helmCmd.CombinedOutput()
+	helmCmd := exec.Command("helm", "--kubeconfig", kubeconfig, "list", "-o", "json")
+	helmOut, err := helmCmd.Output()
+	log.Debug().Err(err).Msgf("helm output was: %v", string(helmOut))
 	if err != nil {
-		log.Debug().Err(err).Msgf("helm output was: %v", string(helmOut))
+		log.Error().Err(err).Msgf("helm output was: %v", string(helmOut))
 		return nil, errors.Wrap(err, "Running helmfile list command")
 	}
 	helmListOutput := []helmListOutput{}
@@ -139,7 +141,8 @@ type k8sService struct {
 	Status struct {
 		LoadBalancer struct {
 			Ingress []struct {
-				Hostname string `json:"hostname"`
+				Hostname *string `json:"hostname"`
+				IP       *string `json:"ip"`
 			} `json:"ingress"`
 		} `json:"loadBalancer"`
 	} `json:"status"`
@@ -162,20 +165,29 @@ func GetLoadbalancerHostname(
 		"-o",
 		"json",
 	)
-	kubectlOut, err := kubectlCmd.CombinedOutput()
+	kubectlOut, err := kubectlCmd.Output()
+	log.Debug().Msgf("kubectl output was: %v", string(kubectlOut))
 	if err != nil {
-		log.Debug().Err(err).Msgf("kubectl output was: %v", string(kubectlOut))
+		log.Error().Err(err).Msgf("kubectl output was: %v", string(kubectlOut))
 		return "", errors.Wrap(err, "Running kubectl get service command")
 	}
 	k8sService := k8sService{}
-	err = yaml.Unmarshal(kubectlOut, &k8sService)
+	err = json.Unmarshal(kubectlOut, &k8sService)
 	if err != nil {
 		return "", errors.Wrap(err, "Unmarshalling kubectl get service output")
 	}
 	if len(k8sService.Status.LoadBalancer.Ingress) == 0 {
 		return "", errors.New("No loadbalancer ingress found")
 	}
-	return k8sService.Status.LoadBalancer.Ingress[0].Hostname, nil
+	var host string
+	if k8sService.Status.LoadBalancer.Ingress[0].IP != nil {
+		host = *k8sService.Status.LoadBalancer.Ingress[0].IP
+	} else if k8sService.Status.LoadBalancer.Ingress[0].Hostname != nil {
+		host = *k8sService.Status.LoadBalancer.Ingress[0].Hostname
+	} else {
+		return "", errors.New("No loadbalancer ingress found")
+	}
+	return host, nil
 }
 
 func (n *SLNetwork) Start() error {
