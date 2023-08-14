@@ -11,6 +11,9 @@ defaults:
     working-directory: docs
 jobs:
   deploy:
+    defaults:
+      run:
+        working-directory: docs
     name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
     steps:
