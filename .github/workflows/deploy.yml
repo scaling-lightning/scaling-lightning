@@ -3,10 +3,12 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - gh-pages
+      - main
     # Review gh actions docs if you want to further define triggers, paths, etc
     # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#on
-
+defaults:
+  run:
+    working-directory: docs
 jobs:
   deploy:
     name: Deploy to GitHub Pages
