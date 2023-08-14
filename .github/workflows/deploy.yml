@@ -8,6 +8,8 @@ on:
     # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#on
 jobs:
   deploy:
+    permissions:
+     contents: write
     defaults:
       run:
         working-directory: docs
