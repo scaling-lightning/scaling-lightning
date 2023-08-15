@@ -10,12 +10,22 @@ import (
 	basictypes "github.com/scaling-lightning/scaling-lightning/pkg/types"
 )
 
+type NodeImpl int
+
+const (
+	LND NodeImpl = iota
+	CLN
+	LDK
+	Eclair
+)
+
 type LightningNode struct {
 	Name        string
 	Host        string
 	Port        int
 	BitcoinNode *BitcoinNode
 	SLNetwork   *SLNetwork
+	Impl        NodeImpl
 }
 
 func (n *LightningNode) GetName() string {
