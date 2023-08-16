@@ -15,7 +15,7 @@ var stopCmd = &cobra.Command{
 		processDebugFlag(cmd)
 		stopHelmfile := cmd.Flag("helmfile").Value.String()
 		fmt.Println("Stopping the network")
-		slnetwork := sl.NewSLNetwork(stopHelmfile, kubeConfigPath)
+		slnetwork := sl.NewSLNetwork(stopHelmfile, kubeConfigPath, sl.Regtest)
 		err := slnetwork.Stop()
 		if err != nil {
 			fmt.Println(err.Error())

@@ -17,6 +17,33 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+type NetworkType int
+
+const (
+	Mainnet NetworkType = iota
+	Testnet
+	Signet
+	Regtest
+	Simnet
+)
+
+func (n NetworkType) String() string {
+	switch n {
+	case Mainnet:
+		return "mainnet"
+	case Testnet:
+		return "testnet"
+	case Signet:
+		return "signet"
+	case Regtest:
+		return "regtest"
+	case Simnet:
+		return "simnet"
+	default:
+		return "unknown"
+	}
+}
+
 type SLNetwork struct {
 	BitcoinNodes   []BitcoinNode
 	LightningNodes []LightningNode
@@ -24,6 +51,7 @@ type SLNetwork struct {
 	helmfile       string
 	ApiHost        string
 	ApiPort        uint16
+	Network        NetworkType
 }
 
 type Node interface {
@@ -86,10 +114,11 @@ func (n *SLNetwork) CheckDependencies() error {
 	return nil
 }
 
-func NewSLNetwork(helmfile string, kubeConfig string) SLNetwork {
+func NewSLNetwork(helmfile string, kubeConfig string, Network NetworkType) SLNetwork {
 	return SLNetwork{
 		helmfile:   helmfile,
 		kubeConfig: kubeConfig,
+		Network:    Network,
 	}
 }
 
@@ -116,14 +145,30 @@ func DiscoverStartedNetwork(kubeconfig string) (*SLNetwork, error) {
 	if err != nil {
 		return nil, errors.Wrap(err, "Unmarshalling helm list output")
 	}
-	slnetwork := NewSLNetwork("", kubeconfig)
+	slnetwork := NewSLNetwork("", kubeconfig, Regtest)
 	for _, release := range helmListOutput {
-		if strings.Contains(release.Chart, "bitcoin") {
+		switch {
+		case strings.Contains(release.Chart, "bitcoin"):
 			bitcoinNode := BitcoinNode{Name: release.Name, SLNetwork: &slnetwork}
 			slnetwork.BitcoinNodes = append(slnetwork.BitcoinNodes, bitcoinNode)
-		} else if strings.Contains(release.Chart, "lnd") || strings.Contains(release.Chart, "cln") {
-			lightningNode := LightningNode{Name: release.Name, SLNetwork: &slnetwork, BitcoinNode: &BitcoinNode{Name: "bitcoind", SLNetwork: &slnetwork}}
+		case strings.Contains(release.Chart, "lnd"):
+			lightningNode := LightningNode{
+				Name:        release.Name,
+				SLNetwork:   &slnetwork,
+				BitcoinNode: &BitcoinNode{Name: "bitcoind", SLNetwork: &slnetwork},
+				Impl:        LND,
+			}
 			slnetwork.LightningNodes = append(slnetwork.LightningNodes, lightningNode)
+		case strings.Contains(release.Chart, "cln"):
+			lightningNode := LightningNode{
+				Name:        release.Name,
+				SLNetwork:   &slnetwork,
+				BitcoinNode: &BitcoinNode{Name: "bitcoind", SLNetwork: &slnetwork},
+				Impl:        CLN,
+			}
+			slnetwork.LightningNodes = append(slnetwork.LightningNodes, lightningNode)
+		default:
+			return nil, errors.New("Unsupported node type in helmfile")
 		}
 	}
 

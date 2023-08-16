@@ -15,7 +15,7 @@ var startCmd = &cobra.Command{
 		processDebugFlag(cmd)
 		helmfile := cmd.Flag("helmfile").Value.String()
 		fmt.Println("Starting the network")
-		slnetwork := sl.NewSLNetwork(helmfile, kubeConfigPath)
+		slnetwork := sl.NewSLNetwork(helmfile, kubeConfigPath, sl.Regtest)
 		err := slnetwork.Start()
 		if err != nil {
 			fmt.Println(err.Error())
