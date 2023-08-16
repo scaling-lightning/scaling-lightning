@@ -50,6 +50,6 @@ func init() {
 	rootCmd.AddCommand(pubkeyCmd)
 
 	pubkeyCmd.Flags().
-		StringP("node", "n", "", "The name of the node to get the wallet balance of")
+		StringP("node", "n", "", "The name of the node to get the pubkey of")
 	pubkeyCmd.MarkFlagRequired("node")
 }
