@@ -2,6 +2,9 @@ package network
 
 import (
 	"context"
+	"fmt"
+	"os/exec"
+	"path"
 
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
@@ -20,12 +23,30 @@ const (
 )
 
 type LightningNode struct {
-	Name        string
-	Host        string
-	Port        int
-	BitcoinNode *BitcoinNode
-	SLNetwork   *SLNetwork
-	Impl        NodeImpl
+	Name              string
+	BitcoinNode       *BitcoinNode
+	SLNetwork         *SLNetwork
+	Impl              NodeImpl
+	ConnectionDetails ConnectionDetails
+}
+
+type ConnectionDetails struct {
+	Host string
+	Port uint16
+	LND  *LNDConnectionDetails
+	CLN  *CLNConnectionDetails
+}
+
+type LNDConnectionDetails struct {
+	TLSCert  []byte
+	Macaroon []byte
+}
+
+type CLNConnectionDetails struct {
+	LightningNode
+	ClientCert []byte
+	ClientKey  []byte
+	CACert     []byte
 }
 
 func (n *LightningNode) GetName() string {
@@ -223,4 +244,71 @@ func (n *LightningNode) OpenChannel(
 		FundingTx:   basictypes.NewTransactionFromByte(openChannelRes.FundingTxId),
 		OutputIndex: uint(openChannelRes.FundingTxOutputIndex),
 	}, nil
+}
+
+func (n *LightningNode) WriteAuthFilesToDirectory(dir string) error {
+	network := n.SLNetwork.Network.String()
+	switch n.Impl {
+	case LND:
+		err := KubeCP(
+			n.SLNetwork.kubeConfig,
+			fmt.Sprintf("%v-0:root/.lnd/tls.cert", n.Name),
+			path.Join(dir, "tls.cert"),
+		)
+		if err != nil {
+			return errors.Wrap(err, "KubeCP LND's tls.cert")
+		}
+		err = KubeCP(
+			n.SLNetwork.kubeConfig,
+			fmt.Sprintf("%v-0:root/.lnd/data/chain/bitcoin/%v/admin.macaroon", n.Name),
+			path.Join(dir, "admin.macaroon"),
+		)
+		if err != nil {
+			return errors.Wrap(err, "KubeCP LND's admin.macaroon")
+		}
+	case CLN:
+		err := KubeCP(
+			n.SLNetwork.kubeConfig,
+			fmt.Sprintf("%v-0:root/.lightning/%v/client.pem", n.Name, network),
+			path.Join(dir, "client.pem"),
+		)
+		if err != nil {
+			return errors.Wrap(err, "KubeCP CLN's client.pem")
+		}
+		err = KubeCP(
+			n.SLNetwork.kubeConfig,
+			fmt.Sprintf("%v-0:root/.lightning/%v/client-key.pem", n.Name, network),
+			path.Join(dir, "client-key.pem"),
+		)
+		if err != nil {
+			return errors.Wrap(err, "KubeCP CLN's client-key.pem")
+		}
+		err = KubeCP(
+			n.SLNetwork.kubeConfig,
+			fmt.Sprintf("%v-0:root/.lightning/%v/ca.pem", n.Name, network),
+			path.Join(dir, "ca.pem"),
+		)
+		if err != nil {
+			return errors.Wrap(err, "KubeCP CLN's ca.pem")
+		}
+	}
+	return nil
+}
+
+func KubeCP(kubeconfig string, source string, destination string) error {
+	kubectlCmd := exec.Command(
+		"kubectl",
+		"--kubeconfig",
+		kubeconfig,
+		"cp",
+		source,
+		destination,
+	)
+	kubectlOut, err := kubectlCmd.CombinedOutput()
+	log.Debug().Msgf("kubectl output was: %v", string(kubectlOut))
+	if err != nil {
+		log.Error().Err(err).Msgf("kubectl output was: %v", string(kubectlOut))
+		return errors.Wrap(err, "Running kubectl cp command")
+	}
+	return nil
 }
