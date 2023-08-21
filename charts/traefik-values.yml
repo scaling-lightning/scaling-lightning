@@ -1,0 +1,51 @@
+ports:
+  node1:
+    port: 1001
+    expose: true
+    exposedPort: 1001
+    protocol: TCP
+  node2:
+    port: 1002
+    expose: true
+    exposedPort: 1002
+    protocol: TCP
+  node3:
+    port: 1003
+    expose: true
+    exposedPort: 1003
+    protocol: TCP
+  node4:
+    port: 1004
+    expose: true
+    exposedPort: 1004
+    protocol: TCP
+  node5:
+    port: 1005
+    expose: true
+    exposedPort: 1005
+    protocol: TCP
+  node6:
+    port: 1006
+    expose: true
+    exposedPort: 1006
+    protocol: TCP
+  node7:
+    port: 1007
+    expose: true
+    exposedPort: 1007
+    protocol: TCP
+  node8:
+    port: 1008
+    expose: true
+    exposedPort: 1008
+    protocol: TCP
+  node9:
+    port: 1009
+    expose: true
+    exposedPort: 1009
+    protocol: TCP
+  node10:
+    port: 1010
+    expose: true
+    exposedPort: 1000
+    protocol: TCP
