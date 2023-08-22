@@ -47,5 +47,455 @@ ports:
   node10:
     port: 1010
     expose: true
-    exposedPort: 1000
+    exposedPort: 1010
+    protocol: TCP
+  node11:
+    port: 1011
+    expose: true
+    exposedPort: 1011
+    protocol: TCP
+  node12:
+    port: 1012
+    expose: true
+    exposedPort: 1012
+    protocol: TCP
+  node13:
+    port: 1013
+    expose: true
+    exposedPort: 1013
+    protocol: TCP
+  node14:
+    port: 1014
+    expose: true
+    exposedPort: 1014
+    protocol: TCP
+  node15:
+    port: 1015
+    expose: true
+    exposedPort: 1015
+    protocol: TCP
+  node16:
+    port: 1016
+    expose: true
+    exposedPort: 1016
+    protocol: TCP
+  node17:
+    port: 1017
+    expose: true
+    exposedPort: 1017
+    protocol: TCP
+  node18:
+    port: 1018
+    expose: true
+    exposedPort: 1018
+    protocol: TCP
+  node19:
+    port: 1019
+    expose: true
+    exposedPort: 1019
+    protocol: TCP
+  node20:
+    port: 1020
+    expose: true
+    exposedPort: 1020
+    protocol: TCP
+  node21:
+    port: 1021
+    expose: true
+    exposedPort: 1021
+    protocol: TCP
+  node22:
+    port: 1022
+    expose: true
+    exposedPort: 1022
+    protocol: TCP
+  node23:
+    port: 1023
+    expose: true
+    exposedPort: 1023
+    protocol: TCP
+  node24:
+    port: 1024
+    expose: true
+    exposedPort: 1024
+    protocol: TCP
+  node25:
+    port: 1025
+    expose: true
+    exposedPort: 1025
+    protocol: TCP
+  node26:
+    port: 1026
+    expose: true
+    exposedPort: 1026
+    protocol: TCP
+  node27:
+    port: 1027
+    expose: true
+    exposedPort: 1027
+    protocol: TCP
+  node28:
+    port: 1028
+    expose: true
+    exposedPort: 1028
+    protocol: TCP
+  node29:
+    port: 1029
+    expose: true
+    exposedPort: 1029
+    protocol: TCP
+  node30:
+    port: 1030
+    expose: true
+    exposedPort: 1030
+    protocol: TCP
+  node31:
+    port: 1031
+    expose: true
+    exposedPort: 1031
+    protocol: TCP
+  node32:
+    port: 1032
+    expose: true
+    exposedPort: 1032
+    protocol: TCP
+  node33:
+    port: 1033
+    expose: true
+    exposedPort: 1033
+    protocol: TCP
+  node34:
+    port: 1034
+    expose: true
+    exposedPort: 1034
+    protocol: TCP
+  node35:
+    port: 1035
+    expose: true
+    exposedPort: 1035
+    protocol: TCP
+  node36:
+    port: 1036
+    expose: true
+    exposedPort: 1036
+    protocol: TCP
+  node37:
+    port: 1037
+    expose: true
+    exposedPort: 1037
+    protocol: TCP
+  node38:
+    port: 1038
+    expose: true
+    exposedPort: 1038
+    protocol: TCP
+  node39:
+    port: 1039
+    expose: true
+    exposedPort: 1039
+    protocol: TCP
+  node40:
+    port: 1040
+    expose: true
+    exposedPort: 1040
+    protocol: TCP
+  node41:
+    port: 1041
+    expose: true
+    exposedPort: 1041
+    protocol: TCP
+  node42:
+    port: 1042
+    expose: true
+    exposedPort: 1042
+    protocol: TCP
+  node43:
+    port: 1043
+    expose: true
+    exposedPort: 1043
+    protocol: TCP
+  node44:
+    port: 1044
+    expose: true
+    exposedPort: 1044
+    protocol: TCP
+  node45:
+    port: 1045
+    expose: true
+    exposedPort: 1045
+    protocol: TCP
+  node46:
+    port: 1046
+    expose: true
+    exposedPort: 1046
+    protocol: TCP
+  node47:
+    port: 1047
+    expose: true
+    exposedPort: 1047
+    protocol: TCP
+  node48:
+    port: 1048
+    expose: true
+    exposedPort: 1048
+    protocol: TCP
+  node49:
+    port: 1049
+    expose: true
+    exposedPort: 1049
+    protocol: TCP
+  node50:
+    port: 1050
+    expose: true
+    exposedPort: 1050
+    protocol: TCP
+  node51:
+    port: 1051
+    expose: true
+    exposedPort: 1051
+    protocol: TCP
+  node52:
+    port: 1052
+    expose: true
+    exposedPort: 1052
+    protocol: TCP
+  node53:
+    port: 1053
+    expose: true
+    exposedPort: 1053
+    protocol: TCP
+  node54:
+    port: 1054
+    expose: true
+    exposedPort: 1054
+    protocol: TCP
+  node55:
+    port: 1055
+    expose: true
+    exposedPort: 1055
+    protocol: TCP
+  node56:
+    port: 1056
+    expose: true
+    exposedPort: 1056
+    protocol: TCP
+  node57:
+    port: 1057
+    expose: true
+    exposedPort: 1057
+    protocol: TCP
+  node58:
+    port: 1058
+    expose: true
+    exposedPort: 1058
+    protocol: TCP
+  node59:
+    port: 1059
+    expose: true
+    exposedPort: 1059
+    protocol: TCP
+  node60:
+    port: 1060
+    expose: true
+    exposedPort: 1060
+    protocol: TCP
+  node61:
+    port: 1061
+    expose: true
+    exposedPort: 1061
+    protocol: TCP
+  node62:
+    port: 1062
+    expose: true
+    exposedPort: 1062
+    protocol: TCP
+  node63:
+    port: 1063
+    expose: true
+    exposedPort: 1063
+    protocol: TCP
+  node64:
+    port: 1064
+    expose: true
+    exposedPort: 1064
+    protocol: TCP
+  node65:
+    port: 1065
+    expose: true
+    exposedPort: 1065
+    protocol: TCP
+  node66:
+    port: 1066
+    expose: true
+    exposedPort: 1066
+    protocol: TCP
+  node67:
+    port: 1067
+    expose: true
+    exposedPort: 1067
+    protocol: TCP
+  node68:
+    port: 1068
+    expose: true
+    exposedPort: 1068
+    protocol: TCP
+  node69:
+    port: 1069
+    expose: true
+    exposedPort: 1069
+    protocol: TCP
+  node70:
+    port: 1070
+    expose: true
+    exposedPort: 1070
+    protocol: TCP
+  node71:
+    port: 1071
+    expose: true
+    exposedPort: 1071
+    protocol: TCP
+  node72:
+    port: 1072
+    expose: true
+    exposedPort: 1072
+    protocol: TCP
+  node73:
+    port: 1073
+    expose: true
+    exposedPort: 1073
+    protocol: TCP
+  node74:
+    port: 1074
+    expose: true
+    exposedPort: 1074
+    protocol: TCP
+  node75:
+    port: 1075
+    expose: true
+    exposedPort: 1075
+    protocol: TCP
+  node76:
+    port: 1076
+    expose: true
+    exposedPort: 1076
+    protocol: TCP
+  node77:
+    port: 1077
+    expose: true
+    exposedPort: 1077
+    protocol: TCP
+  node78:
+    port: 1078
+    expose: true
+    exposedPort: 1078
+    protocol: TCP
+  node79:
+    port: 1079
+    expose: true
+    exposedPort: 1079
+    protocol: TCP
+  node80:
+    port: 1080
+    expose: true
+    exposedPort: 1080
+    protocol: TCP
+  node81:
+    port: 1081
+    expose: true
+    exposedPort: 1081
+    protocol: TCP
+  node82:
+    port: 1082
+    expose: true
+    exposedPort: 1082
+    protocol: TCP
+  node83:
+    port: 1083
+    expose: true
+    exposedPort: 1083
+    protocol: TCP
+  node84:
+    port: 1084
+    expose: true
+    exposedPort: 1084
+    protocol: TCP
+  node85:
+    port: 1085
+    expose: true
+    exposedPort: 1085
+    protocol: TCP
+  node86:
+    port: 1086
+    expose: true
+    exposedPort: 1086
+    protocol: TCP
+  node87:
+    port: 1087
+    expose: true
+    exposedPort: 1087
+    protocol: TCP
+  node88:
+    port: 1088
+    expose: true
+    exposedPort: 1088
+    protocol: TCP
+  node89:
+    port: 1089
+    expose: true
+    exposedPort: 1089
+    protocol: TCP
+  node90:
+    port: 1090
+    expose: true
+    exposedPort: 1090
+    protocol: TCP
+  node91:
+    port: 1091
+    expose: true
+    exposedPort: 1091
+    protocol: TCP
+  node92:
+    port: 1092
+    expose: true
+    exposedPort: 1092
+    protocol: TCP
+  node93:
+    port: 1093
+    expose: true
+    exposedPort: 1093
+    protocol: TCP
+  node94:
+    port: 1094
+    expose: true
+    exposedPort: 1094
+    protocol: TCP
+  node95:
+    port: 1095
+    expose: true
+    exposedPort: 1095
+    protocol: TCP
+  node96:
+    port: 1096
+    expose: true
+    exposedPort: 1096
+    protocol: TCP
+  node97:
+    port: 1097
+    expose: true
+    exposedPort: 1097
+    protocol: TCP
+  node98:
+    port: 1098
+    expose: true
+    exposedPort: 1098
+    protocol: TCP
+  node99:
+    port: 1099
+    expose: true
+    exposedPort: 1099
+    protocol: TCP
+  node100:
+    port: 1100
+    expose: true
+    exposedPort: 1100
     protocol: TCP
