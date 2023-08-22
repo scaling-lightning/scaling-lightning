@@ -18,7 +18,7 @@ spec:
 apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRouteTCP
 metadata:
-  name: {{ include "cln.fullname" . }}-direct-grpc
+  name: {{ include "lnd.fullname" . }}-direct-grpc
   namespace: default
 spec:
   entryPoints:       
@@ -26,7 +26,7 @@ spec:
   routes:             
     - match: HostSNI(`*`)
       services:  
-        - name: {{ include "cln.fullname" . }}
+        - name: {{ include "lnd.fullname" . }}
           port: grpc
   tls:              
     passthrough: true
