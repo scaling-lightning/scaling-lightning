@@ -29,7 +29,8 @@ type port struct {
 func main() {
 	valuesFileData := valuesFile{}
 	valuesFileData.Ports = make(map[string]port)
-	for i := 1001; i <= 1100; i++ {
+	amountOfNodes := 38
+	for i := 1001; i <= 1000+amountOfNodes; i++ {
 		valuesFileData.Ports[fmt.Sprintf("node%d", i-1000)] = port{
 			Port:        i,
 			Expose:      true,

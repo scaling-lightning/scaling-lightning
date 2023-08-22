@@ -167,8 +167,6 @@ func DiscoverStartedNetwork(kubeconfig string) (*SLNetwork, error) {
 				Impl:        CLN,
 			}
 			slnetwork.LightningNodes = append(slnetwork.LightningNodes, lightningNode)
-		default:
-			return nil, errors.New("Unsupported node type in helmfile")
 		}
 	}
 
