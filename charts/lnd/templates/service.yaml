@@ -21,31 +21,3 @@ spec:
       port: {{ .Values.clientPort }}
   selector:
     {{- include "lnd.selectorLabels" . | nindent 4 }}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ include "lnd.fullname" . }}-nodeport
-  labels:
-    {{- include "lnd.labels" . | nindent 4 }}
-spec:
-  type: NodePort
-  ports:
-    - name: peer
-      targetPort: peer
-      port: {{ .Values.port }}
-    - name: grpc
-      targetPort: grpc
-      port: {{ .Values.gRPCPort }}
-      {{- if .Values.gRPCNodePort }}
-      nodePort: {{ .Values.gRPCNodePort }}
-      {{- end }}
-    - name: rest
-      targetPort: rest
-      port: {{ .Values.restPort }}
-    - name: client
-      targetPort: client
-      port: {{ .Values.clientPort }}
-  selector:
-    {{- include "lnd.selectorLabels" . | nindent 4 }}
-

@@ -13,3 +13,21 @@ spec:
         - name: {{ include "lnd.fullname" . }}
           port: client
           scheme: h2c
+{{- if .Values.gRPCEntryPoint }}
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: {{ include "cln.fullname" . }}-direct-grpc
+  namespace: default
+spec:
+  entryPoints:       
+    - {{ .Values.gRPCEntryPoint }}
+  routes:             
+    - match: HostSNI(`*`)
+      services:  
+        - name: {{ include "cln.fullname" . }}
+          port: grpc
+  tls:              
+    passthrough: true
+{{- end}}
