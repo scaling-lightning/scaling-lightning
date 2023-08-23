@@ -14,19 +14,19 @@ releases:
     namespace: sl
     chart: ../../charts/cln
     values:
-      - gRPCEntryPoint: entrypoint1
+      - gRPCEntryPoint: endpoint1
   - name: cln2
     namespace: sl
     chart: ../../charts/cln
     values:
-      - gRPCEntryPoint: entrypoint2
+      - gRPCEntryPoint: endpoint2
   - name: lnd1
     namespace: sl
     chart: ../../charts/lnd
     values:
-      - gRPCEntryPoint: entrypoint3
+      - gRPCEntryPoint: endpoint3
   - name: lnd2
     namespace: sl
     chart: ../../charts/lnd
     values:
-      - gRPCEntryPoint: entrypoint4
+      - gRPCEntryPoint: endpoint4
