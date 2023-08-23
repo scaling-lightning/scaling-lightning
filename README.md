@@ -26,12 +26,6 @@ The goal is to collaborate as an industry to help scale the Lightning Network an
 
       helm plugin install https://github.com/databus23/helm-diff
 
-* Traefik:
-
-      helm repo add traefik https://traefik.github.io/charts
-      helm repo update
-      helm install traefik traefik/traefik -n traefik --create-namespace
-
 ### Starting a Network
 
 To spin up an example network with 2 cln nodes and 4 lnd nodes, run:
@@ -79,26 +73,31 @@ Example go test command with extra timeout:
 ### Helpful Kubernetes commands
 
     # list pods
-    kubectl get pods
+    kubectl -n sl get pods
 
     # describe cln1 pod in more detail
-    kubectl describe pod cln1-0
+    kubectl -n sl describe pod cln1-0
 
     # view logs of lnd1 node
-    kubectl logs -f lnd1-0
+    kubectl -n sl logs -f lnd1-0
 
     # view logs of a crashed bitcoind pod
-    kubectl logs -previous bitcoind-0
+    kubectl -n sl logs -previous bitcoind-0
 
     # view logs of lnd1's scaling lightning sidecar client (it handles our api requests and forwards them to the node)
-    kubectl logs -f -c lnd-client lnd1-0
+    kubectl -n sl logs -f -c lnd-client lnd1-0
 
     # same for cln and bitcoind
-    kubectl logs -f -c cln-client cln1-0 
-    kubectl logs -f -c bitcoind-client bitcoind-0
+    kubectl -n sl logs -f -c cln-client cln1-0 
+    kubectl -n sl logs -f -c bitcoind-client bitcoind-0
 
     # get shell into lnd1
-    kubectl exec -it lnd1-0 -- bash
+    kubectl -n sl exec -it lnd1-0 -- bash
+
+    # view loadbalancer public ip from traefik
+    kubectl -n sl-traefik get services
+
+    Note that the above commands assume you are using the default kubeconfig. You would need to add `--kubeconfig path/to/file.yml` to all of the above commands if you wanted to look at a different cluster.
 
 
 ### Your own configuration
