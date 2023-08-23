@@ -133,7 +133,7 @@ type helmListOutput struct {
 }
 
 func DiscoverStartedNetwork(kubeconfig string) (*SLNetwork, error) {
-	helmCmd := exec.Command("helm", "--kubeconfig", kubeconfig, "list", "-o", "json")
+	helmCmd := exec.Command("helm", "--kubeconfig", kubeconfig, "list", "-n", "sl", "-o", "json")
 	helmOut, err := helmCmd.Output()
 	log.Debug().Err(err).Msgf("helm output was: %v", string(helmOut))
 	if err != nil {
@@ -170,12 +170,12 @@ func DiscoverStartedNetwork(kubeconfig string) (*SLNetwork, error) {
 		}
 	}
 
-	loadbalancer, err := GetLoadbalancerHostname("traefik", "traefik", kubeconfig)
+	loadbalancer, err := GetLoadbalancerHostname("traefik", "sl-traefik", kubeconfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "Getting loadbalancer hostname")
 	}
 	slnetwork.ApiHost = loadbalancer
-	slnetwork.ApiPort = 80
+	slnetwork.ApiPort = 28100
 
 	return &slnetwork, nil
 }
@@ -257,13 +257,6 @@ func (n *SLNetwork) Start() error {
 	}
 	n.LightningNodes = lightningNodes
 	n.BitcoinNodes = bitcoinNodes
-
-	loadbalancer, err := GetLoadbalancerHostname("traefik", "traefik", n.kubeConfig)
-	if err != nil {
-		return errors.Wrap(err, "Getting loadbalancer hostname")
-	}
-	n.ApiHost = loadbalancer
-	n.ApiPort = 80
 
 	return nil
 }
