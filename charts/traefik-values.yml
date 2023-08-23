@@ -1,191 +1,211 @@
 ports:
-  node1:
-    port: 1001
+  endpoint1:
+    port: 28101
     expose: true
-    exposedPort: 1001
+    exposedPort: 28101
     protocol: TCP
-  node2:
-    port: 1002
+  endpoint2:
+    port: 28102
     expose: true
-    exposedPort: 1002
+    exposedPort: 28102
     protocol: TCP
-  node3:
-    port: 1003
+  endpoint3:
+    port: 28103
     expose: true
-    exposedPort: 1003
+    exposedPort: 28103
     protocol: TCP
-  node4:
-    port: 1004
+  endpoint4:
+    port: 28104
     expose: true
-    exposedPort: 1004
+    exposedPort: 28104
     protocol: TCP
-  node5:
-    port: 1005
+  endpoint5:
+    port: 28105
     expose: true
-    exposedPort: 1005
+    exposedPort: 28105
     protocol: TCP
-  node6:
-    port: 1006
+  endpoint6:
+    port: 28106
     expose: true
-    exposedPort: 1006
+    exposedPort: 28106
     protocol: TCP
-  node7:
-    port: 1007
+  endpoint7:
+    port: 28107
     expose: true
-    exposedPort: 1007
+    exposedPort: 28107
     protocol: TCP
-  node8:
-    port: 1008
+  endpoint8:
+    port: 28108
     expose: true
-    exposedPort: 1008
+    exposedPort: 28108
     protocol: TCP
-  node9:
-    port: 1009
+  endpoint9:
+    port: 28109
     expose: true
-    exposedPort: 1009
+    exposedPort: 28109
     protocol: TCP
-  node10:
-    port: 1010
+  endpoint10:
+    port: 28110
     expose: true
-    exposedPort: 1010
+    exposedPort: 28110
     protocol: TCP
-  node11:
-    port: 1011
+  endpoint11:
+    port: 28111
     expose: true
-    exposedPort: 1011
+    exposedPort: 28111
     protocol: TCP
-  node12:
-    port: 1012
+  endpoint12:
+    port: 28112
     expose: true
-    exposedPort: 1012
+    exposedPort: 28112
     protocol: TCP
-  node13:
-    port: 1013
+  endpoint13:
+    port: 28113
     expose: true
-    exposedPort: 1013
+    exposedPort: 28113
     protocol: TCP
-  node14:
-    port: 1014
+  endpoint14:
+    port: 28114
     expose: true
-    exposedPort: 1014
+    exposedPort: 28114
     protocol: TCP
-  node15:
-    port: 1015
+  endpoint15:
+    port: 28115
     expose: true
-    exposedPort: 1015
+    exposedPort: 28115
     protocol: TCP
-  node16:
-    port: 1016
+  endpoint16:
+    port: 28116
     expose: true
-    exposedPort: 1016
+    exposedPort: 28116
     protocol: TCP
-  node17:
-    port: 1017
+  endpoint17:
+    port: 28117
     expose: true
-    exposedPort: 1017
+    exposedPort: 28117
     protocol: TCP
-  node18:
-    port: 1018
+  endpoint18:
+    port: 28118
     expose: true
-    exposedPort: 1018
+    exposedPort: 28118
     protocol: TCP
-  node19:
-    port: 1019
+  endpoint19:
+    port: 28119
     expose: true
-    exposedPort: 1019
+    exposedPort: 28119
     protocol: TCP
-  node20:
-    port: 1020
+  endpoint20:
+    port: 28120
     expose: true
-    exposedPort: 1020
+    exposedPort: 28120
     protocol: TCP
-  node21:
-    port: 1021
+  endpoint21:
+    port: 28121
     expose: true
-    exposedPort: 1021
+    exposedPort: 28121
     protocol: TCP
-  node22:
-    port: 1022
+  endpoint22:
+    port: 28122
     expose: true
-    exposedPort: 1022
+    exposedPort: 28122
     protocol: TCP
-  node23:
-    port: 1023
+  endpoint23:
+    port: 28123
     expose: true
-    exposedPort: 1023
+    exposedPort: 28123
     protocol: TCP
-  node24:
-    port: 1024
+  endpoint24:
+    port: 28124
     expose: true
-    exposedPort: 1024
+    exposedPort: 28124
     protocol: TCP
-  node25:
-    port: 1025
+  endpoint25:
+    port: 28125
     expose: true
-    exposedPort: 1025
+    exposedPort: 28125
     protocol: TCP
-  node26:
-    port: 1026
+  endpoint26:
+    port: 28126
     expose: true
-    exposedPort: 1026
+    exposedPort: 28126
     protocol: TCP
-  node27:
-    port: 1027
+  endpoint27:
+    port: 28127
     expose: true
-    exposedPort: 1027
+    exposedPort: 28127
     protocol: TCP
-  node28:
-    port: 1028
+  endpoint28:
+    port: 28128
     expose: true
-    exposedPort: 1028
+    exposedPort: 28128
     protocol: TCP
-  node29:
-    port: 1029
+  endpoint29:
+    port: 28129
     expose: true
-    exposedPort: 1029
+    exposedPort: 28129
     protocol: TCP
-  node30:
-    port: 1030
+  endpoint30:
+    port: 28130
     expose: true
-    exposedPort: 1030
+    exposedPort: 28130
     protocol: TCP
-  node31:
-    port: 1031
+  endpoint31:
+    port: 28131
     expose: true
-    exposedPort: 1031
+    exposedPort: 28131
     protocol: TCP
-  node32:
-    port: 1032
+  endpoint32:
+    port: 28132
     expose: true
-    exposedPort: 1032
+    exposedPort: 28132
     protocol: TCP
-  node33:
-    port: 1033
+  endpoint33:
+    port: 28133
     expose: true
-    exposedPort: 1033
+    exposedPort: 28133
     protocol: TCP
-  node34:
-    port: 1034
+  endpoint34:
+    port: 28134
     expose: true
-    exposedPort: 1034
+    exposedPort: 28134
     protocol: TCP
-  node35:
-    port: 1035
+  endpoint35:
+    port: 28135
     expose: true
-    exposedPort: 1035
+    exposedPort: 28135
     protocol: TCP
-  node36:
-    port: 1036
+  endpoint36:
+    port: 28136
     expose: true
-    exposedPort: 1036
+    exposedPort: 28136
     protocol: TCP
-  node37:
-    port: 1037
+  endpoint37:
+    port: 28137
     expose: true
-    exposedPort: 1037
+    exposedPort: 28137
     protocol: TCP
-  node38:
-    port: 1038
+  endpoint38:
+    port: 28138
     expose: true
-    exposedPort: 1038
+    exposedPort: 28138
+    protocol: TCP
+  endpoint39:
+    port: 28139
+    expose: true
+    exposedPort: 28139
+    protocol: TCP
+  grpc:
+    port: 28100
+    expose: true
+    exposedPort: 28100
+    protocol: TCP
+  web:
+    port: 8000
+    expose: false
+    exposedPort: 80
+    protocol: TCP
+  websecure:
+    port: 8443
+    expose: false
+    exposedPort: 443
     protocol: TCP

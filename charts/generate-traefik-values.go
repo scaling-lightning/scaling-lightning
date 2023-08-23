@@ -29,12 +29,35 @@ type port struct {
 func main() {
 	valuesFileData := valuesFile{}
 	valuesFileData.Ports = make(map[string]port)
-	amountOfNodes := 38
-	for i := 1001; i <= 1000+amountOfNodes; i++ {
-		valuesFileData.Ports[fmt.Sprintf("node%d", i-1000)] = port{
-			Port:        i,
+
+	valuesFileData.Ports["web"] = port{
+		Port:        8000,
+		Expose:      false,
+		ExposedPort: 80,
+		Protocol:    "TCP",
+	}
+
+	valuesFileData.Ports["websecure"] = port{
+		Port:        8443,
+		Expose:      false,
+		ExposedPort: 443,
+		Protocol:    "TCP",
+	}
+
+	valuesFileData.Ports["grpc"] = port{
+		Port:        28100,
+		Expose:      true,
+		ExposedPort: 28100,
+		Protocol:    "TCP",
+	}
+
+	amountOfNodes := 39
+
+	for i := 1; i <= amountOfNodes; i++ {
+		valuesFileData.Ports[fmt.Sprintf("endpoint%d", i)] = port{
+			Port:        i + 28100,
 			Expose:      true,
-			ExposedPort: i,
+			ExposedPort: i + 28100,
 			Protocol:    "TCP",
 		}
 	}

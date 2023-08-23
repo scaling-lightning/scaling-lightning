@@ -5,7 +5,7 @@ metadata:
   namespace: default
 spec:
   entryPoints:
-    - web
+    - grpc
   routes:
     - match: Headers(`X-Node`, `{{ include "cln.fullname" .}}`)
       kind: Rule
