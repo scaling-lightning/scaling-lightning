@@ -1,8 +1,7 @@
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: {{ include "bitcoind.fullname" . }}-traefix
-  namespace: default
+  name: {{ include "bitcoind.fullname" . }}-client
 spec:
   entryPoints:
     - grpc
