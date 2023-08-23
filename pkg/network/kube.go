@@ -12,6 +12,8 @@ func kubeCP(kubeconfig string, source string, destination string) error {
 		"kubectl",
 		"--kubeconfig",
 		kubeconfig,
+		"-n",
+		mainNamespace,
 		"cp",
 		source,
 		destination,

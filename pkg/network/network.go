@@ -17,6 +17,10 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+const mainNamespace = "sl"
+const traefikNamespace = "sl-traefik"
+const clientgRPCPort = 28100
+
 type NetworkType int
 
 const (
@@ -133,7 +137,16 @@ type helmListOutput struct {
 }
 
 func DiscoverStartedNetwork(kubeconfig string) (*SLNetwork, error) {
-	helmCmd := exec.Command("helm", "--kubeconfig", kubeconfig, "list", "-n", "sl", "-o", "json")
+	helmCmd := exec.Command(
+		"helm",
+		"--kubeconfig",
+		kubeconfig,
+		"list",
+		"-n",
+		mainNamespace,
+		"-o",
+		"json",
+	)
 	helmOut, err := helmCmd.Output()
 	log.Debug().Err(err).Msgf("helm output was: %v", string(helmOut))
 	if err != nil {
@@ -170,12 +183,12 @@ func DiscoverStartedNetwork(kubeconfig string) (*SLNetwork, error) {
 		}
 	}
 
-	loadbalancer, err := GetLoadbalancerHostname("traefik", "sl-traefik", kubeconfig)
+	loadbalancer, err := GetLoadbalancerHostname("traefik", traefikNamespace, kubeconfig)
 	if err != nil {
 		return nil, errors.Wrap(err, "Getting loadbalancer hostname")
 	}
 	slnetwork.ApiHost = loadbalancer
-	slnetwork.ApiPort = 28100
+	slnetwork.ApiPort = clientgRPCPort
 
 	return &slnetwork, nil
 }
