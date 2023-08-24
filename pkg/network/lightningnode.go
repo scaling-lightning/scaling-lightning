@@ -293,6 +293,10 @@ func (n *LightningNode) WriteAuthFilesToDirectory(dir string) error {
 	return nil
 }
 
-func (n *LightningNode) GetConnectionDetails() ConnectionDetails {
-	return ConnectionDetails{Host: n.SLNetwork.ApiHost, Port: 12345}
+func (n *LightningNode) GetConnectionDetails() (ConnectionDetails, error) {
+	port, err := getEndpointForNode(n.SLNetwork.kubeConfig, n.Name)
+	if err != nil {
+		return ConnectionDetails{}, errors.Wrapf(err, "Getting endpoint for %v", n.Name)
+	}
+	return ConnectionDetails{Host: n.SLNetwork.ApiHost, Port: port}, err
 }

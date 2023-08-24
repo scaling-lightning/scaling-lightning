@@ -3,6 +3,7 @@ package scalinglightning
 import (
 	"fmt"
 
+	"github.com/rs/zerolog/log"
 	sl "github.com/scaling-lightning/scaling-lightning/pkg/network"
 	"github.com/spf13/cobra"
 )
@@ -31,11 +32,12 @@ var connectionDetailsCmd = &cobra.Command{
 		foundANode := false
 		for _, node := range slnetwork.LightningNodes {
 			if node.GetName() == nodeName || all {
-				connectionDetails := node.GetConnectionDetails()
-				// if err != nil {
-				// 	fmt.Printf("Problem getting connection details: %v\n", err.Error())
-				// 	return
-				// }
+				connectionDetails, err := node.GetConnectionDetails()
+				if err != nil {
+					log.Debug().
+						Msgf("Problem getting connection details. This could be perfectly normal as it may not have an endpoint configured: %v", err.Error())
+					continue
+				}
 				foundANode = true
 				fmt.Println(node.GetName())
 				fmt.Printf("  host: %v\n", connectionDetails.Host)
