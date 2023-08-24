@@ -21,10 +21,22 @@ The goal is to collaborate as an industry to help scale the Lightning Network an
 * You also need Helm 3 and Helmfile. If you are on a Mac you can install them with Homebrew
     
         brew install helm helmfile
+		
+	* On Windows you can install using Scoop
+		
+          scoop install helm helmfile
 
 * Helm Diff:
 
       helm plugin install https://github.com/databus23/helm-diff
+
+	* On Windows the plugin install does not complete correctly and you need to download the binary manually from https://github.com/databus23/helm-diff/releases . Unzip the diff.exe file and put it in the _helm/plugins/helm-diff/bin_ folder (the _bin_ folder has to be created). You can find the folder by running _"helm env HELM_DATA_HOME"_
+
+* Traefik:
+
+      helm repo add traefik https://traefik.github.io/charts
+      helm repo update
+      helm install traefik traefik/traefik -n traefik --create-namespace
 
 ### Starting a Network
 
