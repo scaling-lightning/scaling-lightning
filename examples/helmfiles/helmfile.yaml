@@ -1,33 +1,42 @@
+repositories:
+  - name: traefik
+    url: https://traefik.github.io/charts
 releases:
+  - name: traefik
+    chart: traefik/traefik
+    namespace: sl-traefik
+    values:
+      - ../../charts/traefik-values.yml
   - name: bitcoind
+    namespace: sl
     chart: ../../charts/bitcoind
-    values:
-      - bitcoindHostPath: '{{env "PWD"}}/volumes/bitcoind'
-  - name: lnd1
-    chart: ../../charts/lnd
-    values:
-      - gRPCNodePort: 30009
-      - lndHostPath: '{{env "PWD"}}/volumes/lnd1'
-  - name: lnd2
-    chart: ../../charts/lnd
-    values:
-      - gRPCNodePort: 30010
-      - lndHostPath: '{{env "PWD"}}/volumes/lnd2'
-  - name: lnd3
-    chart: ../../charts/lnd
-    values:
-      - gRPCNodePort: 30011
-      - lndHostPath: '{{env "PWD"}}/volumes/lnd3'
-  - name: lnd4
-    chart: ../../charts/lnd
-    values:
-      - gRPCNodePort: 30012
-      - lndHostPath: '{{env "PWD"}}/volumes/lnd4'
   - name: cln1
+    namespace: sl
     chart: ../../charts/cln
     values:
-      - gRPCNodePort: 30013
+      - gRPCEntryPoint: endpoint1
   - name: cln2
+    namespace: sl
     chart: ../../charts/cln
     values:
-      - gRPCNodePort: 30014
+      - gRPCEntryPoint: endpoint2
+  - name: lnd1
+    namespace: sl
+    chart: ../../charts/lnd
+    values:
+      - gRPCEntryPoint: endpoint3
+  - name: lnd2
+    namespace: sl
+    chart: ../../charts/lnd
+    values:
+      - gRPCEntryPoint: endpoint4
+  - name: lnd3
+    namespace: sl
+    chart: ../../charts/lnd
+    values:
+      - gRPCEntryPoint: endpoint5
+  - name: lnd4
+    namespace: sl
+    chart: ../../charts/lnd
+    values:
+      - gRPCEntryPoint: endpoint6
