@@ -14,7 +14,7 @@ import (
 
 // will need a longish (few mins) timeout
 func TestMain(t *testing.T) {
-	zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	zerolog.SetGlobalLevel(zerolog.TraceLevel)
 	assert := assert.New(t)
 	network := sl.NewSLNetwork("../helmfiles/2cln2lnd.yaml", "", sl.Regtest)
 	err := network.Start()
@@ -69,6 +69,16 @@ func TestMain(t *testing.T) {
 		}
 		log.Info().Msgf("cln2 connection host: %v", connectionDetails.Host)
 		log.Info().Msgf("cln2 connection host: %d", connectionDetails.Port)
+		return nil
+	}, time.Second*15, time.Minute*2)
+
+	assert.NoError(err)
+	err = tools.Retry(func() error {
+		connectionFiles, err := cln2.GetConnectionFiles()
+		if err != nil {
+			return err
+		}
+		log.Info().Msgf("cln2 client cert size : %v", len(connectionFiles.CLN.ClientCert))
 		return nil
 	}, time.Second*15, time.Minute*2)
 	assert.NoError(err)

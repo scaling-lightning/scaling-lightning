@@ -3,6 +3,7 @@ package network
 import (
 	"context"
 	"fmt"
+	"os"
 	"path"
 
 	"github.com/cockroachdb/errors"
@@ -31,16 +32,19 @@ type LightningNode struct {
 type ConnectionDetails struct {
 	Host string
 	Port uint16
-	LND  *LNDConnectionDetails
-	CLN  *CLNConnectionDetails
 }
 
-type LNDConnectionDetails struct {
+type ConnectionFiles struct {
+	LND *LNDConnectionFiles
+	CLN *CLNConnectionFiles
+}
+
+type LNDConnectionFiles struct {
 	TLSCert  []byte
 	Macaroon []byte
 }
 
-type CLNConnectionDetails struct {
+type CLNConnectionFiles struct {
 	LightningNode
 	ClientCert []byte
 	ClientKey  []byte
@@ -242,6 +246,55 @@ func (n *LightningNode) OpenChannel(
 		FundingTx:   basictypes.NewTransactionFromByte(openChannelRes.FundingTxId),
 		OutputIndex: uint(openChannelRes.FundingTxOutputIndex),
 	}, nil
+}
+
+func (n *LightningNode) GetConnectionFiles() (*ConnectionFiles, error) {
+	dir, err := os.MkdirTemp("", "slconnectionfiles")
+	if err != nil {
+		return nil, errors.Wrap(err, "Creating temp dir")
+	}
+	defer os.RemoveAll(dir)
+
+	err = n.WriteAuthFilesToDirectory(dir)
+	if err != nil {
+		return nil, errors.Wrap(err, "Writing auth files")
+	}
+
+	switch n.Impl {
+	case LND:
+		tlsCert, err := os.ReadFile(path.Join(dir, "tls.cert"))
+		if err != nil {
+			return nil, errors.Wrap(err, "Reading tls.cert")
+		}
+		macaroon, err := os.ReadFile(path.Join(dir, "admin.macaroon"))
+		if err != nil {
+			return nil, errors.Wrap(err, "Reading admin.macaroon")
+		}
+		return &ConnectionFiles{LND: &LNDConnectionFiles{
+			TLSCert:  tlsCert,
+			Macaroon: macaroon,
+		}}, nil
+	case CLN:
+		clientCert, err := os.ReadFile(path.Join(dir, "client.pem"))
+		if err != nil {
+			return nil, errors.Wrap(err, "Reading client.pem")
+		}
+		clientKey, err := os.ReadFile(path.Join(dir, "client-key.pem"))
+		if err != nil {
+			return nil, errors.Wrap(err, "Reading client-key.pem")
+		}
+		caCert, err := os.ReadFile(path.Join(dir, "ca.pem"))
+		if err != nil {
+			return nil, errors.Wrap(err, "Reading ca.pem")
+		}
+		return &ConnectionFiles{CLN: &CLNConnectionFiles{
+			ClientCert: clientCert,
+			ClientKey:  clientKey,
+			CACert:     caCert,
+		}}, nil
+	default:
+		return nil, errors.Newf("Unknown node implementation: %v", n.Impl)
+	}
 }
 
 func (n *LightningNode) WriteAuthFilesToDirectory(dir string) error {
