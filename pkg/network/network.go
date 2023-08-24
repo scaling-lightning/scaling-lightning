@@ -6,9 +6,11 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
+	"github.com/scaling-lightning/scaling-lightning/pkg/tools"
 	"github.com/scaling-lightning/scaling-lightning/pkg/tools/grpc_helpers"
 	"github.com/scaling-lightning/scaling-lightning/pkg/types"
 	"google.golang.org/grpc"
@@ -183,12 +185,10 @@ func DiscoverStartedNetwork(kubeconfig string) (*SLNetwork, error) {
 		}
 	}
 
-	loadbalancer, err := GetLoadbalancerHostname("traefik", traefikNamespace, kubeconfig)
+	err = slnetwork.discoverConnectionDetails()
 	if err != nil {
-		return nil, errors.Wrap(err, "Getting loadbalancer hostname")
+		return nil, errors.Wrap(err, "Discovering connection details")
 	}
-	slnetwork.ApiHost = loadbalancer
-	slnetwork.ApiPort = clientgRPCPort
 
 	return &slnetwork, nil
 }
@@ -271,6 +271,25 @@ func (n *SLNetwork) Start() error {
 	n.LightningNodes = lightningNodes
 	n.BitcoinNodes = bitcoinNodes
 
+	err = tools.Retry(func() error {
+		return n.discoverConnectionDetails()
+	}, time.Second*15, time.Minute*2)
+	if err != nil {
+		return errors.Wrap(err, "Discovering connection details timeout")
+	}
+
+	n.discoverConnectionDetails()
+
+	return nil
+}
+
+func (n *SLNetwork) discoverConnectionDetails() error {
+	loadbalancer, err := GetLoadbalancerHostname("traefik", traefikNamespace, n.kubeConfig)
+	if err != nil {
+		return errors.Wrap(err, "Getting loadbalancer hostname")
+	}
+	n.ApiHost = loadbalancer
+	n.ApiPort = clientgRPCPort
 	return nil
 }
 
@@ -390,7 +409,7 @@ func connectToGRPCServer(host string, port uint16, nodeName string) (*grpc.Clien
 		host = "localhost"
 	}
 	if port == 0 {
-		port = 80
+		port = clientgRPCPort
 	}
 	conn, err := grpc.Dial(fmt.Sprintf("%v:%d", host, port), opts...)
 	if err != nil {

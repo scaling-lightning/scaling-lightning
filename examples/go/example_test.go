@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	sl "github.com/scaling-lightning/scaling-lightning/pkg/network"
 	"github.com/scaling-lightning/scaling-lightning/pkg/tools"
@@ -13,10 +14,13 @@ import (
 
 // will need a longish (few mins) timeout
 func TestMain(t *testing.T) {
+	zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	assert := assert.New(t)
-	network := sl.NewSLNetwork("../helmfiles/2cln2lnd.yaml", "~/.kube/config", sl.Regtest)
+	network := sl.NewSLNetwork("../helmfiles/2cln2lnd.yaml", "", sl.Regtest)
 	err := network.Start()
-	assert.NoError(err)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Problem starting network")
+	}
 
 	bitcoind, err := network.GetBitcoinNode("bitcoind")
 	assert.NoError(err)
@@ -54,6 +58,17 @@ func TestMain(t *testing.T) {
 			return err
 		}
 		log.Info().Msgf("cln1 balance: %d", balance.AsSats())
+		return nil
+	}, time.Second*15, time.Minute*2)
+	assert.NoError(err)
+
+	err = tools.Retry(func() error {
+		connectionDetails, err := cln2.GetConnectionDetails()
+		if err != nil {
+			return err
+		}
+		log.Info().Msgf("cln2 connection host: %v", connectionDetails.Host)
+		log.Info().Msgf("cln2 connection host: %d", connectionDetails.Port)
 		return nil
 	}, time.Second*15, time.Minute*2)
 	assert.NoError(err)

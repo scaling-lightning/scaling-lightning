@@ -27,6 +27,7 @@ func Retry(operation func() error, delay time.Duration, maxWait time.Duration) e
 		if err == nil {
 			break
 		}
+		log.Trace().Err(err).Msg("Error was")
 		log.Info().Msg("Retry...")
 		time.Sleep(delay)
 		totalWaited += delay
