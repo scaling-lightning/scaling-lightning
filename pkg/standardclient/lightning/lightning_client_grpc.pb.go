@@ -25,6 +25,8 @@ type LightningClient interface {
 	PubKey(ctx context.Context, in *PubKeyRequest, opts ...grpc.CallOption) (*PubKeyResponse, error)
 	ConnectPeer(ctx context.Context, in *ConnectPeerRequest, opts ...grpc.CallOption) (*ConnectPeerResponse, error)
 	OpenChannel(ctx context.Context, in *OpenChannelRequest, opts ...grpc.CallOption) (*OpenChannelResponse, error)
+	CreateInvoice(ctx context.Context, in *CreateInvoiceRequest, opts ...grpc.CallOption) (*CreateInvoiceResponse, error)
+	PayInvoice(ctx context.Context, in *PayInvoiceRequest, opts ...grpc.CallOption) (*PayInvoiceResponse, error)
 }
 
 type lightningClient struct {
@@ -62,6 +64,24 @@ func (c *lightningClient) OpenChannel(ctx context.Context, in *OpenChannelReques
 	return out, nil
 }
 
+func (c *lightningClient) CreateInvoice(ctx context.Context, in *CreateInvoiceRequest, opts ...grpc.CallOption) (*CreateInvoiceResponse, error) {
+	out := new(CreateInvoiceResponse)
+	err := c.cc.Invoke(ctx, "/Lightning/CreateInvoice", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *lightningClient) PayInvoice(ctx context.Context, in *PayInvoiceRequest, opts ...grpc.CallOption) (*PayInvoiceResponse, error) {
+	out := new(PayInvoiceResponse)
+	err := c.cc.Invoke(ctx, "/Lightning/PayInvoice", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // LightningServer is the server API for Lightning service.
 // All implementations must embed UnimplementedLightningServer
 // for forward compatibility
@@ -69,6 +89,8 @@ type LightningServer interface {
 	PubKey(context.Context, *PubKeyRequest) (*PubKeyResponse, error)
 	ConnectPeer(context.Context, *ConnectPeerRequest) (*ConnectPeerResponse, error)
 	OpenChannel(context.Context, *OpenChannelRequest) (*OpenChannelResponse, error)
+	CreateInvoice(context.Context, *CreateInvoiceRequest) (*CreateInvoiceResponse, error)
+	PayInvoice(context.Context, *PayInvoiceRequest) (*PayInvoiceResponse, error)
 	mustEmbedUnimplementedLightningServer()
 }
 
@@ -84,6 +106,12 @@ func (UnimplementedLightningServer) ConnectPeer(context.Context, *ConnectPeerReq
 }
 func (UnimplementedLightningServer) OpenChannel(context.Context, *OpenChannelRequest) (*OpenChannelResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OpenChannel not implemented")
+}
+func (UnimplementedLightningServer) CreateInvoice(context.Context, *CreateInvoiceRequest) (*CreateInvoiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateInvoice not implemented")
+}
+func (UnimplementedLightningServer) PayInvoice(context.Context, *PayInvoiceRequest) (*PayInvoiceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PayInvoice not implemented")
 }
 func (UnimplementedLightningServer) mustEmbedUnimplementedLightningServer() {}
 
@@ -152,6 +180,42 @@ func _Lightning_OpenChannel_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Lightning_CreateInvoice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateInvoiceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LightningServer).CreateInvoice(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Lightning/CreateInvoice",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LightningServer).CreateInvoice(ctx, req.(*CreateInvoiceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Lightning_PayInvoice_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PayInvoiceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LightningServer).PayInvoice(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Lightning/PayInvoice",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LightningServer).PayInvoice(ctx, req.(*PayInvoiceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Lightning_ServiceDesc is the grpc.ServiceDesc for Lightning service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -170,6 +234,14 @@ var Lightning_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "OpenChannel",
 			Handler:    _Lightning_OpenChannel_Handler,
+		},
+		{
+			MethodName: "CreateInvoice",
+			Handler:    _Lightning_CreateInvoice_Handler,
+		},
+		{
+			MethodName: "PayInvoice",
+			Handler:    _Lightning_PayInvoice_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

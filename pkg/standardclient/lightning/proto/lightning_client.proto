@@ -4,6 +4,8 @@ service Lightning {
   rpc PubKey(PubKeyRequest) returns (PubKeyResponse) {}
   rpc ConnectPeer(ConnectPeerRequest) returns (ConnectPeerResponse) {}
   rpc OpenChannel(OpenChannelRequest) returns (OpenChannelResponse) {}
+  rpc CreateInvoice(CreateInvoiceRequest) returns (CreateInvoiceResponse) {}
+  rpc PayInvoice(PayInvoiceRequest) returns (PayInvoiceResponse) {}
 }
 
 message PubKeyRequest {}
@@ -25,4 +27,18 @@ message OpenChannelRequest {
 message OpenChannelResponse {
   bytes fundingTxId = 1;
   uint32 fundingTxOutputIndex = 2;
+}
+
+message CreateInvoiceRequest {
+  uint64 amtSats = 1;
+}
+message CreateInvoiceResponse {
+  string invoice = 1;
+}
+
+message PayInvoiceRequest {
+  string invoice = 1;
+}
+message PayInvoiceResponse {
+  bytes paymentPreimage = 2;
 }
