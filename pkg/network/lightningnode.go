@@ -373,3 +373,24 @@ func (n *LightningNode) CreateInvoice(amountSats uint64) (string, error) {
 	}
 	return invoiceRes.Invoice, nil
 }
+
+func (n *LightningNode) PayInvoice(invoice string) (string, error) {
+	conn, err := connectToGRPCServer(n.SLNetwork.ApiHost, n.SLNetwork.ApiPort, n.Name)
+	if err != nil {
+		return "", errors.Wrapf(err, "Connecting to gRPC for %v's client", n.Name)
+	}
+	defer conn.Close()
+	client := stdlightningclient.NewLightningClient(conn)
+
+	payRes, err := client.PayInvoice(
+		context.Background(),
+		&stdlightningclient.PayInvoiceRequest{
+			Invoice: invoice,
+		},
+	)
+	if err != nil {
+		return "", errors.Wrapf(err, "Paying invoice for %v", n.Name)
+	}
+
+	return string(payRes.PaymentPreimage), nil
+}
