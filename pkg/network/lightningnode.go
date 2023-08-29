@@ -353,3 +353,23 @@ func (n *LightningNode) GetConnectionDetails() (ConnectionDetails, error) {
 	}
 	return ConnectionDetails{Host: n.SLNetwork.ApiHost, Port: port}, err
 }
+
+func (n *LightningNode) CreateInvoice(amountSats uint64) (string, error) {
+	conn, err := connectToGRPCServer(n.SLNetwork.ApiHost, n.SLNetwork.ApiPort, n.Name)
+	if err != nil {
+		return "", errors.Wrapf(err, "Connecting to gRPC for %v's client", n.Name)
+	}
+	defer conn.Close()
+	client := stdlightningclient.NewLightningClient(conn)
+
+	invoiceRes, err := client.CreateInvoice(
+		context.Background(),
+		&stdlightningclient.CreateInvoiceRequest{
+			AmtSats: amountSats,
+		},
+	)
+	if err != nil {
+		return "", errors.Wrapf(err, "Creating invoice for %v", n.Name)
+	}
+	return invoiceRes.Invoice, nil
+}
