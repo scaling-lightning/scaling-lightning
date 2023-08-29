@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"os"
 	"path"
@@ -392,5 +393,6 @@ func (n *LightningNode) PayInvoice(invoice string) (string, error) {
 		return "", errors.Wrapf(err, "Paying invoice for %v", n.Name)
 	}
 
-	return string(payRes.PaymentPreimage), nil
+	preImageStr := hex.EncodeToString(payRes.PaymentPreimage)
+	return preImageStr, nil
 }
