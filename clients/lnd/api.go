@@ -105,10 +105,29 @@ func (s *lightningServer) CreateInvoice(
 		},
 	)
 	if err != nil {
-		return nil, errors.Wrap(err, "Problem creating invoice")
+		return nil, errors.Wrap(err, "Adding invoice via LND's gRPC")
 	}
 
 	return &stdlightningclient.CreateInvoiceResponse{
 		Invoice: response.PaymentRequest,
+	}, nil
+}
+
+func (s *lightningServer) PayInvoice(
+	ctx context.Context,
+	req *stdlightningclient.PayInvoiceRequest,
+) (*stdlightningclient.PayInvoiceResponse, error) {
+	response, err := s.client.SendPaymentSync(
+		context.Background(),
+		&lnrpc.SendRequest{
+			PaymentRequest: req.Invoice,
+		},
+	)
+	if err != nil {
+		return nil, errors.Wrap(err, "Paying invoice via LND's gRPC")
+	}
+
+	return &stdlightningclient.PayInvoiceResponse{
+		PaymentPreimage: response.PaymentPreimage,
 	}, nil
 }
