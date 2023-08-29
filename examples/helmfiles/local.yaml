@@ -13,19 +13,22 @@ releases:
     values:
       - clientImage:
           repository: bitcoind-client
+          pullPolicy: IfNotPresent
   - name: cln1
     namespace: sl
     chart: ../../charts/cln
     values:
       - gRPCEntryPoint: endpoint1
       - clientImage:
-          repository: "cln-client"
+          repository: cln-client
+          pullPolicy: IfNotPresent
   - name: cln2
     namespace: sl
     chart: ../../charts/cln
     values:
       - clientImage:
           repository: cln-client
+          pullPolicy: IfNotPresent
   - name: lnd1
     namespace: sl
     chart: ../../charts/lnd
@@ -33,9 +36,11 @@ releases:
       - gRPCEntryPoint: endpoint1
       - clientImage:
           repository: lnd-client
+          pullPolicy: IfNotPresent
   - name: lnd2
     namespace: sl
     chart: ../../charts/lnd
     values:
       - clientImage:
           repository: lnd-client
+          pullPolicy: IfNotPresent
