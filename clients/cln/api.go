@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/cockroachdb/errors"
+	"github.com/google/uuid"
 	clnGRPC "github.com/scaling-lightning/scaling-lightning/clients/cln/grpc"
 	stdcommonclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/common"
 	stdlightningclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
@@ -96,7 +97,7 @@ func (s *lightningServer) CreateInvoice(
 		},
 	}
 	invoice, err := s.client.Invoice(context.Background(),
-		&clnGRPC.InvoiceRequest{AmountMsat: &amount})
+		&clnGRPC.InvoiceRequest{AmountMsat: &amount, Label: uuid.New().String()})
 	if err != nil {
 		return nil, errors.Wrap(err, "Creating invoice via cln's gRPC")
 	}
