@@ -93,3 +93,22 @@ func (s *lightningServer) OpenChannel(
 		FundingTxOutputIndex: chanPoint.OutputIndex,
 	}, nil
 }
+
+func (s *lightningServer) CreateInvoice(
+	ctx context.Context,
+	req *stdlightningclient.CreateInvoiceRequest,
+) (*stdlightningclient.CreateInvoiceResponse, error) {
+	response, err := s.client.AddInvoice(
+		context.Background(),
+		&lnrpc.Invoice{
+			Value: int64(req.AmtSats),
+		},
+	)
+	if err != nil {
+		return nil, errors.Wrap(err, "Problem creating invoice")
+	}
+
+	return &stdlightningclient.CreateInvoiceResponse{
+		Invoice: response.PaymentRequest,
+	}, nil
+}
