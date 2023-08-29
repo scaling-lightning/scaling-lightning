@@ -85,3 +85,20 @@ func (s *lightningServer) OpenChannel(
 		FundingTxOutputIndex: chanPoint.Outnum,
 	}, nil
 }
+
+func (s *lightningServer) CreateInvoice(
+	ctx context.Context,
+	req *stdlightningclient.CreateInvoiceRequest,
+) (*stdlightningclient.CreateInvoiceResponse, error) {
+	amount := clnGRPC.AmountOrAny{
+		Value: &clnGRPC.AmountOrAny_Amount{
+			Amount: &clnGRPC.Amount{Msat: uint64(req.AmtSats) * 1000},
+		},
+	}
+	invoice, err := s.client.Invoice(context.Background(),
+		&clnGRPC.InvoiceRequest{AmountMsat: &amount})
+	if err != nil {
+		return nil, errors.Wrap(err, "Creating invoice via cln's gRPC")
+	}
+	return &stdlightningclient.CreateInvoiceResponse{Invoice: invoice.Bolt11}, nil
+}
