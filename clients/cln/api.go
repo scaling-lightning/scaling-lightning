@@ -102,3 +102,15 @@ func (s *lightningServer) CreateInvoice(
 	}
 	return &stdlightningclient.CreateInvoiceResponse{Invoice: invoice.Bolt11}, nil
 }
+
+func (s *lightningServer) PayInvoice(
+	ctx context.Context,
+	req *stdlightningclient.PayInvoiceRequest,
+) (*stdlightningclient.PayInvoiceResponse, error) {
+	payResponse, err := s.client.Pay(context.Background(),
+		&clnGRPC.PayRequest{Bolt11: req.Invoice})
+	if err != nil {
+		return nil, errors.Wrap(err, "Paying invoice via cln's gRPC")
+	}
+	return &stdlightningclient.PayInvoiceResponse{PaymentPreimage: payResponse.PaymentPreimage}, nil
+}
