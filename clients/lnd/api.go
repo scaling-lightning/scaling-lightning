@@ -131,3 +131,16 @@ func (s *lightningServer) PayInvoice(
 		PaymentPreimage: response.PaymentPreimage,
 	}, nil
 }
+
+func (s *lightningServer) ChannelBalance(
+	ctx context.Context,
+	req *stdlightningclient.ChannelBalanceRequest,
+) (*stdlightningclient.ChannelBalanceResponse, error) {
+	response, err := s.client.ChannelBalance(context.Background(), &lnrpc.ChannelBalanceRequest{})
+	if err != nil {
+		return nil, errors.Wrap(err, "Getting channel balance via LND's gRPC")
+	}
+	return &stdlightningclient.ChannelBalanceResponse{
+		BalanceSats: uint64(response.LocalBalance.Sat),
+	}, nil
+}
