@@ -120,14 +120,14 @@ func (s *lightningServer) ChannelBalance(
 	ctx context.Context,
 	req *stdlightningclient.ChannelBalanceRequest,
 ) (*stdlightningclient.ChannelBalanceResponse, error) {
-	response, err := s.client.ListChannels(context.Background(), &clnGRPC.ListchannelsRequest{})
+	response, err := s.client.ListFunds(context.Background(), &clnGRPC.ListfundsRequest{})
 	if err != nil {
-		return nil, errors.Wrap(err, "Listing channels via cln's gRPC")
+		return nil, errors.Wrap(err, "Problem listing funds")
 	}
 
 	var total uint64
 	for _, channel := range response.Channels {
-		total += channel.AmountMsat.Msat / 1000
+		total += channel.OurAmountMsat.Msat / 1000
 	}
 
 	return &stdlightningclient.ChannelBalanceResponse{BalanceSats: total}, nil
