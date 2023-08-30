@@ -396,3 +396,21 @@ func (n *LightningNode) PayInvoice(invoice string) (string, error) {
 	preImageStr := hex.EncodeToString(payRes.PaymentPreimage)
 	return preImageStr, nil
 }
+
+func (n *LightningNode) ChannelBalance() (basictypes.Amount, error) {
+	conn, err := connectToGRPCServer(n.SLNetwork.ApiHost, n.SLNetwork.ApiPort, n.Name)
+	if err != nil {
+		return basictypes.Amount{}, errors.Wrapf(err, "Connecting to gRPC for %v's client", n.Name)
+	}
+	defer conn.Close()
+	client := stdlightningclient.NewLightningClient(conn)
+
+	balanceRes, err := client.ChannelBalance(
+		context.Background(),
+		&stdlightningclient.ChannelBalanceRequest{},
+	)
+	if err != nil {
+		return basictypes.Amount{}, errors.Wrapf(err, "Getting channel balance for %v", n.Name)
+	}
+	return basictypes.NewAmountSats(balanceRes.BalanceSats), nil
+}
