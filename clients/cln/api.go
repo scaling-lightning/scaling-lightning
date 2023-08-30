@@ -115,3 +115,20 @@ func (s *lightningServer) PayInvoice(
 	}
 	return &stdlightningclient.PayInvoiceResponse{PaymentPreimage: payResponse.PaymentPreimage}, nil
 }
+
+func (s *lightningServer) ChannelBalance(
+	ctx context.Context,
+	req *stdlightningclient.ChannelBalanceRequest,
+) (*stdlightningclient.ChannelBalanceResponse, error) {
+	response, err := s.client.ListChannels(context.Background(), &clnGRPC.ListchannelsRequest{})
+	if err != nil {
+		return nil, errors.Wrap(err, "Listing channels via cln's gRPC")
+	}
+
+	var total uint64
+	for _, channel := range response.Channels {
+		total += channel.AmountMsat.Msat / 1000
+	}
+
+	return &stdlightningclient.ChannelBalanceResponse{BalanceSats: total}, nil
+}
