@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var channelBalance = &cobra.Command{
+var channelbalanceCmd = &cobra.Command{
 	Use:   "channelbalance",
 	Short: "Get the onchain wallet balance of a node",
 	Long:  ``,
@@ -47,9 +47,9 @@ var channelBalance = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(walletbalanceCmd)
+	rootCmd.AddCommand(channelbalanceCmd)
 
-	walletbalanceCmd.Flags().
+	channelbalanceCmd.Flags().
 		StringP("node", "n", "", "The name of the node to get the wallet balance of")
-	walletbalanceCmd.MarkFlagRequired("node")
+	channelbalanceCmd.MarkFlagRequired("node")
 }
