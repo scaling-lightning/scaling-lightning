@@ -27,6 +27,7 @@ type LightningClient interface {
 	OpenChannel(ctx context.Context, in *OpenChannelRequest, opts ...grpc.CallOption) (*OpenChannelResponse, error)
 	CreateInvoice(ctx context.Context, in *CreateInvoiceRequest, opts ...grpc.CallOption) (*CreateInvoiceResponse, error)
 	PayInvoice(ctx context.Context, in *PayInvoiceRequest, opts ...grpc.CallOption) (*PayInvoiceResponse, error)
+	ChannelBalance(ctx context.Context, in *ChannelBalanceRequest, opts ...grpc.CallOption) (*ChannelBalanceResponse, error)
 }
 
 type lightningClient struct {
@@ -82,6 +83,15 @@ func (c *lightningClient) PayInvoice(ctx context.Context, in *PayInvoiceRequest,
 	return out, nil
 }
 
+func (c *lightningClient) ChannelBalance(ctx context.Context, in *ChannelBalanceRequest, opts ...grpc.CallOption) (*ChannelBalanceResponse, error) {
+	out := new(ChannelBalanceResponse)
+	err := c.cc.Invoke(ctx, "/Lightning/ChannelBalance", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // LightningServer is the server API for Lightning service.
 // All implementations must embed UnimplementedLightningServer
 // for forward compatibility
@@ -91,6 +101,7 @@ type LightningServer interface {
 	OpenChannel(context.Context, *OpenChannelRequest) (*OpenChannelResponse, error)
 	CreateInvoice(context.Context, *CreateInvoiceRequest) (*CreateInvoiceResponse, error)
 	PayInvoice(context.Context, *PayInvoiceRequest) (*PayInvoiceResponse, error)
+	ChannelBalance(context.Context, *ChannelBalanceRequest) (*ChannelBalanceResponse, error)
 	mustEmbedUnimplementedLightningServer()
 }
 
@@ -112,6 +123,9 @@ func (UnimplementedLightningServer) CreateInvoice(context.Context, *CreateInvoic
 }
 func (UnimplementedLightningServer) PayInvoice(context.Context, *PayInvoiceRequest) (*PayInvoiceResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PayInvoice not implemented")
+}
+func (UnimplementedLightningServer) ChannelBalance(context.Context, *ChannelBalanceRequest) (*ChannelBalanceResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ChannelBalance not implemented")
 }
 func (UnimplementedLightningServer) mustEmbedUnimplementedLightningServer() {}
 
@@ -216,6 +230,24 @@ func _Lightning_PayInvoice_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Lightning_ChannelBalance_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ChannelBalanceRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LightningServer).ChannelBalance(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Lightning/ChannelBalance",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LightningServer).ChannelBalance(ctx, req.(*ChannelBalanceRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Lightning_ServiceDesc is the grpc.ServiceDesc for Lightning service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -242,6 +274,10 @@ var Lightning_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PayInvoice",
 			Handler:    _Lightning_PayInvoice_Handler,
+		},
+		{
+			MethodName: "ChannelBalance",
+			Handler:    _Lightning_ChannelBalance_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
