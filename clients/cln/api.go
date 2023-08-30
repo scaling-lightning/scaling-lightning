@@ -28,7 +28,7 @@ func (s *commonServer) WalletBalance(
 		total += output.AmountMsat.Msat / 1000
 	}
 
-	return &stdcommonclient.WalletBalanceResponse{Balance: total}, nil
+	return &stdcommonclient.WalletBalanceResponse{BalanceSats: total}, nil
 }
 
 func (s *commonServer) NewAddress(

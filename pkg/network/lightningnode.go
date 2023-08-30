@@ -156,7 +156,7 @@ func (n *LightningNode) GetWalletBalance() (basictypes.Amount, error) {
 	if err != nil {
 		return basictypes.Amount{}, errors.Wrapf(err, "Getting wallet balance for %v", n.Name)
 	}
-	return basictypes.NewAmountSats(walletBalance.Balance), nil
+	return basictypes.NewAmountSats(walletBalance.BalanceSats), nil
 }
 
 func (n *LightningNode) ConnectPeer(to Node) error {

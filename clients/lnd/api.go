@@ -23,7 +23,7 @@ func (s *commonServer) WalletBalance(
 		return nil, errors.Wrap(err, "Getting wallet balance from LND's gRPC")
 	}
 
-	return &stdcommonclient.WalletBalanceResponse{Balance: uint64(balance.TotalBalance)}, nil
+	return &stdcommonclient.WalletBalanceResponse{BalanceSats: uint64(balance.TotalBalance)}, nil
 }
 
 func (s *commonServer) NewAddress(

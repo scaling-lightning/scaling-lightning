@@ -8,7 +8,7 @@ service Common {
 
 message WalletBalanceRequest {}
 message WalletBalanceResponse {
-  uint64 balance = 1;
+  uint64 balanceSats = 1;
 }
 
 message NewAddressRequest {}
