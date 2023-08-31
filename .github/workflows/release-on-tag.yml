@@ -11,6 +11,8 @@ jobs:
     uses: ./.github/workflows/run-all-tests.yml
     secrets: inherit
   helm-charts:
+    permissions:
+     contents: write
     runs-on: ubuntu-latest
     name: Deploy Helm charts
     needs: test
