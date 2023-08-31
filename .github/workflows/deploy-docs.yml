@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy docs to GitHub Pages
 
 on:
   push:
@@ -7,13 +7,13 @@ on:
     # Review gh actions docs if you want to further define triggers, paths, etc
     # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#on
 jobs:
-  deploy:
+  deploy-docs:
     permissions:
      contents: write
     defaults:
       run:
         working-directory: docs
-    name: Deploy to GitHub Pages
+    name: Deploy docs to GitHub Pages
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
