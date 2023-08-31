@@ -34,6 +34,17 @@ func (s *server) WalletBalance(
 	return &lightning.WalletBalanceResponse{Balance: total}, nil
 }
 
+func (s *server) NewAddress(
+	ctx context.Context,
+	in *lightning.NewAddressRequest,
+) (*lightning.NewAddressResponse, error) {
+	response, err := s.client.NewAddr(context.Background(), &clnGRPC.NewaddrRequest{})
+	if err != nil {
+		return nil, errors.Wrap(err, "Problem getting new address")
+	}
+	return &lightning.NewAddressResponse{Address: *response.Bech32}, nil
+}
+
 func registerHandlers(standardclient lightning.StandardClient, clnClient clnGRPC.NodeClient) {
 	standardclient.RegisterWalletBalanceHandler(func(w http.ResponseWriter, r *http.Request) {
 		handleWalletBalance(w, r, clnClient)

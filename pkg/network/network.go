@@ -213,16 +213,34 @@ func GetPubKey(name string) (string, error) {
 }
 
 func GetWalletBalanceSats(name string) (string, error) {
-	resp, err := http.Get(fmt.Sprintf("http://localhost/%v/walletbalance", name))
-	if err != nil {
-		return "", errors.Wrapf(err, "Sending GET request to %v/walletbalance", name)
+	opts := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
+	conn, err := grpc.Dial("localhost:8484", opts...)
 	if err != nil {
-		return "", errors.Wrapf(err, "Reading response body from %v/walletbalance", name)
+		return "", errors.Wrapf(err, "Connecting to gRPC for %v's client", name)
 	}
-	return string(body), nil
+	defer conn.Close()
+	client := lightning.NewLightningClientClient(conn)
+	walletBalance, err := client.WalletBalance(
+		context.Background(),
+		&lightning.WalletBalanceRequest{},
+	)
+	if err != nil {
+		return "", errors.Wrapf(err, "Getting wallet balance for %v", name)
+	}
+	return strconv.FormatUint(walletBalance.Balance, 10) + " sats", nil
+
+	// resp, err := http.Get(fmt.Sprintf("http://localhost/%v/walletbalance", name))
+	// if err != nil {
+	// 	return "", errors.Wrapf(err, "Sending GET request to %v/walletbalance", name)
+	// }
+	// defer resp.Body.Close()
+	// body, err := io.ReadAll(resp.Body)
+	// if err != nil {
+	// 	return "", errors.Wrapf(err, "Reading response body from %v/walletbalance", name)
+	// }
+	// return string(body), nil
 }
 
 func ConnectPeer(fromName string, toName string) error {
