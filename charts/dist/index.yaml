@@ -1,0 +1,36 @@
+apiVersion: v1
+entries:
+  bitcoind:
+  - apiVersion: v2
+    appVersion: "24"
+    created: "2023-08-31T18:47:37.420504469Z"
+    description: A Helm chart for bitcoind
+    digest: 3924d6f61e53c0ef3bbabe5072e2b48b341d1183ead3f4151917431419644dc5
+    name: bitcoind
+    type: application
+    urls:
+    - https://charts.scalinglightning.com/bitcoind-0.0.6.tgz
+    version: 0.0.6
+  cln:
+  - apiVersion: v2
+    appVersion: v22.11.1
+    created: "2023-08-31T18:47:37.42095787Z"
+    description: A Helm chart for CLN
+    digest: 17339e1eadd456686444937219b32cd8b4ef0e3e169bf9175a889b5d13be7f2f
+    name: cln
+    type: application
+    urls:
+    - https://charts.scalinglightning.com/cln-0.0.6.tgz
+    version: 0.0.6
+  lnd:
+  - apiVersion: v2
+    appVersion: v0.16.3-beta
+    created: "2023-08-31T18:47:37.421274771Z"
+    description: A Helm chart for LND
+    digest: e86c8c53b325c90ec896c485215274d1009534c7e39f896bc14778c5fdf576b8
+    name: lnd
+    type: application
+    urls:
+    - https://charts.scalinglightning.com/lnd-0.0.6.tgz
+    version: 0.0.6
+generated: "2023-08-31T18:47:37.419903167Z"
