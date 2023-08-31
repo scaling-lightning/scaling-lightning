@@ -1,4 +1,4 @@
-name: Docker tagged image on tag
+name: Release charts, docker images and binaries
 
 on:
   push:
