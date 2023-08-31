@@ -27,6 +27,9 @@ jobs:
         run: helm package charts/bitcoind charts/cln charts/lnd --version ${{ steps.tagName.outputs.tag }} --destination charts/dist
       - name: Index charts
         run: helm repo index charts/dist --url https://charts.scalinglightning.com
+      - uses: actions/checkout@v3
+        with:
+          ref: 'main'
       - name: Commit published charts to repo
         uses: EndBug/add-and-commit@v9
 
