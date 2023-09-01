@@ -1,0 +1,39 @@
+environments:
+  default:
+    values:
+      - git::https://github.com/scaling-lightning/scaling-lightning.git@/charts/traefik-values.yml?ref=main
+---
+repositories:
+  - name: traefik
+    url: https://traefik.github.io/charts
+  - name: scalinglightning
+    url: https://charts.scalinglightning.com
+releases:
+  - name: traefik
+    chart: traefik/traefik
+    namespace: sl-traefik
+    values:
+      - ports: {{ toYaml .Values.ports | nindent 10 }}
+  - name: bitcoind
+    namespace: sl
+    chart: scalinglightning/bitcoind
+  - name: cln1
+    namespace: sl
+    chart: scalinglightning/cln
+    values:
+      - gRPCEntryPoint: endpoint1
+  - name: cln2
+    namespace: sl
+    chart: scalinglightning/cln
+    values:
+      - gRPCEntryPoint: endpoint2
+  - name: lnd1
+    namespace: sl
+    chart: scalinglightning/lnd
+    values:
+      - gRPCEntryPoint: endpoint3
+  - name: lnd2
+    namespace: sl
+    chart: scalinglightning/lnd
+    values:
+      - gRPCEntryPoint: endpoint4
