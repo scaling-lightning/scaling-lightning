@@ -39,7 +39,8 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ inputs.image_name }}
+          images: |
+            ${{ inputs.image_name }}
           flavor: |
             latest=${{ inputs.latest && 'true' || 'false' }}
           tags: |
