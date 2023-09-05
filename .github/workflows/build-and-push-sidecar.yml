@@ -43,7 +43,7 @@ jobs:
           flavor: |
             latest=${{ inputs.latest && 'true' || 'false' }}
           tags: |
-            type=semver,pattern=${{ inputs.image_tag }}
+            type=semver,pattern={{version}}
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
