@@ -10,23 +10,37 @@ jobs:
   test:
     uses: ./.github/workflows/run-all-tests.yml
     secrets: inherit
-  helm-charts:
-    permissions:
-     contents: write
+  get-tag:
     runs-on: ubuntu-latest
-    name: Deploy Helm charts
-    needs: test
     steps:
-      - name: Check out the repo
-        uses: actions/checkout@v3
       - uses: olegtarasov/get-tag@v2.1.2
         name: Get tag
         id: tagName
         with:
           tagRegex: "v?(.+)" # Optional. Returns specified group text as tag name. Full tag string is returned if regex is not defined.
           tagRegexGroup: 1 # Optional. Default is 1.
+    outputs:
+      tag: ${{ steps.tagName.outputs.tag }}
+  cln-sidecar-image:
+    needs: [test, get-tag]
+    uses: ./.github/workflows/build-and-push-sidecar.yml
+    secrets: inherit
+    with:  
+      image_name: lncapital/cln-client
+      image_tag: ${{ needs.get-tag.outputs.tag }}
+      dockerfile: ./clients/cln/dockerfile
+  helm-charts:
+    permissions:
+     contents: write
+    runs-on: ubuntu-latest
+    name: Deploy Helm charts
+    if: false
+    needs: [test, get-tag]
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
       - name: Package charts
-        run: helm package charts/bitcoind charts/cln charts/lnd --version ${{ steps.tagName.outputs.tag }} --destination charts/dist
+        run: helm package charts/bitcoind charts/cln charts/lnd --version ${{ needs.get-tag.outputs.tag }} --destination charts/dist
       - name: Index charts
         run: helm repo index charts/dist --url https://charts.scalinglightning.com
       - uses: actions/checkout@v3
