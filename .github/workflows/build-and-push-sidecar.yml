@@ -65,6 +65,7 @@ jobs:
           file: ${{ inputs.dockerfile}}
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
           outputs: type=image,name=${{ inputs.image_name }},push-by-digest=true,name-canonical=true,push=true
       -
         name: Export digest
