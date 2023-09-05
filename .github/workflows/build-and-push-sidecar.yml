@@ -11,8 +11,8 @@ on:
                 description: 'Tag for the docker image'
                 required: true
                 type: string
-            context:
-                description: 'Path to the sidecar to build'
+            dockerfile:
+                description: 'Path to the dockerfile'
                 required: true
                 type: string
             latest:
@@ -61,7 +61,8 @@ jobs:
         id: build
         uses: docker/build-push-action@v4
         with:
-          context: ${{ inputs.context}}
+          context: .
+          file: ${{ inputs.dockerfile}}
           platforms: ${{ matrix.platform }}
           labels: ${{ steps.meta.outputs.labels }}
           outputs: type=image,name=${{ inputs.image_name }},push-by-digest=true,name-canonical=true,push=true

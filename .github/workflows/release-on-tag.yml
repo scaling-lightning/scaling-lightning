@@ -28,7 +28,7 @@ jobs:
     with:  
       image_name: lncapital/cln-client
       image_tag: ${{ needs.get-tag.outputs.tag }}
-      context: ./clients/cln
+      dockerfile: ./clients/cln/Dockerfile
   helm-charts:
     permissions:
      contents: write
