@@ -17,18 +17,30 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         goos: darwin
         goarch: amd64
+        pre_command: |
+            go generate cmd/build/version.go
+        project_path: cmd/scalinglightning
     - uses: wangyoucao577/go-release-action@v1
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         goos: linux
         goarch: amd64
+        pre_command: |
+            go generate cmd/build/version.go
+        project_path: cmd/scalinglightning
     - uses: wangyoucao577/go-release-action@v1
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         goos: darwin
         goarch: arm64
+        pre_command: |
+            go generate cmd/build/version.go
+        project_path: cmd/scalinglightning
     - uses: wangyoucao577/go-release-action@v1
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         goos: linux
         goarch: arm64
+        pre_command: |
+            go generate cmd/build/version.go
+        project_path: cmd/scalinglightning
