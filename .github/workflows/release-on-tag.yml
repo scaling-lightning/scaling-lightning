@@ -22,6 +22,7 @@ jobs:
     outputs:
       tag: ${{ steps.tagName.outputs.tag }}
   bitcoind-sidecar-image:
+    if: false
     needs: [test]
     uses: ./.github/workflows/build-and-push-sidecar.yml
     secrets: inherit
@@ -30,6 +31,7 @@ jobs:
       artifact_name: bitcoindclient
       dockerfile: ./clients/bitcoind/Dockerfile
   cln-sidecar-image:
+    if: false
     needs: [test]
     uses: ./.github/workflows/build-and-push-sidecar.yml
     secrets: inherit
@@ -38,6 +40,7 @@ jobs:
       artifact_name: clnclient
       dockerfile: ./clients/cln/Dockerfile
   lnd-sidecar-image:
+    if: false
     needs: [test]
     uses: ./.github/workflows/build-and-push-sidecar.yml
     secrets: inherit
@@ -65,104 +68,3 @@ jobs:
           clean: false
       - name: Commit published charts to repo
         uses: EndBug/add-and-commit@v9
-
-  # amd64:
-  #   runs-on: ubuntu-latest
-  #   name: Push AMD64 Docker image to Docker Hub
-  #   needs: test
-  #   steps:
-  #     - name: Check out the repo
-  #       uses: actions/checkout@v3
-  #     - uses: actions/setup-go@v3
-  #       with:
-  #         go-version-file: "go.mod"
-  #     - uses: actions/setup-node@v2
-  #       with:
-  #         node-version: "18"
-  #     - name: Log in to Docker Hub
-  #       uses: docker/login-action@v2
-  #       with:
-  #         username: ${{ secrets.DOCKER_USERNAME }}
-  #         password: ${{ secrets.DOCKER_PASSWORD }}
-  #     - name: Extract metadata (tags, labels) for Docker
-  #       id: meta
-  #       uses: docker/metadata-action@v4
-  #       with:
-  #         images: lncapital/torq
-  #         flavor: |
-  #           latest=false
-  #         tags: |
-  #           type=semver,pattern={{version}},prefix=amd64-
-
-  #     - name: Build and push Docker image
-  #       uses: docker/build-push-action@v3
-  #       with:
-  #         context: .
-  #         push: true
-  #         tags: ${{ steps.meta.outputs.tags }}
-  #         labels: ${{ steps.meta.outputs.labels }}
-
-  # arm:
-  #   runs-on: buildjet-4vcpu-ubuntu-2204-arm
-  #   name: Push ARM Docker image to Docker Hub
-  #   needs: test
-  #   steps:
-  #     - name: Check out the repo
-  #       uses: actions/checkout@v3
-  #     - uses: actions/setup-go@v3
-  #       with:
-  #         go-version-file: "go.mod"
-  #     - uses: actions/setup-node@v2
-  #       with:
-  #         node-version: "18"
-  #     - name: Log in to Docker Hub
-  #       uses: docker/login-action@v2
-  #       with:
-  #         username: ${{ secrets.DOCKER_USERNAME }}
-  #         password: ${{ secrets.DOCKER_PASSWORD }}
-
-  #     - name: Extract metadata (tags, labels) for Docker
-  #       id: meta
-  #       uses: docker/metadata-action@v4
-  #       with:
-  #         images: lncapital/torq
-  #         flavor: |
-  #           latest=false
-  #         tags: |
-  #           type=semver,pattern={{version}},prefix=arm-
-
-  #     - name: Build and push Docker image
-  #       uses: docker/build-push-action@v3
-  #       with:
-  #         context: .
-  #         push: true
-  #         tags: ${{ steps.meta.outputs.tags }}
-  #         labels: ${{ steps.meta.outputs.labels }}
-
-  # combine-manifests:
-  #   runs-on: buildjet-4vcpu-ubuntu-2204
-  #   name: Combine architectures into one manifest
-  #   needs:
-  #     - amd64
-  #     - arm
-  #   steps:
-  #     - name: Log in to Docker Hub
-  #       uses: docker/login-action@v2
-  #       with:
-  #         username: ${{ secrets.DOCKER_USERNAME }}
-  #         password: ${{ secrets.DOCKER_PASSWORD }}
-
-  #     - uses: olegtarasov/get-tag@v2.1.2
-  #       name: Get tag
-  #       id: tagName
-  #       with:
-  #         tagRegex: "v?(.+)" # Optional. Returns specified group text as tag name. Full tag string is returned if regex is not defined.
-  #         tagRegexGroup: 1 # Optional. Default is 1.
-  #     - name: Docker create manifest
-  #       run: >
-  #         docker manifest create
-  #         lncapital/torq:${{ steps.tagName.outputs.tag }}
-  #         --amend lncapital/torq:amd64-${{ steps.tagName.outputs.tag }}
-  #         --amend lncapital/torq:arm-${{ steps.tagName.outputs.tag }}
-  #     - name: Docker push manifest
-  #       run: docker manifest push lncapital/torq:${{ steps.tagName.outputs.tag }}
