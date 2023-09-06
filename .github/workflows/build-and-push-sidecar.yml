@@ -40,6 +40,10 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ inputs.image_name }}
+          flavor: |
+            latest=${{ inputs.latest && 'true' || 'false' }}
+          tags: |
+            type=semver,pattern={{version}}
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
