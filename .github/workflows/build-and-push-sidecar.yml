@@ -40,10 +40,6 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ inputs.image_name }}
-          flavor: |
-            latest=${{ inputs.latest && 'true' || 'false' }}
-          tags: |
-            type=semver,pattern={{version}}
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -76,7 +72,7 @@ jobs:
         name: Upload digest
         uses: actions/upload-artifact@v3
         with:
-          name: digests
+          name: digests${{ inputs.image_name }}
           path: /tmp/digests/*
           if-no-files-found: error
           retention-days: 1
@@ -90,7 +86,7 @@ jobs:
         name: Download digests
         uses: actions/download-artifact@v3
         with:
-          name: digests
+          name: digests${{ inputs.image_name }}
           path: /tmp/digests
       -
         name: Set up Docker Buildx
