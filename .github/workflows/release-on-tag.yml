@@ -22,7 +22,6 @@ jobs:
     outputs:
       tag: ${{ steps.tagName.outputs.tag }}
   bitcoind-sidecar-image:
-    if: false
     needs: [test]
     uses: ./.github/workflows/build-and-push-sidecar.yml
     secrets: inherit
@@ -31,7 +30,6 @@ jobs:
       artifact_name: bitcoindclient
       dockerfile: ./clients/bitcoind/Dockerfile
   cln-sidecar-image:
-    if: false
     needs: [test]
     uses: ./.github/workflows/build-and-push-sidecar.yml
     secrets: inherit
@@ -40,7 +38,6 @@ jobs:
       artifact_name: clnclient
       dockerfile: ./clients/cln/Dockerfile
   lnd-sidecar-image:
-    if: false
     needs: [test]
     uses: ./.github/workflows/build-and-push-sidecar.yml
     secrets: inherit
