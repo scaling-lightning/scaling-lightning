@@ -56,7 +56,7 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Docker tag and push latest
-      run: >
+      run: |
         docker pull scalingln/bitcoind-client:${{ steps.tagName.outputs.tag }}
         docker tag scalingln/bitcoind-client:${{ steps.tagName.outputs.tag }} scalingln/bitcoind-client:latest
         docker push scalingln/bitcoind-client:latest
@@ -76,7 +76,7 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Docker tag and push latest
-      run: >
+      run: |
         docker pull scalingln/cln-client:${{ steps.tagName.outputs.tag }}
         docker tag scalingln/cln-client:${{ steps.tagName.outputs.tag }} scalingln/bitcoind-client:latest
         docker push scalingln/cln-client:latest
@@ -96,7 +96,7 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Docker tag and push latest
-      run: >
+      run: |
         docker pull scalingln/lnd-client:${{ steps.tagName.outputs.tag }}
         docker tag scalingln/lnd-client:${{ steps.tagName.outputs.tag }} scalingln/bitcoind-client:latest
         docker push scalingln/lnd-client:latest
