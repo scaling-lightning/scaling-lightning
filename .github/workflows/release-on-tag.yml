@@ -22,6 +22,7 @@ jobs:
     outputs:
       tag: ${{ steps.tagName.outputs.tag }}
   bitcoind-sidecar-image:
+    if: false
     needs: [test]
     uses: ./.github/workflows/build-and-push-sidecar.yml
     secrets: inherit
@@ -30,6 +31,7 @@ jobs:
       artifact_name: bitcoindclient
       dockerfile: ./clients/bitcoind/Dockerfile
   cln-sidecar-image:
+    if: false
     needs: [test]
     uses: ./.github/workflows/build-and-push-sidecar.yml
     secrets: inherit
@@ -38,6 +40,7 @@ jobs:
       artifact_name: clnclient
       dockerfile: ./clients/cln/Dockerfile
   lnd-sidecar-image:
+    if: false
     needs: [test]
     uses: ./.github/workflows/build-and-push-sidecar.yml
     secrets: inherit
@@ -58,9 +61,12 @@ jobs:
         run: helm package charts/bitcoind charts/cln charts/lnd --version ${{ needs.get-tag.outputs.tag }} --destination charts/dist
       - name: Index charts
         run: helm repo index charts/dist --url https://charts.scalinglightning.com
+      - run: |
+          git stash
       - uses: actions/checkout@v3
         with:
           ref: 'main'
-          clean: false
+      - run: |
+          git stash pop
       - name: Commit published charts to repo
         uses: EndBug/add-and-commit@v9
