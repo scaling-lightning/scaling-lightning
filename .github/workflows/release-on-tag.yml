@@ -21,30 +21,30 @@ jobs:
           tagRegexGroup: 1 # Optional. Default is 1.
     outputs:
       tag: ${{ steps.tagName.outputs.tag }}
-  # bitcoind-sidecar-image:
-  #   needs: [test, get-tag]
-  #   uses: ./.github/workflows/build-and-push-sidecar.yml
-  #   secrets: inherit
-  #   with:  
-  #     image_name: scalingln/bitcoind-client
-  #     image_tag: ${{ needs.get-tag.outputs.tag }}
-  #     dockerfile: ./clients/bitcoind/Dockerfile
+  bitcoind-sidecar-image:
+    needs: [test]
+    uses: ./.github/workflows/build-and-push-sidecar.yml
+    secrets: inherit
+    with:  
+      image_name: scalingln/bitcoind-client
+      artifact_name: bitcoindclient
+      dockerfile: ./clients/bitcoind/Dockerfile
   cln-sidecar-image:
-    needs: [test, get-tag]
+    needs: [test]
     uses: ./.github/workflows/build-and-push-sidecar.yml
     secrets: inherit
     with:  
       image_name: scalingln/cln-client
       artifact_name: clnclient
       dockerfile: ./clients/cln/Dockerfile
-  # lnd-sidecar-image:
-  #   needs: [test, get-tag]
-  #   uses: ./.github/workflows/build-and-push-sidecar.yml
-  #   secrets: inherit
-  #   with:  
-  #     image_name: scalingln/lnd-client
-  #     image_tag: ${{ needs.get-tag.outputs.tag }}
-  #     dockerfile: ./clients/lnd/Dockerfile
+  lnd-sidecar-image:
+    needs: [test]
+    uses: ./.github/workflows/build-and-push-sidecar.yml
+    secrets: inherit
+    with:  
+      image_name: scalingln/lnd-client
+      artifact_name: lndclient
+      dockerfile: ./clients/lnd/Dockerfile
   helm-charts:
     permissions:
      contents: write
