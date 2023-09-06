@@ -19,7 +19,6 @@ jobs:
         goarch: amd64
         pre_command: |
             go generate cmd/build/version.go
-        project_path: cmd/scalinglightning
     - uses: wangyoucao577/go-release-action@v1
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -27,7 +26,6 @@ jobs:
         goarch: amd64
         pre_command: |
             go generate cmd/build/version.go
-        project_path: cmd/scalinglightning
     - uses: wangyoucao577/go-release-action@v1
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -35,7 +33,6 @@ jobs:
         goarch: arm64
         pre_command: |
             go generate cmd/build/version.go
-        project_path: cmd/scalinglightning
     - uses: wangyoucao577/go-release-action@v1
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -43,4 +40,3 @@ jobs:
         goarch: arm64
         pre_command: |
             go generate cmd/build/version.go
-        project_path: cmd/scalinglightning
