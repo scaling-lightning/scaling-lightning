@@ -35,7 +35,7 @@ jobs:
     secrets: inherit
     with:  
       image_name: scalingln/cln-client
-      image_tag: ${{ needs.get-tag.outputs.tag }}
+      artifact_name: clnclient
       dockerfile: ./clients/cln/Dockerfile
   # lnd-sidecar-image:
   #   needs: [test, get-tag]
