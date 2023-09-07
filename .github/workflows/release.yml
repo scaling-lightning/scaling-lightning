@@ -78,7 +78,7 @@ jobs:
     - name: Docker tag and push latest
       run: |
         docker pull scalingln/cln-client:${{ steps.tagName.outputs.tag }}
-        docker tag scalingln/cln-client:${{ steps.tagName.outputs.tag }} scalingln/bitcoind-client:latest
+        docker tag scalingln/cln-client:${{ steps.tagName.outputs.tag }} scalingln/cln-client:latest
         docker push scalingln/cln-client:latest
   lnd-sidecar-image:
     runs-on: ubuntu-latest
@@ -98,5 +98,5 @@ jobs:
     - name: Docker tag and push latest
       run: |
         docker pull scalingln/lnd-client:${{ steps.tagName.outputs.tag }}
-        docker tag scalingln/lnd-client:${{ steps.tagName.outputs.tag }} scalingln/bitcoind-client:latest
+        docker tag scalingln/lnd-client:${{ steps.tagName.outputs.tag }} scalingln/lnd-client:latest
         docker push scalingln/lnd-client:latest
