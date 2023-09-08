@@ -109,7 +109,17 @@ Example go test command with extra timeout:
     # view loadbalancer public ip from traefik
     kubectl -n sl-traefik get services
 
-    Note that the above commands assume you are using the default kubeconfig. You would need to add `--kubeconfig path/to/file.yml` to all of the above commands if you wanted to look at a different cluster.
+    # destroy all scaling lightning nodes
+    kubectl delete namespace sl
+
+    # uninstall traefik
+    kubectl delete namespace sl-traefik
+
+    # uninstall traefik alternative
+    helm uninstall traefik -n sl-traefik
+
+
+Note that the above commands assume you are using the default kubeconfig and context. You would need to add `--kubeconfig path/to/file.yml` or `--context mycluster` to all of the above commands if you wanted to look at a different cluster.
 
 
 ### Your own configuration
