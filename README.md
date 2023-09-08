@@ -17,6 +17,9 @@ The goal is to collaborate as an industry to help scale the Lightning Network an
 
     > If you are developing locally you can use Docker Desktop and enable 
     Kubernetes in the dashboard.
+    > Alternatively minikube has been tested to work. Please use `minikube tunnel` to enable traefik to get an "external" ip which the library and cli requires to communicate in to the sidecar clients.
+    > SL has also been tested on Digital Ocean's hosted K8s cluster
+    > Please let us know if you have run SL on a different cluster distribution such as Kind, K3s K0s or any other cloud provider
 
 * You also need Helm 3 and Helmfile. If you are on a Mac you can install them with Homebrew
     
