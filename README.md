@@ -36,7 +36,7 @@ The goal is to collaborate as an industry to help scale the Lightning Network an
 
       helm repo add traefik https://traefik.github.io/charts
       helm repo update
-      helm install traefik traefik/traefik -n traefik --create-namespace
+      helm install traefik traefik/traefik -n sl-traefik --create-namespace -f https://raw.githubusercontent.com/scaling-lightning/scaling-lightning/main/charts/traefik-values.yml
 
 ### Starting a Network
 
