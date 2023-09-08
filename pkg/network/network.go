@@ -271,9 +271,11 @@ func (n *SLNetwork) Start() error {
 	n.LightningNodes = lightningNodes
 	n.BitcoinNodes = bitcoinNodes
 
+	log.Info().Msg("Discovering ingress connection details, may take a few minutes")
 	err = tools.Retry(func() error {
+		log.Info().Msg("waiting...")
 		return n.discoverConnectionDetails()
-	}, time.Second*15, time.Minute*2)
+	}, time.Second*30, time.Minute*5)
 	if err != nil {
 		return errors.Wrap(err, "Discovering connection details timeout")
 	}
