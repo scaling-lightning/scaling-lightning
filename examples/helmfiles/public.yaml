@@ -1,19 +1,10 @@
-environments:
-  default:
-    values:
-      - git::https://github.com/scaling-lightning/scaling-lightning.git@/charts/traefik-values.yml?ref=main
----
+# uses images from our public charts repository and images from docker hub
+# this file could be used either stand alone with helmfile or with our cli binary from https://github.com/scaling-lightning/scaling-lightning/releases
+# no need to clone the source code of project to use this file
 repositories:
-  - name: traefik
-    url: https://traefik.github.io/charts
   - name: scalinglightning
     url: https://charts.scalinglightning.com
 releases:
-  - name: traefik
-    chart: traefik/traefik
-    namespace: sl-traefik
-    values:
-      - ports: {{ toYaml .Values.ports | nindent 10 }}
   - name: bitcoind
     namespace: sl
     chart: scalinglightning/bitcoind

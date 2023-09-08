@@ -1,3 +1,6 @@
+# uses public charts from helm repo and images from dockerhub
+# specifies specific version of chart and image
+# use with either library or cli of same version for maximum compatibility
 repositories:
   - name: scalinglightning
     url: https://charts.scalinglightning.com

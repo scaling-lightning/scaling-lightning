@@ -1,3 +1,4 @@
+# uses local charts in the charts directory but images from docker hub
 releases:
   - name: bitcoind
     namespace: sl

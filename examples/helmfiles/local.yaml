@@ -1,12 +1,5 @@
-repositories:
-  - name: traefik
-    url: https://traefik.github.io/charts
+# uses the local charts in the charts directory and images available locally
 releases:
-  - name: traefik
-    chart: traefik/traefik
-    namespace: sl-traefik
-    values:
-      - ../../charts/traefik-values.yml
   - name: bitcoind
     namespace: sl
     chart: ../../charts/bitcoind
