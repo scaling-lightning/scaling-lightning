@@ -1,31 +1,23 @@
-repositories:
-  - name: traefik
-    url: https://traefik.github.io/charts
 releases:
-  - name: traefik
-    chart: traefik/traefik
-    namespace: sl-traefik
-    values:
-      - ../../charts/traefik-values.yml
   - name: bitcoind
     namespace: sl
     chart: ../../charts/bitcoind
-  - name: cln1
+  - name: alice
     namespace: sl
     chart: ../../charts/cln
     values:
       - gRPCEntryPoint: endpoint1
-  - name: cln2
+  - name: bob
     namespace: sl
     chart: ../../charts/cln
     values:
       - gRPCEntryPoint: endpoint2
-  - name: lnd1
+  - name: carol
     namespace: sl
     chart: ../../charts/lnd
     values:
       - gRPCEntryPoint: endpoint3
-  - name: lnd2
+  - name: dave
     namespace: sl
     chart: ../../charts/lnd
     values:
