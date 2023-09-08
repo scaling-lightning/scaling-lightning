@@ -13,7 +13,7 @@ var listCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		processDebugFlag(cmd)
-		slnetwork, err := sl.DiscoverStartedNetwork(kubeConfigPath)
+		slnetwork, err := sl.DiscoverStartedNetwork(kubeConfigPath, apiHost, apiPort)
 		if err != nil {
 			fmt.Printf(
 				"Problem with network discovery, is there a network running? Error: %v\n",

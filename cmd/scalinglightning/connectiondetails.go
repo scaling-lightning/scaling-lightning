@@ -21,7 +21,7 @@ var connectionDetailsCmd = &cobra.Command{
 			return
 		}
 
-		slnetwork, err := sl.DiscoverStartedNetwork(kubeConfigPath)
+		slnetwork, err := sl.DiscoverStartedNetwork(kubeConfigPath, apiHost, apiPort)
 		if err != nil {
 			fmt.Printf(
 				"Problem with network discovery, is there a network running? Error: %v\n",

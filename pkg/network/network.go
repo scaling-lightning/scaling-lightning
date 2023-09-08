@@ -138,7 +138,11 @@ type helmListOutput struct {
 	AppVersion string `json:"app_version"`
 }
 
-func DiscoverStartedNetwork(kubeconfig string) (*SLNetwork, error) {
+func DiscoverStartedNetwork(
+	kubeconfig string,
+	overrideAPIHost string,
+	overrideAPIPort uint16,
+) (*SLNetwork, error) {
 	helmCmd := exec.Command(
 		"helm",
 		"--kubeconfig",
@@ -185,9 +189,18 @@ func DiscoverStartedNetwork(kubeconfig string) (*SLNetwork, error) {
 		}
 	}
 
-	err = slnetwork.discoverConnectionDetails()
-	if err != nil {
-		return nil, errors.Wrap(err, "Discovering connection details")
+	if overrideAPIHost == "" {
+		err = slnetwork.discoverConnectionDetails()
+		if err != nil {
+			return nil, errors.Wrap(err, "Discovering connection details")
+		}
+	} else {
+		slnetwork.ApiHost = overrideAPIHost
+		slnetwork.ApiPort = clientgRPCPort
+	}
+
+	if overrideAPIPort != 0 {
+		slnetwork.ApiPort = overrideAPIPort
 	}
 
 	return &slnetwork, nil

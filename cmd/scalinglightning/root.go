@@ -11,6 +11,8 @@ import (
 )
 
 var kubeConfigPath string
+var apiHost string
+var apiPort uint16
 
 var rootCmd = &cobra.Command{
 	Use:   "sl",
@@ -48,6 +50,11 @@ func init() {
 
 	rootCmd.PersistentFlags().
 		StringVarP(&kubeConfigPath, "kubeconfig", "k", kubeConfigPath, "Location of Kubernetes config file")
+
+	rootCmd.PersistentFlags().
+		StringVarP(&apiHost, "host", "H", "", "Host of the scaling-lightning API")
+	rootCmd.PersistentFlags().
+		Uint16VarP(&apiPort, "port", "p", 0, "Port of the scaling-lightning API")
 
 	rootCmd.PersistentFlags().BoolP("debug", "d", false, "Enable debug logging")
 }

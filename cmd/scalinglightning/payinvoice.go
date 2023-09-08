@@ -15,7 +15,7 @@ var payInvoiceCmd = &cobra.Command{
 		processDebugFlag(cmd)
 		nodeName := cmd.Flag("node").Value.String()
 		invoice := cmd.Flag("invoice").Value.String()
-		slnetwork, err := sl.DiscoverStartedNetwork(kubeConfigPath)
+		slnetwork, err := sl.DiscoverStartedNetwork(kubeConfigPath, apiHost, apiPort)
 		if err != nil {
 			fmt.Printf(
 				"Problem with network discovery, is there a network running? Error: %v\n",

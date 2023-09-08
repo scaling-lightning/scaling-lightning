@@ -15,7 +15,7 @@ var connectpeerCmd = &cobra.Command{
 		processDebugFlag(cmd)
 		connectpeerFromName := cmd.Flag("from").Value.String()
 		connectpeerToName := cmd.Flag("to").Value.String()
-		slnetwork, err := sl.DiscoverStartedNetwork(kubeConfigPath)
+		slnetwork, err := sl.DiscoverStartedNetwork(kubeConfigPath, apiHost, apiPort)
 		if err != nil {
 			fmt.Printf(
 				"Problem with network discovery, is there a network running? Error: %v\n",
