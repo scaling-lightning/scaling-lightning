@@ -7,6 +7,8 @@ applications that depend on the Lightning Network.
 
 The goal is to collaborate as an industry to help scale the Lightning Network and the applications that depend on it.
 
+[Current Roadmap](https://scalinglightning.com/blog/2023/08/26/roadmap)
+
 ## Getting started
 
 > ***The project is still far from complete***. 
@@ -161,18 +163,18 @@ While Polar is an excellent project it is fundamentally different from what we w
 
 This is an outline of the project's milestones. We will further detail these milestones using the features of GitHub's milestones and project management tools:
 
-* [ ] Create a basic kubernetes setup for running a Lightning Network.
+* [x] Create a basic kubernetes setup for running a Lightning Network.
 * [ ] Improve configurability and ease of use.
-* [ ] Create a client for communication with Lightning Nodes.
-  * [ ] LND
-  * [ ] CLN
+* [-] Create a client for communication with Lightning Nodes.
+  * [x] LND
+  * [x] CLN
   * [ ] LDK
   * [ ] Eclair
-* [ ] Create a client for communication with Bitcoin Nodes.
-  * [ ] Bitcoind
+* [-] Create a client for communication with Bitcoin Nodes.
+  * [x] Bitcoind
   * [ ] btcd
-* [ ] Create a library for programmatically interacting with the clients.
-* [ ] Create a cli version of the library.
+* [-] Create a library for programmatically interacting with the clients.
+* [-] Create a cli version of the library.
 * [ ] Create a tool for generating or simulating network activity.
 * [x] Create a website to host the documentation, using Docusaurus.
 * [ ] Thoroughly document the project and provide instructions for use.
