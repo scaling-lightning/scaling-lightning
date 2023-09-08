@@ -1,0 +1,43 @@
+repositories:
+  - name: scalinglightning
+    url: https://charts.scalinglightning.com
+releases:
+  - name: bitcoind
+    namespace: sl
+    chart: scalinglightning/bitcoind
+    version: 0.0.33
+    values:
+      - clientImage:
+          tag: 0.0.33
+  - name: alice
+    namespace: sl
+    chart: scalinglightning/cln
+    version: 0.0.33
+    values:
+      - clientImage:
+          tag: 0.0.33
+      - gRPCEntryPoint: endpoint1
+  - name: bob
+    namespace: sl
+    chart: scalinglightning/cln
+    version: 0.0.33
+    values:
+      - clientImage:
+          tag: 0.0.33
+      - gRPCEntryPoint: endpoint2
+  - name: carol
+    namespace: sl
+    chart: scalinglightning/lnd
+    version: 0.0.33
+    values:
+      - clientImage:
+          tag: 0.0.33
+      - gRPCEntryPoint: endpoint3
+  - name: dave
+    namespace: sl
+    chart: scalinglightning/lnd
+    version: 0.0.33
+    values:
+      - clientImage:
+          tag: 0.0.33
+      - gRPCEntryPoint: endpoint4
