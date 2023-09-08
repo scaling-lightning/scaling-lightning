@@ -42,11 +42,11 @@ The goal is to collaborate as an industry to help scale the Lightning Network an
 
 To spin up an example network with 2 cln nodes and 4 lnd nodes, run:
 
-    go run . start -f examples/helmfiles/helmfile.yaml
+    go run . start -f examples/helmfiles/public.yaml
 
 To destroy the network run: 
 
-    go run . stop -f examples/helmfiles/helmfile.yaml
+    go run . stop -f examples/helmfiles/public.yaml
     
 ### Example CLI Commands
 
@@ -114,47 +114,7 @@ Example go test command with extra timeout:
 
 ### Your own configuration
 
-This project is still in its infancy, so we don't have a lot of configuration options yet. 
-But you can create your own `helmfile.yaml` in the `helmfiles` folder with the following content:
-
-```yaml
-# examples/helmfiles/my-helmfile.yaml
-# All files except helmfile.yaml are ignored by git, so you can add them safely.
-releases:
-    - name: bitcoind
-      chart: ../charts/bitcoind # these should point to the charts you want to use.
-      ## Set additional values or override existing ones
-      # values:
-      #   - ./anywhere/bitcoind/values.yaml
-    - name: lnd1
-      chart: ../charts/lnd # these should point to the charts you want to use.
-      ## Set additional values or override existing ones
-      ## original values: charts/bitcoind/values.yaml
-      values:
-          - gRPCNodePort: 30009
-          - lndHostPath: {{env "PWD"}}/volumes/lnd1
-    - name: lnd2
-      chart: ../charts/lnd # these should point to the charts you want to use.
-      ## Set additional values or override existing ones
-      ## original values: charts/lnd/values.yaml
-      values:
-          - gRPCNodePort: 30010
-          - lndHostPath: {{env "PWD"}}/volumes/lnd2
-    - name: lnd3
-      chart: ../charts/lnd # these should point to the charts you want to use.
-      ## Set additional values or override existing ones
-      ## original values: charts/lnd/values.yaml
-      values:
-          - gRPCNodePort: 30011
-          - lndHostPath: {{env "PWD"}}/volumes/lnd3
-    - name: lnd4
-      chart: ../charts/lnd # these should point to the charts you want to use.
-      ## Set additional values or override existing ones
-      ## original values: charts/lnd/values.yaml
-      values:
-          - gRPCNodePort: 30012
-          - lndHostPath: {{env "PWD"}}/volumes/lnd4
-```
+This project is still in its infancy, so we don't have a lot of configuration options yet. Please take a look in the [examples](/examples/helmfiles) directory for examples of different networks.
 
 ## Why is this important?
 
