@@ -3,7 +3,17 @@ entries:
   bitcoind:
   - apiVersion: v2
     appVersion: "24"
-    created: "2023-09-07T09:54:44.817393317Z"
+    created: "2023-09-08T18:00:19.629309519Z"
+    description: A Helm chart for bitcoind
+    digest: bb0ef29d6e4a4e22cc8a14106ec7b40a3f1cd457bfbdcc871091935cf533cadc
+    name: bitcoind
+    type: application
+    urls:
+    - https://charts.scalinglightning.com/bitcoind-0.1.00.tgz
+    version: 0.1.00
+  - apiVersion: v2
+    appVersion: "24"
+    created: "2023-09-08T18:00:19.628967211Z"
     description: A Helm chart for bitcoind
     digest: 58a3780147de1ca99d6a03d0fce1c40ebaf79899044c5488b620aa7320b2e1d9
     name: bitcoind
@@ -14,7 +24,17 @@ entries:
   cln:
   - apiVersion: v2
     appVersion: v22.11.1
-    created: "2023-09-07T09:54:44.825044814Z"
+    created: "2023-09-08T18:00:19.629879431Z"
+    description: A Helm chart for CLN
+    digest: e0612778f016b1722d0af249278da3230d519158a1513fb17158de7d8dab1b98
+    name: cln
+    type: application
+    urls:
+    - https://charts.scalinglightning.com/cln-0.1.00.tgz
+    version: 0.1.00
+  - apiVersion: v2
+    appVersion: v22.11.1
+    created: "2023-09-08T18:00:19.629610225Z"
     description: A Helm chart for CLN
     digest: c4869d24f6cd4f6ac58313d96ac9386f56336e558975c50b1b288b69e5d70adb
     name: cln
@@ -25,7 +45,17 @@ entries:
   lnd:
   - apiVersion: v2
     appVersion: v0.16.3-beta
-    created: "2023-09-07T09:54:44.826980538Z"
+    created: "2023-09-08T18:00:19.630474544Z"
+    description: A Helm chart for LND
+    digest: a99f850d3984bf4f4f88819335ebf68a2ca55232230efa9aeaf9ce0d6ab4b74d
+    name: lnd
+    type: application
+    urls:
+    - https://charts.scalinglightning.com/lnd-0.1.00.tgz
+    version: 0.1.00
+  - apiVersion: v2
+    appVersion: v0.16.3-beta
+    created: "2023-09-08T18:00:19.630179838Z"
     description: A Helm chart for LND
     digest: 3a80adcc35c912768a6c6a56edf5f47426f40f1fc9aab449a262615ecbc62574
     name: lnd
@@ -33,4 +63,4 @@ entries:
     urls:
     - https://charts.scalinglightning.com/lnd-0.0.33.tgz
     version: 0.0.33
-generated: "2023-09-07T09:54:44.814730083Z"
+generated: "2023-09-08T18:00:19.628496001Z"
