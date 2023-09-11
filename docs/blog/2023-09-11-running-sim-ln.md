@@ -5,7 +5,7 @@ tags: [simln, activity-generation]
 draft: false
 ---
 
-SimLNd is a new tool to generate payment activity between lightning nodes. In this post I give a walkthough of running it against a Scaling Lightning cluster.
+SimLN is a new tool to generate payment activity between lightning nodes. In this post I give a walkthough of running it against a Scaling Lightning cluster.
 
 ## Scaling Lightning setup
 
