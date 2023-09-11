@@ -66,7 +66,7 @@ Then create config file for SimLN to give it the identity of nodes in the Scalin
     {
       "LND": {
         "id": "0248efcfe94e3c451f4995b471ef0707163f279d4681af23727279c9c696004b42",
-        "address": "https://localhost:28103",
+        "address": "https://localhost:28102",
         "macaroon": "/Users/max/source/sim-ln/auth/bob/admin.macaroon",
         "cert": "/Users/max/source/sim-ln/auth/bob/tls.cert"
       }
