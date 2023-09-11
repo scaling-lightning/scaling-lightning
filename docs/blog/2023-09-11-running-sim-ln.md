@@ -31,7 +31,7 @@ releases:
       - gRPCEntryPoint: endpoint2
 ```
 
-Start the network. The scaling-lightning binary can be downloaded from [https://github.com/scaling-lightning/scaling-lightning/releases](https://github.com/scaling-lightning/scaling-lightning/releases).
+Start the network. The scaling-lightning binary can be downloaded from [https://github.com/scaling-lightning/scaling-lightning/releases](https://github.com/scaling-lightning/scaling-lightning/releases). Please read the [README](https://github.com/scaling-lightning/scaling-lightning) for prerequisites such as helm and installing traefik on your cluster.
 
 ```shell
 scaling-lightning start -f network.yaml
