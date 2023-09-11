@@ -28,5 +28,23 @@ Publicly accessible API to interact with the signet such as to request a node op
 Documentation</p><h3 class="anchor anchorWithStickyNavbar_LWe7" id="target-adopters-2">Target Adopters<a href="#target-adopters-2" class="hash-link" aria-label="Direct link to Target Adopters" title="Direct link to Target Adopters">​</a></h3><p>Plebnet, Zebedee, ScalingLightningNet?</p>]]></content:encoded>
             <category>roadmap</category>
         </item>
+        <item>
+            <title><![CDATA[Scaling Lightning runs in the cloud]]></title>
+            <link>https://scalinglightning.com/blog/2023/08/09/running-in-the-cloud</link>
+            <guid>https://scalinglightning.com/blog/2023/08/09/running-in-the-cloud</guid>
+            <pubDate>Wed, 09 Aug 2023 00:00:00 GMT</pubDate>
+            <description><![CDATA[A video demo of the project running on a cloud environment controlled via local cli.]]></description>
+            <content:encoded><![CDATA[<p>A video demo of the project running on a cloud environment controlled via local cli.</p><iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/4Nk1BUZJLcg?si=NTXG2ChC3UE3kF_O" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>]]></content:encoded>
+            <category>video</category>
+        </item>
+        <item>
+            <title><![CDATA[Project Demo]]></title>
+            <link>https://scalinglightning.com/blog/2023/07/19/project-demo</link>
+            <guid>https://scalinglightning.com/blog/2023/07/19/project-demo</guid>
+            <pubDate>Wed, 19 Jul 2023 00:00:00 GMT</pubDate>
+            <description><![CDATA[A video demo of the project. We cover progress made so far and some architectural choices.]]></description>
+            <content:encoded><![CDATA[<p>A video demo of the project. We cover progress made so far and some architectural choices.</p><iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/bx43_f49QZg?si=0ET1OWofVOsze6QB" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>]]></content:encoded>
+            <category>video</category>
+        </item>
     </channel>
 </rss>
