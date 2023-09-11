@@ -3,7 +3,17 @@ entries:
   bitcoind:
   - apiVersion: v2
     appVersion: "24"
-    created: "2023-09-08T18:22:26.629968305Z"
+    created: "2023-09-11T17:21:27.236933225Z"
+    description: A Helm chart for bitcoind
+    digest: 19cdcc7745f294b064e9455b910a6433e7c3071d0485e57c68b1ae185cf9c7fe
+    name: bitcoind
+    type: application
+    urls:
+    - https://charts.scalinglightning.com/bitcoind-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: "24"
+    created: "2023-09-11T17:21:27.236396214Z"
     description: A Helm chart for bitcoind
     digest: 060fc84fc7a7424777ba71ee5085ce52ffc0d96c039d5d110273e4ea288a1ace
     name: bitcoind
@@ -13,7 +23,7 @@ entries:
     version: 0.1.0
   - apiVersion: v2
     appVersion: "24"
-    created: "2023-09-08T18:22:26.630251509Z"
+    created: "2023-09-11T17:21:27.236651119Z"
     description: A Helm chart for bitcoind
     digest: bb0ef29d6e4a4e22cc8a14106ec7b40a3f1cd457bfbdcc871091935cf533cadc
     name: bitcoind
@@ -23,7 +33,7 @@ entries:
     version: 0.1.00
   - apiVersion: v2
     appVersion: "24"
-    created: "2023-09-08T18:22:26.629697001Z"
+    created: "2023-09-11T17:21:27.236095808Z"
     description: A Helm chart for bitcoind
     digest: 58a3780147de1ca99d6a03d0fce1c40ebaf79899044c5488b620aa7320b2e1d9
     name: bitcoind
@@ -34,7 +44,17 @@ entries:
   cln:
   - apiVersion: v2
     appVersion: v22.11.1
-    created: "2023-09-08T18:22:26.630839917Z"
+    created: "2023-09-11T17:21:27.23963818Z"
+    description: A Helm chart for CLN
+    digest: 7da8872303783ff6ef87b1103013fcb2f294b4f6f0d6381938e90febb72854c6
+    name: cln
+    type: application
+    urls:
+    - https://charts.scalinglightning.com/cln-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: v22.11.1
+    created: "2023-09-11T17:21:27.237494136Z"
     description: A Helm chart for CLN
     digest: f688f85f1844bdee0abf8dc5b8a99edb2da11852278d7f7c0e5ca263b842e1f8
     name: cln
@@ -44,7 +64,7 @@ entries:
     version: 0.1.0
   - apiVersion: v2
     appVersion: v22.11.1
-    created: "2023-09-08T18:22:26.631650229Z"
+    created: "2023-09-11T17:21:27.237766842Z"
     description: A Helm chart for CLN
     digest: e0612778f016b1722d0af249278da3230d519158a1513fb17158de7d8dab1b98
     name: cln
@@ -54,7 +74,7 @@ entries:
     version: 0.1.00
   - apiVersion: v2
     appVersion: v22.11.1
-    created: "2023-09-08T18:22:26.630545613Z"
+    created: "2023-09-11T17:21:27.237209331Z"
     description: A Helm chart for CLN
     digest: c4869d24f6cd4f6ac58313d96ac9386f56336e558975c50b1b288b69e5d70adb
     name: cln
@@ -65,7 +85,17 @@ entries:
   lnd:
   - apiVersion: v2
     appVersion: v0.16.3-beta
-    created: "2023-09-08T18:22:26.632204437Z"
+    created: "2023-09-11T17:21:27.241537019Z"
+    description: A Helm chart for LND
+    digest: 8848147c67feb86fa3c2a02c0f3308b0d6f5def08e902faaea790aa6a30da975
+    name: lnd
+    type: application
+    urls:
+    - https://charts.scalinglightning.com/lnd-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v2
+    appVersion: v0.16.3-beta
+    created: "2023-09-11T17:21:27.240629401Z"
     description: A Helm chart for LND
     digest: 8ffaae5a9553812edb8c50438c421f8e88934b759e86becef814e965fb476b58
     name: lnd
@@ -75,7 +105,7 @@ entries:
     version: 0.1.0
   - apiVersion: v2
     appVersion: v0.16.3-beta
-    created: "2023-09-08T18:22:26.643579304Z"
+    created: "2023-09-11T17:21:27.241251813Z"
     description: A Helm chart for LND
     digest: a99f850d3984bf4f4f88819335ebf68a2ca55232230efa9aeaf9ce0d6ab4b74d
     name: lnd
@@ -85,7 +115,7 @@ entries:
     version: 0.1.00
   - apiVersion: v2
     appVersion: v0.16.3-beta
-    created: "2023-09-08T18:22:26.631933433Z"
+    created: "2023-09-11T17:21:27.240151791Z"
     description: A Helm chart for LND
     digest: 3a80adcc35c912768a6c6a56edf5f47426f40f1fc9aab449a262615ecbc62574
     name: lnd
@@ -93,4 +123,4 @@ entries:
     urls:
     - https://charts.scalinglightning.com/lnd-0.0.33.tgz
     version: 0.0.33
-generated: "2023-09-08T18:22:26.629237094Z"
+generated: "2023-09-11T17:21:27.235554097Z"
