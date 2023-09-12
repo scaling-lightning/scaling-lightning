@@ -26,7 +26,7 @@ releases:
       - gRPCEntryPoint: endpoint1
   - name: bob
     namespace: sl
-    chart: scalinglightning/cln
+    chart: scalinglightning/lnd
     values:
       - gRPCEntryPoint: endpoint2
 ```
@@ -115,3 +115,5 @@ sim-cli --log-level debug --config config.json
 ```
 
 We will be following the development of SimLN closely. Scaling Lightning will need it's own activity generator and perhaps that could be SimLN?
+
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/y0uwYV_Bx7w?si=8YaCKdx9UQhw0NQp" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
