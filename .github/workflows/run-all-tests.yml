@@ -10,8 +10,39 @@ jobs:
         with:
           go-version: "1.21"
           go-version-file: "go.mod"
-    #   - name: Log in to Docker Hub
-    #     uses: docker/login-action@v2
-    #     with:
-    #       username: ${{ secrets.DOCKER_USERNAME }}
-    #       password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Run Tests
+        id: unit
+        run: make test
+      - name: start minikube
+        id: minikube
+        uses: medyagh/setup-minikube@master
+      - name: Setup helmfile
+        uses: mamezou-tech/setup-helmfile@v1.2.0
+      - name: Install traefik CRDs
+        run: |
+          helm repo add traefik https://traefik.github.io/charts
+          helm repo update
+          helm install traefik traefik/traefik -n sl-traefik --create-namespace -f charts/traefik-values.yml
+      - name: Start minikube's loadbalancer tunnel
+        run: minikube tunnel &> /dev/null &
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: ">=1.21.0"
+      - name: Run E2E Tests
+        run: go test -run ^TestMain$ github.com/scaling-lightning/scaling-lightning/examples/go -count=1 -v -timeout=15m
+      # setup ssh access if e2e job fails
+      # - name: Setup upterm session
+      #   if: always() && (steps.e2e.outcome == 'failure')
+      #   timeout-minutes: 30
+      #   uses: lhotari/action-upterm@v1
+      #   with:
+      # limits ssh access and adds the ssh public key for the user which triggered the workflow
+      # limit-access-to-actor: true
+      # limits ssh access and adds the ssh public keys of the listed GitHub users
+      # limit-access-to-users: githubuser1,githubuser2
