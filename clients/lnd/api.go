@@ -34,7 +34,7 @@ func (s *commonServer) NewAddress(
 	if err != nil {
 		return nil, errors.Wrap(err, "Getting new address from LND's gRPC")
 	}
-	return &stdcommonclient.NewAddressResponse{Address: *&response.Address}, nil
+	return &stdcommonclient.NewAddressResponse{Address: response.Address}, nil
 }
 
 func (s *lightningServer) PubKey(

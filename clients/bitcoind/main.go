@@ -25,13 +25,13 @@ type appConfig struct {
 	apiPort       int
 }
 
-var helpRequested = errors.New("Help requested")
-
 func main() {
+
+	var helpRequested = errors.New("Help requested")
 
 	appConfig := appConfig{}
 
-	err := parseFlags(&appConfig)
+	err := parseFlags(&appConfig, helpRequested)
 	if err != nil {
 		if errors.Is(err, helpRequested) {
 			flag.Usage()
@@ -110,7 +110,7 @@ func startGRPCServer(port int, client rpcClient) error {
 	return nil
 }
 
-func parseFlags(appConfig *appConfig) error {
+func parseFlags(appConfig *appConfig, helpRequested error) error {
 	var help = flag.Bool("help", false, "Show help")
 
 	flag.StringVar(

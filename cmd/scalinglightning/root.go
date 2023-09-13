@@ -10,11 +10,11 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var kubeConfigPath string
-var apiHost string
-var apiPort uint16
+var kubeConfigPath string //nolint:gochecknoglobals
+var apiHost string        //nolint:gochecknoglobals
+var apiPort uint16        //nolint:gochecknoglobals
 
-var rootCmd = &cobra.Command{
+var rootCmd = &cobra.Command{ //nolint:gochecknoglobals
 	Use:   "sl",
 	Short: "A CLI for interacting with the scaling-lightning network",
 	Long:  ``,

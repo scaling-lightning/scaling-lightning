@@ -2,62 +2,70 @@ package scalinglightning
 
 import (
 	"fmt"
+	"log"
 
 	sl "github.com/scaling-lightning/scaling-lightning/pkg/network"
 	"github.com/spf13/cobra"
 )
 
-var createInvoiceCmd = &cobra.Command{
-	Use:   "createinvoice",
-	Short: "Create lightning invoice",
-	Long:  ``,
-	Run: func(cmd *cobra.Command, args []string) {
-		processDebugFlag(cmd)
-		nodeName := cmd.Flag("node").Value.String()
-		amount, err := cmd.Flags().GetUint64("amount")
-		if err != nil {
-			fmt.Println("Amount must be a valid number")
-			return
-		}
-		slnetwork, err := sl.DiscoverStartedNetwork(kubeConfigPath, apiHost, apiPort)
-		if err != nil {
-			fmt.Printf(
-				"Problem with network discovery, is there a network running? Error: %v\n",
-				err.Error(),
-			)
-			return
-		}
-		allNodes := slnetwork.LightningNodes
-		for _, node := range allNodes {
-			if node.GetName() == nodeName {
-				invoice, err := node.CreateInvoice(amount)
-				if err != nil {
-					fmt.Printf("Problem generating invoice: %v\n", err.Error())
-					return
-				}
-				fmt.Printf("bolt11: %v\n", invoice)
+func init() {
+
+	var createInvoiceCmd = &cobra.Command{
+		Use:   "createinvoice",
+		Short: "Create lightning invoice",
+		Long:  ``,
+		Run: func(cmd *cobra.Command, args []string) {
+			processDebugFlag(cmd)
+			nodeName := cmd.Flag("node").Value.String()
+			amount, err := cmd.Flags().GetUint64("amount")
+			if err != nil {
+				fmt.Println("Amount must be a valid number")
 				return
 			}
-		}
-		allNames := []string{}
-		for _, node := range allNodes {
-			allNames = append(allNames, node.GetName())
-		}
-		fmt.Printf(
-			"Can't find node with name %v, here are the nodes that are running: %v\n",
-			nodeName,
-			allNames,
-		)
-	},
-}
+			slnetwork, err := sl.DiscoverStartedNetwork(kubeConfigPath, apiHost, apiPort)
+			if err != nil {
+				fmt.Printf(
+					"Problem with network discovery, is there a network running? Error: %v\n",
+					err.Error(),
+				)
+				return
+			}
+			allNodes := slnetwork.LightningNodes
+			for _, node := range allNodes {
+				if node.GetName() == nodeName {
+					invoice, err := node.CreateInvoice(amount)
+					if err != nil {
+						fmt.Printf("Problem generating invoice: %v\n", err.Error())
+						return
+					}
+					fmt.Printf("bolt11: %v\n", invoice)
+					return
+				}
+			}
+			allNames := []string{}
+			for _, node := range allNodes {
+				allNames = append(allNames, node.GetName())
+			}
+			fmt.Printf(
+				"Can't find node with name %v, here are the nodes that are running: %v\n",
+				nodeName,
+				allNames,
+			)
+		},
+	}
 
-func init() {
 	rootCmd.AddCommand(createInvoiceCmd)
 
 	createInvoiceCmd.Flags().
 		StringP("node", "n", "", "The name of the node to generate the invoice")
-	createInvoiceCmd.MarkFlagRequired("node")
+	err := createInvoiceCmd.MarkFlagRequired("node")
+	if err != nil {
+		log.Fatalf("Problem marking node flag as required: %v", err.Error())
+	}
 
 	createInvoiceCmd.Flags().Uint64P("amount", "a", 0, "Amount of satoshis to invoice for")
-	createInvoiceCmd.MarkFlagRequired("amount")
+	err = createInvoiceCmd.MarkFlagRequired("amount")
+	if err != nil {
+		log.Fatalf("Problem marking amount flag as required: %v", err.Error())
+	}
 }

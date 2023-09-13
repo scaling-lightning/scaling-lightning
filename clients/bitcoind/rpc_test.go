@@ -9,10 +9,13 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/cockroachdb/errors"
 	"github.com/scaling-lightning/scaling-lightning/clients/bitcoind/mocks"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestInitialiseBitcoind(t *testing.T) {
+	assert := assert.New(t)
+
 	mockClient := mocks.NewRpcClient(t)
 
 	mockClient.On("GetWalletInfo").Return(&btcjson.GetWalletInfoResult{}, nil)
@@ -32,5 +35,6 @@ func TestInitialiseBitcoind(t *testing.T) {
 	mockClient.On("GenerateToAddress", mock.Anything, mock.Anything, mock.AnythingOfType("*int64")).
 		Return([]*chainhash.Hash{}, nil)
 
-	initialiseBitcoind(mockClient)
+	err := initialiseBitcoind(mockClient)
+	assert.Nil(err)
 }

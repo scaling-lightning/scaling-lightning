@@ -34,13 +34,13 @@ type appConfig struct {
 	apiPort           int
 }
 
-var helpRequested = errors.New("Help requested")
-
 func main() {
+
+	var helpRequested = errors.New("Help requested")
 
 	appConfig := appConfig{}
 
-	err := parseFlags(&appConfig)
+	err := parseFlags(&appConfig, helpRequested)
 	if err != nil {
 		if errors.Is(err, helpRequested) {
 			flag.Usage()
@@ -56,19 +56,19 @@ func main() {
 		cert, err := os.ReadFile(appConfig.clientCertificate)
 		if err != nil {
 			log.Warn().Err(err).Msg("Problem reading client certificate")
-			return err
+			return errors.Wrap(err, "Reading client certificate")
 		}
 
 		certKey, err := os.ReadFile(appConfig.clientKey)
 		if err != nil {
 			log.Warn().Err(err).Msg("Problem reading client key")
-			return err
+			return errors.Wrap(err, "Reading client key")
 		}
 
 		ca, err := os.ReadFile(appConfig.caCert)
 		if err != nil {
 			log.Warn().Err(err).Msg("Problem reading certificate authority cert")
-			return err
+			return errors.Wrap(err, "Reading certificate authority cert")
 		}
 
 		conn, err := grpcConnect(
@@ -85,7 +85,7 @@ func main() {
 		info, err := client.Getinfo(context.Background(), &clnGRPC.GetinfoRequest{})
 		if err != nil {
 			log.Warn().Err(err).Msg("Problem getting info from CLN's gRPC server")
-			return err
+			return errors.Wrap(err, "Getting info from CLN's gRPC server")
 		}
 
 		log.Info().Msg("CLN Info:")
@@ -131,7 +131,7 @@ func startGRPCServer(port int, client clnGRPC.NodeClient) error {
 	return nil
 }
 
-func parseFlags(appConfig *appConfig) error {
+func parseFlags(appConfig *appConfig, helpRequested error) error {
 	var help = flag.Bool("help", false, "Show help")
 
 	flag.StringVar(

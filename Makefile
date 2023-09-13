@@ -1,6 +1,11 @@
-test:
+LINT = go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest && ~/go/bin/golangci-lint run --timeout 5m
+
+test: lint
 	go test -v `go list ./... | grep -v examples` | \
     sed ''/PASS/s//$$(printf "\033[32mPASS\033[0m")/'' | sed ''/FAIL/s//$$(printf "\033[31mFAIL\033[0m")/''
+
+lint:
+	$(LINT)
 
 protoc-cln:
 	protoc --proto_path=clients/cln/grpc --go_out=. --go-grpc_out=. \
@@ -42,4 +47,4 @@ build-bitcoind-client:
 generate-mocks:
 	go generate ./...
 
-.PHONY: test generate-mocks protoc protoc-std-common protoc-std-bitcoin protoc-std-lightning protoc-cln build-cln-client build-lnd-client build-bitcoind-client
+.PHONY: lint test generate-mocks protoc protoc-std-common protoc-std-bitcoin protoc-std-lightning protoc-cln build-cln-client build-lnd-client build-bitcoind-client

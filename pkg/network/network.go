@@ -143,7 +143,8 @@ func DiscoverStartedNetwork(
 	overrideAPIHost string,
 	overrideAPIPort uint16,
 ) (*SLNetwork, error) {
-	helmCmd := exec.Command(
+	// TODO: santise inputs here
+	helmCmd := exec.Command( //nolint:gosec
 		"helm",
 		"--kubeconfig",
 		kubeconfig,
@@ -222,7 +223,8 @@ func GetLoadbalancerHostname(
 	namespace string,
 	kubeconfig string,
 ) (string, error) {
-	kubectlCmd := exec.Command(
+	// TODO: santise inputs here
+	kubectlCmd := exec.Command( //nolint:gosec
 		"kubectl",
 		"--kubeconfig",
 		kubeconfig,
@@ -264,7 +266,8 @@ func (n *SLNetwork) Start() error {
 	if err := n.CheckDependencies(); err != nil {
 		return errors.Wrap(err, "Checking dependencies")
 	}
-	helmfileCmd := exec.Command(
+	// TODO: santise helmfile flag
+	helmfileCmd := exec.Command( //nolint:gosec
 		"helmfile",
 		"apply",
 		"-f",
@@ -293,7 +296,10 @@ func (n *SLNetwork) Start() error {
 		return errors.Wrap(err, "Discovering connection details timeout")
 	}
 
-	n.discoverConnectionDetails()
+	err = n.discoverConnectionDetails()
+	if err != nil {
+		return errors.Wrap(err, "Discovering connection details")
+	}
 
 	return nil
 }
@@ -311,7 +317,8 @@ func (n *SLNetwork) discoverConnectionDetails() error {
 func (n *SLNetwork) Stop() error {
 	log.Debug().Msg("Stopping network")
 
-	helmfileCmd := exec.Command(
+	// TODO: santise helmfile flag
+	helmfileCmd := exec.Command( //nolint:gosec
 		"helmfile",
 		"destroy",
 		"-f",
@@ -423,7 +430,7 @@ func parseHelmfileForNodes(
 		}
 	}
 
-	return lightningNodes, bitcoinNodes, err
+	return lightningNodes, bitcoinNodes, nil
 
 }
 

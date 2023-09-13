@@ -9,7 +9,8 @@ import (
 )
 
 func kubeCP(kubeconfig string, source string, destination string) error {
-	kubectlCmd := exec.Command(
+	//TODO: sanitise inputs here
+	kubectlCmd := exec.Command( //nolint:gosec
 		"kubectl",
 		"--kubeconfig",
 		kubeconfig,
@@ -45,7 +46,8 @@ type endpointsData struct {
 }
 
 func getEndpointForNode(kubeconfig string, nodeName string) (uint16, error) {
-	kubectlCmd := exec.Command(
+	// TODO: sanitise inputs here
+	kubectlCmd := exec.Command( //nolint:gosec
 		"kubectl",
 		"--kubeconfig",
 		kubeconfig,
@@ -73,7 +75,8 @@ func getEndpointForNode(kubeconfig string, nodeName string) (uint16, error) {
 	}
 	entrypoint := ingressRouteTCPData.Spec.EntryPoints[0]
 
-	kubectlCmd = exec.Command(
+	// TODO: sanitise inputs here
+	kubectlCmd = exec.Command( //nolint:gosec
 		"kubectl",
 		"--kubeconfig",
 		kubeconfig,

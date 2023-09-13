@@ -1,0 +1,49 @@
+linters:
+  # Disable all linters.
+  # Default: false
+  disable-all: true
+  # Enable specific linter
+  # https://golangci-lint.run/usage/linters/#enabled-by-default
+  enable:
+    - errcheck
+    - staticcheck
+    - unused
+    - govet
+    - gosimple
+    - ineffassign
+    - typecheck
+    - gochecknoglobals
+    - gosec
+    - wrapcheck
+# issues:
+#   exclude-rules:
+#     - path: proto/
+#       linters:
+#         - errcheck
+#         - staticcheck
+#         - unused
+#         - govet
+#         - gosimple
+#         - ineffassign
+#         - typecheck
+#         - gochecknoglobals
+#         - gosec
+#         - sqlclosecheck
+#         - wrapcheck
+linters-settings:
+  wrapcheck:
+    # Check github https://github.com/tomarrell/wrapcheck/issues/43 and then should be able to remove this
+    # An array of strings that specify substrings of signatures to ignore.
+    # If this set, it will override the default set of ignored signatures.
+    # See https://github.com/tomarrell/wrapcheck#configuration for more information.
+    # Default: [".Errorf(", "errors.New(", "errors.Unwrap(", ".Wrap(", ".Wrapf(", ".WithMessage(", ".WithMessagef(", ".WithStack("]
+    ignoreSigs:
+      - .Errorf(
+      - errors.New(
+      - errors.Newf(
+      - errors.Unwrap(
+      - .Wrap(
+      - .Wrapf(
+      - .WithMessage(
+      - .WithMessagef(
+      - .WithStack(
