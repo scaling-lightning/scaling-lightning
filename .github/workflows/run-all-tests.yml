@@ -20,7 +20,7 @@ jobs:
       - name: Run Tests
         id: unit
         run: make test
-      - name: start minikube
+      - name: Start Minikube
         id: minikube
         uses: medyagh/setup-minikube@master
       - name: Setup helmfile
