@@ -1,3 +1,5 @@
+name: Run all tests on push to main or PR
+
 on:
   pull_request:
   push:
