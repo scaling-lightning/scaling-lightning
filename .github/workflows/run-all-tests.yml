@@ -1,3 +1,5 @@
+name: Run All Tests
+
 on:
   workflow_call:
 jobs:
