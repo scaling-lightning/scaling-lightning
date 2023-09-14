@@ -1,0 +1,31 @@
+# uses local charts in the charts directory but images from docker hub
+releases:
+  - name: bitcoind
+    namespace: sl
+    chart: ../../charts/bitcoind
+  - name: alice
+    namespace: sl
+    chart: ../../charts/cln
+    values:
+      - gRPCEntryPoint: endpoint1
+      - image:
+          tag: v23.05.1
+      - volume:
+          size: "1Gi"
+  - name: bob
+    namespace: sl
+    chart: ../../charts/cln
+    values:
+      - gRPCEntryPoint: endpoint2
+      - image:
+          tag: v23.05.1
+  - name: carol
+    namespace: sl
+    chart: ../../charts/lnd
+    values:
+      - gRPCEntryPoint: endpoint3
+  - name: dave
+    namespace: sl
+    chart: ../../charts/lnd
+    values:
+      - gRPCEntryPoint: endpoint4
