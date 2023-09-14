@@ -15,11 +15,10 @@ spec:
         {{- include "bitcoind.selectorLabels" . | nindent 8 }}
     spec:
       volumes:
-        - name: cookie
-          {{- if .Values.bitcoindHostPath }}
-          hostPath:
-            path: {{ .Values.bitcoindHostPath }}
-            type: DirectoryOrCreate
+        - name: data
+          {{- if .Values.volume.size }}
+          persistentVolumeClaim:
+            claimName: {{ include "bitcoind.fullname" . }}-pvc
           {{- else }}
           emptyDir: {}
           {{- end }}
@@ -28,7 +27,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           volumeMounts:
-            - name: cookie
+            - name: data
               mountPath: /home/bitcoin/.bitcoin/
           ports:
             - name: rpc
@@ -67,7 +66,7 @@ spec:
             - name: client
               containerPort: 8080
           volumeMounts:
-            - name: cookie
+            - name: data
               mountPath: /bitcoind
           args:
             - -rpchost=bitcoind
