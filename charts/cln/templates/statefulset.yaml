@@ -17,11 +17,10 @@ spec:
       securityContext:
         runAsUser: 0
       volumes:
-        - name: clientcerts
-          {{- if .Values.clnHostPath }}
-          hostPath:
-            path: {{ .Values.clnHostPath }}
-            type: DirectoryOrCreate
+        - name: data
+          {{- if .Values.volume.size }}
+          persistentVolumeClaim:
+            claimName: {{ include "cln.fullname" . }}-pvc
           {{- else }}
           emptyDir: {}
           {{- end }}
@@ -30,7 +29,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           volumeMounts:
-            - name: clientcerts
+            - name: data
               mountPath: /root/.lightning
           ports:
             - name: peer
@@ -46,11 +45,12 @@ spec:
             - --bitcoin-rpcconnect={{ .Values.bitcoind.rpcHost }}
             - --bitcoin-rpcport={{ .Values.bitcoind.rpcPort }}
             - --bitcoin-retry-timeout=600
+            - --database-upgrade=true
         - name: {{ .Chart.Name }}-client
           image: {{ .Values.clientImage.repository }}:{{ .Values.clientImage.tag | default "latest" }}
           imagePullPolicy: {{ .Values.clientImage.pullPolicy }}
           volumeMounts:
-            - name: clientcerts
+            - name: data
               mountPath: /cln
           ports:
             - name: client
