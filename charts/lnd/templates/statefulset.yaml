@@ -17,11 +17,10 @@ spec:
       securityContext:
         runAsUser: 0
       volumes:
-        - name: tlsmacaroon
-          {{- if .Values.lndHostPath }}
-          hostPath:
-            path: {{ .Values.lndHostPath }}
-            type: DirectoryOrCreate
+        - name: data
+          {{- if .Values.volume.size }}
+          persistentVolumeClaim:
+            claimName: {{ include "lnd.fullname" . }}-pvc
           {{- else }}
           emptyDir: {}
           {{- end }}
@@ -30,7 +29,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           volumeMounts:
-            - name: tlsmacaroon
+            - name: data
               mountPath: /root/.lnd
           ports:
             - name: peer
@@ -60,7 +59,7 @@ spec:
           image: {{ .Values.clientImage.repository }}:{{ .Values.clientImage.tag | default "latest" }}
           imagePullPolicy: {{ .Values.clientImage.pullPolicy }}
           volumeMounts:
-            - name: tlsmacaroon
+            - name: data
               mountPath: /lnd
           ports:
             - name: http

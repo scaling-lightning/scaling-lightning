@@ -1,0 +1,15 @@
+{{- if .Values.volume.size }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "lnd.fullname" . }}-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.volume.size }}
+  {{- if .Values.volume.storageClassName }}
+  storageClassName: {{ .Values.volume.storageClassName }}
+  {{- end}}
+{{- end }}
