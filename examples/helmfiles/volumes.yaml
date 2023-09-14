@@ -3,6 +3,9 @@ releases:
   - name: bitcoind
     namespace: sl
     chart: ../../charts/bitcoind
+    values:
+      - volume:
+          size: "1Gi"
   - name: alice
     namespace: sl
     chart: ../../charts/cln
@@ -17,13 +20,15 @@ releases:
     chart: ../../charts/cln
     values:
       - gRPCEntryPoint: endpoint2
-      - image:
-          tag: v23.05.1
   - name: carol
     namespace: sl
     chart: ../../charts/lnd
     values:
       - gRPCEntryPoint: endpoint3
+      - image:
+          tag: v0.17.0-beta.rc3
+      - volume:
+          size: "1Gi"
   - name: dave
     namespace: sl
     chart: ../../charts/lnd
