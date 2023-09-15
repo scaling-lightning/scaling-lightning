@@ -3,12 +3,22 @@ package network
 import (
 	"encoding/json"
 	"os/exec"
+	"strings"
 
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
 )
 
 func kubeCP(kubeconfig string, source string, destination string) error {
+
+	//on windows remove the C: from the path as kubeCP doesn't support a path with ":"
+	if strings.HasPrefix(strings.ToLower(source), "c:") {
+		source = source[2:]
+	}
+	if strings.HasPrefix(strings.ToLower(destination), "c:") {
+		destination = destination[2:]
+	}
+
 	//TODO: sanitise inputs here
 	kubectlCmd := exec.Command( //nolint:gosec
 		"kubectl",
