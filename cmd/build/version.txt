@@ -1,1 +1,1 @@
-dev | unknown | unknown
+v0.2.0 | a9d4ff7 | Fri Sep 15 16:40:09 BST 2023

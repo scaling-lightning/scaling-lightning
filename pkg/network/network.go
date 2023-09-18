@@ -50,6 +50,16 @@ func (n NetworkType) String() string {
 	}
 }
 
+//go:generate mockery --name SLNetworkInterface --exported
+type SLNetworkInterface interface {
+	Start() error
+	Stop() error
+	GetBitcoinNode(name string) (*BitcoinNode, error)
+	GetLightningNode(name string) (*LightningNode, error)
+	GetNode(name string) (Node, error)
+	GetAllNodes() []Node
+}
+
 type SLNetwork struct {
 	BitcoinNodes   []BitcoinNode
 	LightningNodes []LightningNode

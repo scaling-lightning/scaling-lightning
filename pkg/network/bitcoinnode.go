@@ -11,6 +11,16 @@ import (
 	basictypes "github.com/scaling-lightning/scaling-lightning/pkg/types"
 )
 
+//go:generate mockery --name LightningNodeInterface --exported
+type BitcoinNodeInterface interface {
+	GetName() string
+	Send(to Node, amount basictypes.Amount) (string, error)
+	Generate(numBlocks uint32) (hashes []string, err error)
+	GetWalletBalance() (basictypes.Amount, error)
+	SendToAddress(address string, amount basictypes.Amount) (string, error)
+	GetNewAddress() (string, error)
+}
+
 type BitcoinNode struct {
 	Name      string
 	SLNetwork *SLNetwork
