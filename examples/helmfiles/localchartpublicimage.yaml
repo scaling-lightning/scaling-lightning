@@ -3,6 +3,10 @@ releases:
   - name: bitcoind
     namespace: sl
     chart: ../../charts/bitcoind
+    values:
+      - rpcEntryPoint: endpoint37
+      - zmqPubBlockEntryPoint: endpoint38
+      - zmqPubTxEntryPoint: endpoint39
   - name: alice
     namespace: sl
     chart: ../../charts/cln

@@ -12,3 +12,54 @@ spec:
         - name: {{ include "bitcoind.fullname" . }}
           port: client
           scheme: h2c
+{{- if .Values.rpcEntryPoint }}
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: {{ include "bitcoind.fullname" . }}-direct-rpc
+spec:
+  entryPoints:
+    - {{ .Values.rpcEntryPoint }}
+  routes:
+    - match: HostSNI(`*`)
+      services:
+        - name: {{ include "bitcoind.fullname" . }}
+          port: rpc
+  tls:
+    passthrough: true
+{{- end}}
+{{- if .Values.zmqPubBlockEntryPoint }}
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: {{ include "bitcoind.fullname" . }}-direct-zmq-pub-block
+spec:
+  entryPoints:
+    - {{ .Values.zmqPubBlockEntryPoint }}
+  routes:
+    - match: HostSNI(`*`)
+      services:
+        - name: {{ include "bitcoind.fullname" . }}
+          port: zmqpubrawblock
+  tls:
+    passthrough: true
+{{- end}}
+{{- if .Values.zmqPubTxEntryPoint }}
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: {{ include "bitcoind.fullname" . }}-direct-zmq-pub-tx
+spec:
+  entryPoints:
+    - {{ .Values.zmqPubTxEntryPoint }}
+  routes:
+    - match: HostSNI(`*`)
+      services:
+        - name: {{ include "bitcoind.fullname" . }}
+          port: zmqpubrawtx
+  tls:
+    passthrough: true
+{{- end}}

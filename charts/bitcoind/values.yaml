@@ -24,6 +24,12 @@ clientPort: 8181
 
 network: regtest
 
+# set to one of the endpoints defined in traefik's values file e.g. (endpoint1, endpoint2, endpoint3, endpoint4)
+# to expose direct RPC / ZeroMQ access to the node
+rpcEntryPoint: null
+zmqPubBlockEntryPoint: null
+zmqPubTxEntryPoint: null
+
 # This gives persistence to nodes. If no storage is set then the node will be ephemeral between upgrades.
 volume:
   size: "" # example 1Gi for 1 gibibyte (1024^3 bytes). Blank string for no storage.
