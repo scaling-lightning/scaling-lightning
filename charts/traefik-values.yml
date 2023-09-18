@@ -199,13 +199,8 @@ ports:
     expose: true
     exposedPort: 28100
     protocol: TCP
-  web:
-    port: 8000
-    expose: false
-    exposedPort: 80
-    protocol: TCP
-  websecure:
-    port: 8443
-    expose: false
-    exposedPort: 443
-    protocol: TCP
+logs:
+  general:
+    level: ERROR
+  access:
+    enabled: false

@@ -9,14 +9,33 @@ import (
 )
 
 // ports:
-//   node1:
+//   endpoint1:
 //     port: 1001
 //     expose: true
 //     exposedPort: 1001
 //     protocol: TCP
+// logs:
+//   general:
+//     # -- By default, the logs use a text format (common), but you can
+//     # also ask for the json format in the format option
+//     # format: json
+//     # By default, the level is set to ERROR.
+//     # -- Alternative logging levels are DEBUG, PANIC, FATAL, ERROR, WARN, and INFO.
+//     level: ERROR
+//   access:
+//     # -- To enable access logs
+//     enabled: false
 
 type valuesFile struct {
 	Ports map[string]port `yaml:"ports"`
+	Logs  struct {
+		General struct {
+			Level string `yaml:"level"`
+		} `yaml:"general"`
+		Access struct {
+			Enabled bool `yaml:"enabled"`
+		} `yaml:"access"`
+	} `yaml:"logs"`
 }
 
 type port struct {
@@ -30,19 +49,8 @@ func main() {
 	valuesFileData := valuesFile{}
 	valuesFileData.Ports = make(map[string]port)
 
-	valuesFileData.Ports["web"] = port{
-		Port:        8000,
-		Expose:      false,
-		ExposedPort: 80,
-		Protocol:    "TCP",
-	}
-
-	valuesFileData.Ports["websecure"] = port{
-		Port:        8443,
-		Expose:      false,
-		ExposedPort: 443,
-		Protocol:    "TCP",
-	}
+	valuesFileData.Logs.General.Level = "ERROR"
+	valuesFileData.Logs.Access.Enabled = false
 
 	valuesFileData.Ports["grpc"] = port{
 		Port:        28100,
