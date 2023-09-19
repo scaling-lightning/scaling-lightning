@@ -14,20 +14,19 @@ spec:
           scheme: h2c
 {{- if .Values.rpcEntryPoint }}
 ---
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRouteTCP
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
 metadata:
   name: {{ include "bitcoind.fullname" . }}-direct-rpc
 spec:
   entryPoints:
     - {{ .Values.rpcEntryPoint }}
   routes:
-    - match: HostSNI(`*`)
+    - match: "HostRegexp(`{host:.*}`)"
+      kind: Rule
       services:
         - name: {{ include "bitcoind.fullname" . }}
           port: rpc
-  tls:
-    passthrough: true
 {{- end}}
 {{- if .Values.zmqPubBlockEntryPoint }}
 ---
@@ -39,12 +38,10 @@ spec:
   entryPoints:
     - {{ .Values.zmqPubBlockEntryPoint }}
   routes:
-    - match: HostSNI(`*`)
+    - match: "HostSNI(`*`)"
       services:
         - name: {{ include "bitcoind.fullname" . }}
           port: zmqpubrawblock
-  tls:
-    passthrough: true
 {{- end}}
 {{- if .Values.zmqPubTxEntryPoint }}
 ---
@@ -60,6 +57,4 @@ spec:
       services:
         - name: {{ include "bitcoind.fullname" . }}
           port: zmqpubrawtx
-  tls:
-    passthrough: true
 {{- end}}
