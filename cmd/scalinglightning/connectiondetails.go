@@ -32,9 +32,9 @@ func init() {
 				return
 			}
 			foundANode := false
-			for _, node := range slnetwork.LightningNodes {
+			for _, node := range slnetwork.GetAllNodes() {
 				if node.GetName() == nodeName || all {
-					connectionDetails, err := node.GetConnectionDetails()
+					connectionDetailsList, err := node.GetConnectionDetails()
 					if err != nil {
 						log.Debug().
 							Msgf("Problem getting connection details. This could be perfectly normal as it may not have an endpoint configured: %v", err.Error())
@@ -42,8 +42,11 @@ func init() {
 					}
 					foundANode = true
 					fmt.Println(node.GetName())
-					fmt.Printf("  host: %v\n", connectionDetails.Host)
-					fmt.Printf("  port: %v\n\n", connectionDetails.Port)
+					for _, conDetails := range connectionDetailsList {
+						fmt.Println("  type: ", conDetails.Name)
+						fmt.Printf("  host: %v\n", conDetails.Host)
+						fmt.Printf("  port: %v\n\n", conDetails.Port)
+					}
 				}
 			}
 			if foundANode {

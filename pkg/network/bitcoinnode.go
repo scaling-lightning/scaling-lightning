@@ -129,3 +129,23 @@ func (n *BitcoinNode) GetNewAddress() (string, error) {
 
 	return newAddress.Address, nil
 }
+
+func (n *BitcoinNode) GetConnectionDetails() ([]ConnectionDetails, error) {
+	rpcPort, err := getEndpointForNode(n.SLNetwork.kubeConfig, n.Name+"-direct-rpc", modeHTTP)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Getting endpoint for %v", n.Name)
+	}
+	zmqBlockPort, err := getEndpointForNode(n.SLNetwork.kubeConfig, n.Name+"-direct-zmq-pub-block", modeTCP)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Getting endpoint for %v", n.Name)
+	}
+	zmqTxPort, err := getEndpointForNode(n.SLNetwork.kubeConfig, n.Name+"-direct-zmq-pub-tx", modeTCP)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Getting endpoint for %v", n.Name)
+	}
+	return []ConnectionDetails{
+		{Name: "rpc", Host: n.SLNetwork.ApiHost, Port: rpcPort},
+		{Name: "zmq blocks", Host: n.SLNetwork.ApiHost, Port: zmqBlockPort},
+		{Name: "zmp txs", Host: n.SLNetwork.ApiHost, Port: zmqTxPort},
+	}, err
+}

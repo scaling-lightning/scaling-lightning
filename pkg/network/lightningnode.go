@@ -31,6 +31,7 @@ type LightningNode struct {
 }
 
 type ConnectionDetails struct {
+	Name string
 	Host string
 	Port uint16
 }
@@ -347,12 +348,12 @@ func (n *LightningNode) WriteAuthFilesToDirectory(dir string) error {
 	return nil
 }
 
-func (n *LightningNode) GetConnectionDetails() (ConnectionDetails, error) {
-	port, err := getEndpointForNode(n.SLNetwork.kubeConfig, n.Name)
+func (n *LightningNode) GetConnectionDetails() ([]ConnectionDetails, error) {
+	port, err := getEndpointForNode(n.SLNetwork.kubeConfig, n.Name+"-direct-grpc", modeTCP)
 	if err != nil {
-		return ConnectionDetails{}, errors.Wrapf(err, "Getting endpoint for %v", n.Name)
+		return nil, errors.Wrapf(err, "Getting endpoint for %v", n.Name)
 	}
-	return ConnectionDetails{Host: n.SLNetwork.ApiHost, Port: port}, err
+	return []ConnectionDetails{{Name: "grpc", Host: n.SLNetwork.ApiHost, Port: port}}, err
 }
 
 func (n *LightningNode) CreateInvoice(amountSats uint64) (string, error) {

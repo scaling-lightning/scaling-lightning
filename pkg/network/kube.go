@@ -55,7 +55,19 @@ type endpointsData struct {
 	} `json:"subsets"`
 }
 
-func getEndpointForNode(kubeconfig string, nodeName string) (uint16, error) {
+type endpointMode int
+
+const (
+	modeHTTP endpointMode = iota
+	modeTCP
+)
+
+func getEndpointForNode(kubeconfig string, ingressName string, mode endpointMode) (uint16, error) {
+	crd := "ingressroutetcps.traefik.containo.us"
+	if mode == modeHTTP {
+		crd = "ingressroutes.traefik.io"
+	}
+
 	// TODO: sanitise inputs here
 	kubectlCmd := exec.Command( //nolint:gosec
 		"kubectl",
@@ -64,8 +76,8 @@ func getEndpointForNode(kubeconfig string, nodeName string) (uint16, error) {
 		"-n",
 		mainNamespace,
 		"get",
-		"ingressroutetcps.traefik.containo.us",
-		nodeName+"-direct-grpc",
+		crd,
+		ingressName,
 		"-o",
 		"json",
 	)

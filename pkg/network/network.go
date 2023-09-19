@@ -65,6 +65,7 @@ type Node interface {
 	Send(Node, types.Amount) (string, error)
 	GetName() string
 	GetWalletBalance() (types.Amount, error)
+	GetConnectionDetails() ([]ConnectionDetails, error)
 }
 
 func (n *SLNetwork) CheckDependencies() error {
