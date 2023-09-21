@@ -1,0 +1,6 @@
+extends: default
+
+ignore: |
+  templates/
+  helmfiles/
+  *.example.yaml
