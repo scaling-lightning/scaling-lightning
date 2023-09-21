@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	sl "github.com/scaling-lightning/scaling-lightning/pkg/network"
@@ -32,30 +33,33 @@ func TestMain(t *testing.T) {
 	assert.NoError(err)
 
 	assert.NoError(err)
-	defer network.Stop()
+	defer func() {
+		err = network.Stop()
+		assert.NoError(err)
+	}()
 
 	// this one will take a little while as the network is starting up
 	err = tools.Retry(func() error {
 		_, err := bitcoind.Send(cln1, types.NewAmountSats(1_000_000))
-		return err
+		return errors.Wrap(err, "Sending million sats to cln1")
 	}, time.Second*15, time.Minute*2)
 	assert.NoError(err)
 
 	err = tools.Retry(func() error {
-		return cln1.ConnectPeer(cln2)
+		return errors.Wrap(cln1.ConnectPeer(cln2), "Connecting cln1 to cln2")
 	}, time.Second*15, time.Minute*3)
 	assert.NoError(err)
 
 	err = tools.Retry(func() error {
 		_, err := cln1.OpenChannel(cln2, types.NewAmountSats(40_001))
-		return err
+		return errors.Wrap(err, "Opening channel from cln1 to cln2")
 	}, time.Second*15, time.Minute*3)
 	assert.NoError(err)
 
 	err = tools.Retry(func() error {
 		balance, err := cln1.GetWalletBalance()
 		if err != nil {
-			return err
+			return errors.Wrap(err, "Getting cln1 balance")
 		}
 		log.Info().Msgf("cln1 balance: %d", balance.AsSats())
 		return nil
@@ -65,7 +69,7 @@ func TestMain(t *testing.T) {
 	err = tools.Retry(func() error {
 		connectionDetails, err := cln2.GetConnectionDetails()
 		if err != nil {
-			return err
+			return errors.Wrap(err, "Getting cln2 connection details")
 		}
 		log.Info().Msgf("cln2 connection host: %v", connectionDetails[0].Host)
 		log.Info().Msgf("cln2 connection host: %d", connectionDetails[0].Port)
@@ -76,7 +80,7 @@ func TestMain(t *testing.T) {
 	err = tools.Retry(func() error {
 		connectionFiles, err := cln2.GetConnectionFiles()
 		if err != nil {
-			return err
+			return errors.Wrap(err, "Getting cln2 connection files")
 		}
 		log.Info().Msgf("cln2 client cert size : %v", len(connectionFiles.CLN.ClientCert))
 		return nil
