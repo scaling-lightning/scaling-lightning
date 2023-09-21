@@ -1,10 +1,12 @@
+inpackage: true
 with-expecter: true
 packages:
-    github.com/your-org/your-go-project:
-        # place your package-specific config here
-        config:
-        interfaces:
-            # select the interfaces you want mocked
-            Foo:
-                # Modify package-level config for this specific interface (if applicable)
-                config:
+  github.com/scaling-lightning/scaling-lightning/pkg/network:
+    config:
+      dir: "mocks/"
+      outpkg: mocks
+      exported: true
+    interfaces:
+      SLNetworkInterface:
+      LightningNodeInterface:
+      Node:
