@@ -67,8 +67,8 @@ func TestMain(t *testing.T) {
 		if err != nil {
 			return err
 		}
-		log.Info().Msgf("cln2 connection host: %v", connectionDetails.Host)
-		log.Info().Msgf("cln2 connection host: %d", connectionDetails.Port)
+		log.Info().Msgf("cln2 connection host: %v", connectionDetails[0].Host)
+		log.Info().Msgf("cln2 connection host: %d", connectionDetails[0].Port)
 		return nil
 	}, time.Second*15, time.Minute*2)
 
