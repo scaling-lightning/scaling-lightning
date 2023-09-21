@@ -1,3 +1,4 @@
+---
 linters:
   # Disable all linters.
   # Default: false
@@ -32,11 +33,13 @@ linters:
 #         - wrapcheck
 linters-settings:
   wrapcheck:
-    # Check github https://github.com/tomarrell/wrapcheck/issues/43 and then should be able to remove this
+    # Check github https://github.com/tomarrell/wrapcheck/issues/43
+    # and then should be able to remove this
     # An array of strings that specify substrings of signatures to ignore.
     # If this set, it will override the default set of ignored signatures.
-    # See https://github.com/tomarrell/wrapcheck#configuration for more information.
-    # Default: [".Errorf(", "errors.New(", "errors.Unwrap(", ".Wrap(", ".Wrapf(", ".WithMessage(", ".WithMessagef(", ".WithStack("]
+    # See https://github.com/tomarrell/wrapcheck#configuration for more info.
+    # Default: [".Errorf(", "errors.New(", "errors.Unwrap
+    # (", ".Wrap(", ".Wrapf(", ".WithMessage(", ".WithMessagef(", ".WithStack("]
     ignoreSigs:
       - .Errorf(
       - errors.New(
