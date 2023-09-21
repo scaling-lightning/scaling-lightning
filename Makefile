@@ -45,6 +45,6 @@ build-bitcoind-client:
 	docker build -t bitcoind-client:latest -f clients/bitcoind/Dockerfile .
 
 generate-mocks:
-	go generate ./...
+	mockery
 
 .PHONY: lint test generate-mocks protoc protoc-std-common protoc-std-bitcoin protoc-std-lightning protoc-cln build-cln-client build-lnd-client build-bitcoind-client
