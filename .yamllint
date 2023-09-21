@@ -4,3 +4,7 @@ ignore: |
   templates/
   helmfiles/
   *.example.yaml
+
+rules:
+  document-start: disable
+  line-length: disable
