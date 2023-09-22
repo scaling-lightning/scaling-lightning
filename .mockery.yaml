@@ -1,12 +1,12 @@
-inpackage: true
+# testonly: true # try again in future
 with-expecter: true
 packages:
   github.com/scaling-lightning/scaling-lightning/pkg/network:
     config:
-      dir: "mocks/"
-      outpkg: mocks
-      exported: true
+      outpkg: "mocks"
+      dir: "pkg/network/mocks/"
     interfaces:
       SLNetworkInterface:
-      LightningNodeInterface:
-      Node:
+        config:
+          # replace-type:
+          #   - github.com/scaling-lightning/scaling-lightning/pkg/network.Node=github.com/scaling-lightning/scaling-lightning/pkg/network/mocks.MockNode
