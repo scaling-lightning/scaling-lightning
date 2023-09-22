@@ -1,4 +1,4 @@
-package network
+package kube
 
 import (
 	"encoding/json"
@@ -9,7 +9,12 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func kubeCP(kubeconfig string, source string, destination string) error {
+const (
+	mainNamespace    = "sl"
+	traefikNamespace = "sl-traefik"
+)
+
+func KubeCP(kubeconfig string, source string, destination string) error {
 
 	//on windows remove the C: from the path as kubeCP doesn't support a path with ":"
 	if strings.HasPrefix(strings.ToLower(source), "c:") {
@@ -58,13 +63,13 @@ type endpointsData struct {
 type endpointMode int
 
 const (
-	modeHTTP endpointMode = iota
-	modeTCP
+	ModeHTTP endpointMode = iota
+	ModeTCP
 )
 
-func getEndpointForNode(kubeconfig string, ingressName string, mode endpointMode) (uint16, error) {
+func GetEndpointForNode(kubeconfig string, ingressName string, mode endpointMode) (uint16, error) {
 	crd := "ingressroutetcps.traefik.containo.us"
-	if mode == modeHTTP {
+	if mode == ModeHTTP {
 		crd = "ingressroutes.traefik.io"
 	}
 

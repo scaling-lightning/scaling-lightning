@@ -1,4 +1,4 @@
-package network
+package lightningnode
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
+	"github.com/scaling-lightning/scaling-lightning/pkg/kube"
 	stdcommonclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/common"
 	stdlightningclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
 	basictypes "github.com/scaling-lightning/scaling-lightning/pkg/types"
@@ -22,31 +23,6 @@ const (
 	LDK
 	Eclair
 )
-
-//go:generate mockery --name LightningNodeInterface --exported
-type LightningNodeInterface interface {
-	GetName() string
-	Send(to Node, amount basictypes.Amount) (string, error)
-	SendToAddress(address string, amount basictypes.Amount) (string, error)
-	GetNewAddress() (string, error)
-	GetPubKey() (basictypes.PubKey, error)
-	GetWalletBalance() (basictypes.Amount, error)
-	ConnectPeer(to Node) error
-	OpenChannel(to *LightningNode, localAmt basictypes.Amount) (basictypes.ChannelPoint, error)
-	GetConnectionFiles() (*ConnectionFiles, error)
-	WriteAuthFilesToDirectory(dir string) error
-	GetConnectionDetails() (ConnectionDetails, error)
-	CreateInvoice(amountSats uint64) (string, error)
-	PayInvoice(invoice string) (string, error)
-	ChannelBalance() (basictypes.Amount, error)
-}
-
-type LightningNode struct {
-	Name        string
-	BitcoinNode *BitcoinNode
-	SLNetwork   *SLNetwork
-	Impl        NodeImpl
-}
 
 type ConnectionDetails struct {
 	Name string
@@ -65,40 +41,34 @@ type LNDConnectionFiles struct {
 }
 
 type CLNConnectionFiles struct {
-	LightningNode
 	ClientCert []byte
 	ClientKey  []byte
 	CACert     []byte
 }
 
-func (n *LightningNode) GetName() string {
-	return n.Name
+//go:generate mockery --name LightningNodeInterface --exported
+type LightningNodeInterface interface {
+	GetName() string
+	SendToAddress(address string, amount basictypes.Amount) (string, error)
+	GetNewAddress() (string, error)
+	GetPubKey() (basictypes.PubKey, error)
+	GetWalletBalance() (basictypes.Amount, error)
+	ConnectPeer(toPubkey string) error
+	OpenChannel(to *LightningNode, localAmt basictypes.Amount) (basictypes.ChannelPoint, error)
+	WriteAuthFilesToDirectory(dir string) error
+	GetConnectionDetails() (ConnectionDetails, error)
+	CreateInvoice(amountSats uint64) (string, error)
+	PayInvoice(invoice string) (string, error)
+	ChannelBalance() (basictypes.Amount, error)
 }
 
-func (n *LightningNode) Send(to Node, amount basictypes.Amount) (string, error) {
-	log.Debug().Msgf("Sending %v from %v to %v", amount, n.Name, to)
+type LightningNode struct {
+	Name        string
+	Impl        NodeImpl
+}
 
-	var toNode Node
-	toNode, err := n.SLNetwork.GetNode(to.GetName())
-	if err != nil {
-		return "", errors.Wrapf(err, "Looking up lightning node %v", to.GetName())
-	}
-	address, err := toNode.GetNewAddress()
-	if err != nil {
-		return "", errors.Wrapf(err, "Getting new address for %v", to.GetName())
-	}
-
-	txid, err := n.SendToAddress(address, amount)
-	if err != nil {
-		return "", errors.Wrapf(err, "Sending %v from %v to %v", amount, n.Name, to.GetName())
-	}
-
-	_, err = n.BitcoinNode.Generate(50)
-	if err != nil {
-		return "", errors.Wrapf(err, "Generating blocks for %v", "bitcoind")
-	}
-
-	return txid, nil
+func (n *LightningNode) GetName() string {
+	return n.Name
 }
 
 func (n *LightningNode) SendToAddress(
@@ -321,7 +291,7 @@ func (n *LightningNode) WriteAuthFilesToDirectory(dir string) error {
 	network := n.SLNetwork.Network.String()
 	switch n.Impl {
 	case LND:
-		err := kubeCP(
+		err := kube.KubeCP(
 			n.SLNetwork.kubeConfig,
 			fmt.Sprintf("%v-0:root/.lnd/tls.cert", n.Name),
 			path.Join(dir, "tls.cert"),
@@ -329,7 +299,7 @@ func (n *LightningNode) WriteAuthFilesToDirectory(dir string) error {
 		if err != nil {
 			return errors.Wrap(err, "KubeCP LND's tls.cert")
 		}
-		err = kubeCP(
+		err = kube.KubeCP(
 			n.SLNetwork.kubeConfig,
 			fmt.Sprintf("%v-0:root/.lnd/data/chain/bitcoin/%v/admin.macaroon", n.Name, network),
 			path.Join(dir, "admin.macaroon"),
@@ -338,7 +308,7 @@ func (n *LightningNode) WriteAuthFilesToDirectory(dir string) error {
 			return errors.Wrap(err, "KubeCP LND's admin.macaroon")
 		}
 	case CLN:
-		err := kubeCP(
+		err := kube.KubeCP(
 			n.SLNetwork.kubeConfig,
 			fmt.Sprintf("%v-0:root/.lightning/%v/client.pem", n.Name, network),
 			path.Join(dir, "client.pem"),
@@ -346,7 +316,7 @@ func (n *LightningNode) WriteAuthFilesToDirectory(dir string) error {
 		if err != nil {
 			return errors.Wrap(err, "KubeCP CLN's client.pem")
 		}
-		err = kubeCP(
+		err = kube.KubeCP(
 			n.SLNetwork.kubeConfig,
 			fmt.Sprintf("%v-0:root/.lightning/%v/client-key.pem", n.Name, network),
 			path.Join(dir, "client-key.pem"),
@@ -354,7 +324,7 @@ func (n *LightningNode) WriteAuthFilesToDirectory(dir string) error {
 		if err != nil {
 			return errors.Wrap(err, "KubeCP CLN's client-key.pem")
 		}
-		err = kubeCP(
+		err = kube.KubeCP(
 			n.SLNetwork.kubeConfig,
 			fmt.Sprintf("%v-0:root/.lightning/%v/ca.pem", n.Name, network),
 			path.Join(dir, "ca.pem"),
@@ -367,7 +337,7 @@ func (n *LightningNode) WriteAuthFilesToDirectory(dir string) error {
 }
 
 func (n *LightningNode) GetConnectionDetails() ([]ConnectionDetails, error) {
-	port, err := getEndpointForNode(n.SLNetwork.kubeConfig, n.Name+"-direct-grpc", modeTCP)
+	port, err := kube.GetEndpointForNode(n.SLNetwork.kubeConfig, n.Name+"-direct-grpc", kube.ModeTCP)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Getting endpoint for %v", n.Name)
 	}

@@ -10,12 +10,16 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
+	"github.com/scaling-lightning/scaling-lightning/pkg/bitcoinnode"
+	"github.com/scaling-lightning/scaling-lightning/pkg/kube"
+	"github.com/scaling-lightning/scaling-lightning/pkg/lightningnode"
+	stdbitcoinclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/bitcoin"
+	stdcommonclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/common"
 	"github.com/scaling-lightning/scaling-lightning/pkg/tools"
 	"github.com/scaling-lightning/scaling-lightning/pkg/tools/grpc_helpers"
 	"github.com/scaling-lightning/scaling-lightning/pkg/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-
 	"gopkg.in/yaml.v3"
 )
 
@@ -54,20 +58,42 @@ func (n NetworkType) String() string {
 type SLNetworkInterface interface {
 	Start() error
 	Stop() error
-	GetBitcoinNode(name string) (*BitcoinNode, error)
-	GetLightningNode(name string) (*LightningNode, error)
+	GetBitcoinNode(name string) (*bitcoinnode.BitcoinNode, error)
+	GetLightningNode(name string) (*lightningnode.LightningNode, error)
 	GetNode(name string) (Node, error)
 	GetAllNodes() []Node
 }
 
 type SLNetwork struct {
-	BitcoinNodes   []BitcoinNode
-	LightningNodes []LightningNode
+	BitcoinNodes   []bitcoinnode.BitcoinNode
+	LightningNodes []lightningnode.LightningNode
 	kubeConfig     string
 	helmfile       string
 	ApiHost        string
 	ApiPort        uint16
 	Network        NetworkType
+}
+
+type ConnectionDetails struct {
+	Name string
+	Host string
+	Port uint16
+}
+
+type ConnectionFiles struct {
+	LND *LNDConnectionFiles
+	CLN *CLNConnectionFiles
+}
+
+type LNDConnectionFiles struct {
+	TLSCert  []byte
+	Macaroon []byte
+}
+
+type CLNConnectionFiles struct {
+	ClientCert []byte
+	ClientKey  []byte
+	CACert     []byte
 }
 
 type Node interface {
@@ -180,22 +206,22 @@ func DiscoverStartedNetwork(
 	for _, release := range helmListOutput {
 		switch {
 		case strings.Contains(release.Chart, "bitcoin"):
-			bitcoinNode := BitcoinNode{Name: release.Name, SLNetwork: &slnetwork}
+			bitcoinNode := bitcoinnode.BitcoinNode{Name: release.Name}
 			slnetwork.BitcoinNodes = append(slnetwork.BitcoinNodes, bitcoinNode)
 		case strings.Contains(release.Chart, "lnd"):
-			lightningNode := LightningNode{
+			lightningNode := lightningnode.LightningNode{
 				Name:        release.Name,
 				SLNetwork:   &slnetwork,
-				BitcoinNode: &BitcoinNode{Name: "bitcoind", SLNetwork: &slnetwork},
-				Impl:        LND,
+				BitcoinNode: &bitcoinnode.BitcoinNode{Name: "bitcoind"},
+				Impl:        lightningnode.LND,
 			}
 			slnetwork.LightningNodes = append(slnetwork.LightningNodes, lightningNode)
 		case strings.Contains(release.Chart, "cln"):
-			lightningNode := LightningNode{
+			lightningNode := lightningnode.LightningNode{
 				Name:        release.Name,
 				SLNetwork:   &slnetwork,
-				BitcoinNode: &BitcoinNode{Name: "bitcoind", SLNetwork: &slnetwork},
-				Impl:        CLN,
+				BitcoinNode: &bitcoinnode.BitcoinNode{Name: "bitcoind"},
+				Impl:        lightningnode.CLN,
 			}
 			slnetwork.LightningNodes = append(slnetwork.LightningNodes, lightningNode)
 		}
@@ -344,7 +370,7 @@ func (n *SLNetwork) Stop() error {
 	return nil
 }
 
-func (n *SLNetwork) GetBitcoinNode(name string) (*BitcoinNode, error) {
+func (n *SLNetwork) GetBitcoinNode(name string) (*bitcoinnode.BitcoinNode, error) {
 	for _, node := range n.BitcoinNodes {
 		if node.Name == name {
 			return &node, nil
@@ -353,7 +379,7 @@ func (n *SLNetwork) GetBitcoinNode(name string) (*BitcoinNode, error) {
 	return nil, errors.New("Bitcoin node not found")
 }
 
-func (n *SLNetwork) GetLightningNode(name string) (*LightningNode, error) {
+func (n *SLNetwork) GetLightningNode(name string) (*lightningnode.LightningNode, error) {
 	for _, node := range n.LightningNodes {
 		if node.Name == name {
 			return &node, nil
@@ -362,32 +388,32 @@ func (n *SLNetwork) GetLightningNode(name string) (*LightningNode, error) {
 	return nil, errors.New("Lightning node not found")
 }
 
-func (n *SLNetwork) GetNode(name string) (Node, error) {
-	var node Node
-	node, err := n.GetLightningNode(name)
-	if err != nil {
-		node, err = n.GetBitcoinNode(name)
-		if err != nil {
-			return nil, errors.Wrapf(err, "Looking up node %v", name)
-		}
-	}
-	if node.GetName() != name {
-		return nil, errors.New("Node not found")
-	}
+// func (n *SLNetwork) GetNode(name string) (Node, error) {
+// 	var node Node
+// 	node, err := n.GetLightningNode(name)
+// 	if err != nil {
+// 		node, err = n.GetBitcoinNode(name)
+// 		if err != nil {
+// 			return nil, errors.Wrapf(err, "Looking up node %v", name)
+// 		}
+// 	}
+// 	if node.GetName() != name {
+// 		return nil, errors.New("Node not found")
+// 	}
 
-	return node, nil
-}
+// 	return node, nil
+// }
 
-func (n *SLNetwork) GetAllNodes() []Node {
-	nodes := []Node{}
-	for i := range n.BitcoinNodes {
-		nodes = append(nodes, &n.BitcoinNodes[i])
-	}
-	for i := range n.LightningNodes {
-		nodes = append(nodes, &n.LightningNodes[i])
-	}
-	return nodes
-}
+// func (n *SLNetwork) GetAllNodes() []Node {
+// 	nodes := []Node{}
+// 	for i := range n.BitcoinNodes {
+// 		nodes = append(nodes, &n.BitcoinNodes[i])
+// 	}
+// 	for i := range n.LightningNodes {
+// 		nodes = append(nodes, &n.LightningNodes[i])
+// 	}
+// 	return nodes
+// }
 
 type helmFile struct {
 	Releases []struct {
@@ -398,7 +424,7 @@ type helmFile struct {
 
 func parseHelmfileForNodes(
 	slnetwork *SLNetwork,
-) (lightningNodes []LightningNode, bitcoinNodes []BitcoinNode, err error) {
+) (lightningNodes []lightningnode.LightningNode, bitcoinNodes []bitcoinnode.BitcoinNode, err error) {
 	bytes, err := os.ReadFile(slnetwork.helmfile)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "OS Reading helmfile")
@@ -414,35 +440,187 @@ func parseHelmfileForNodes(
 		if strings.Contains(release.Chart, "lnd") {
 			lightningNodes = append(
 				lightningNodes,
-				LightningNode{
+				lightningnode.LightningNode{
 					Name:        release.Name,
 					SLNetwork:   slnetwork,
-					Impl:        LND,
-					BitcoinNode: &BitcoinNode{Name: "bitcoind", SLNetwork: slnetwork},
+					Impl:        lightningnode.LND,
+					BitcoinNode: &bitcoinnode.BitcoinNode{Name: "bitcoind"},
 				},
 			)
 		}
 		if strings.Contains(release.Chart, "cln") {
 			lightningNodes = append(
 				lightningNodes,
-				LightningNode{
+				lightningnode.LightningNode{
 					Name:        release.Name,
 					SLNetwork:   slnetwork,
-					Impl:        CLN,
-					BitcoinNode: &BitcoinNode{Name: "bitcoind", SLNetwork: slnetwork},
+					Impl:        lightningnode.CLN,
+					BitcoinNode: &bitcoinnode.BitcoinNode{Name: "bitcoind"},
 				},
 			)
 		}
 		if strings.Contains(release.Chart, "bitcoind") {
 			bitcoinNodes = append(
 				bitcoinNodes,
-				BitcoinNode{Name: release.Name, SLNetwork: slnetwork},
+				bitcoinnode.BitcoinNode{Name: release.Name},
 			)
 		}
 	}
 
 	return lightningNodes, bitcoinNodes, nil
+}
 
+func (n *SLNetwork) GetWalletBalance(nodeName string) (types.Amount, error) {
+	conn, err := connectToGRPCServer(n.ApiHost, n.ApiPort, nodeName)
+	if err != nil {
+		return types.NewAmountSats(0), errors.Wrapf(err, "Connecting to gRPC for %v's client", nodeName)
+	}
+	defer conn.Close()
+	client := stdcommonclient.NewCommonClient(conn)
+
+	for _, node := range n.BitcoinNodes {
+		if node.Name != nodeName {
+			continue
+		}
+		return node.GetWalletBalance(client)
+	}
+	for _, node := range n.LightningNodes {
+		if node.Name != nodeName {
+			continue
+		}
+		return node.GetWalletBalance(client)
+	}
+	return types.NewAmountSats(0), errors.New("Node not found")
+}
+
+func (n *SLNetwork) Generate(nodeName string) (hashes []string, err error) {
+	conn, err := connectToGRPCServer(n.ApiHost, n.ApiPort, nodeName)
+	if err != nil {
+		return []string{}, errors.Wrapf(err, "Connecting to gRPC for %v's client", nodeName)
+	}
+	defer conn.Close()
+
+	client := stdbitcoinclient.NewBitcoinClient(conn)
+	commonClient := stdcommonclient.NewCommonClient(conn)
+
+	for _, node := range n.BitcoinNodes {
+		if node.Name != nodeName {
+			continue
+		}
+		hashes, err := node.Generate(client, commonClient, 50)
+		if err != nil {
+			log.Error().Err(err).Msgf("Generating blocks for %v", node.Name)
+		}
+		return hashes, nil
+	}
+	return []string{}, errors.New("Node not found")
+}
+
+func (n *SLNetwork) GetNewAddress(nodeName string) (string, error) {
+	conn, err := connectToGRPCServer(n.ApiHost, n.ApiPort, nodeName)
+	if err != nil {
+		return "", errors.Wrapf(err, "Connecting to gRPC for %v's client", nodeName)
+	}
+	defer conn.Close()
+	client := stdcommonclient.NewCommonClient(conn)
+
+	for _, node := range n.BitcoinNodes {
+		if node.Name != nodeName {
+			continue
+		}
+		return node.GetNewAddress(client)
+	}
+	for _, node := range n.LightningNodes {
+		if node.Name != nodeName {
+			continue
+		}
+		return node.GetNewAddress(client)
+	}
+	return "", errors.New("Node not found")
+}
+
+func (n *SLNetwork) GetConnectionDetails(nodeName string) ([]ConnectionDetails, error) {
+
+	for _, node := range n.BitcoinNodes {
+		if node.Name != nodeName {
+			continue
+		}
+		rpcPort, err := kube.GetEndpointForNode(n.kubeConfig, nodeName+"-direct-rpc", kube.ModeHTTP)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Getting endpoint for %v", nodeName)
+		}
+		zmqBlockPort, err := kube.GetEndpointForNode(n.kubeConfig, nodeName+"-direct-zmq-pub-block", kube.ModeTCP)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Getting endpoint for %v", nodeName)
+		}
+		zmqTxPort, err := kube.GetEndpointForNode(n.kubeConfig, nodeName+"-direct-zmq-pub-tx", kube.ModeTCP)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Getting endpoint for %v", nodeName)
+		}
+		return []ConnectionDetails{
+			{Name: "rpc", Host: n.ApiHost, Port: rpcPort},
+			{Name: "zmq blocks", Host: n.ApiHost, Port: zmqBlockPort},
+			{Name: "zmp txs", Host: n.ApiHost, Port: zmqTxPort},
+		}, err
+	}
+
+	for _, node := range n.LightningNodes {
+		if node.Name != nodeName {
+			continue
+		}
+		//TODO: return lightning node connection details!! Not optional!!
+	}
+
+	return nil, errors.New("Node not found")
+}
+
+func (n *SLNetwork) Send(fromNodeName string, toNodeName string, amount types.Amount) (string, error) {
+	log.Debug().Msgf("Sending %v from %v to %v", amount, fromNodeName, toNodeName)
+
+	address, err := n.GetNewAddress(toNodeName)
+	if err != nil {
+		return "", errors.Wrapf(err, "Getting new address for %v", toNodeName)
+	}
+
+	conn, err := connectToGRPCServer(n.ApiHost, n.ApiPort, fromNodeName)
+	if err != nil {
+		return "", errors.Wrapf(err, "Connecting to gRPC for %v's client", fromNodeName)
+	}
+	defer conn.Close()
+
+	client := stdcommonclient.NewCommonClient(conn)
+	txid := ""
+	for _, node := range n.BitcoinNodes {
+		if node.Name != fromNodeName {
+			continue
+		}
+		txid, err = node.SendToAddress(client, address, amount)
+		if err != nil {
+			return "", errors.Wrapf(err, "Sending to addres")
+		}
+	}
+
+	if txid == "" {
+		for _, node := range n.LightningNodes {
+			if node.Name != fromNodeName {
+				continue
+			}
+			txid, err = node.SendToAddress(client, address, amount)
+			if err != nil {
+				return "", errors.Wrapf(err, "Sending to addres")
+			}
+		}
+	}
+
+	if txid != "" {
+		// TODO: Look this up
+		_, err = n.Generate("bitcoind")
+		if err != nil {
+			return "", errors.Wrapf(err, "Generating blocks for %v", "bitcoind")
+		}
+	}
+
+	return "", errors.New("Node not found")
 }
 
 func connectToGRPCServer(host string, port uint16, nodeName string) (*grpc.ClientConn, error) {

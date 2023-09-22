@@ -1,4 +1,4 @@
-package network
+package initialstate
 
 import (
 	"github.com/cockroachdb/errors"
@@ -31,7 +31,7 @@ func (is *initialState) parseYAML(yamlBytes []byte) error {
 }
 
 // function to run through commands and execute them on the network
-func (is *initialState) ApplyToNetwork(network *SLNetwork) error {
+func (is *initialState) ApplyToNetwork(network string) error {
 	for _, command := range is.commands {
 		for commandName, args := range command {
 			switch commandName {
