@@ -14,6 +14,7 @@ import (
 	"github.com/scaling-lightning/scaling-lightning/pkg/lightningnode"
 	stdbitcoinclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/bitcoin"
 	stdcommonclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/common"
+	stdlightningclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
 	"github.com/scaling-lightning/scaling-lightning/pkg/tools"
 	"github.com/scaling-lightning/scaling-lightning/pkg/tools/grpc_helpers"
 	"github.com/scaling-lightning/scaling-lightning/pkg/types"
@@ -614,4 +615,26 @@ func connectToGRPCServer(host string, port uint16, nodeName string) (*grpc.Clien
 		return nil, errors.Wrap(err, "Connecting to gRPC")
 	}
 	return conn, nil
+}
+
+func (n *SLNetwork) GetPubKey(nodeName string) (types.PubKey, error) {
+	conn, err := connectToGRPCServer(n.ApiHost, n.ApiPort, nodeName)
+	if err != nil {
+		return types.PubKey{}, errors.Wrapf(err, "Connecting to gRPC for %v's client", nodeName)
+	}
+	defer conn.Close()
+
+	client := stdlightningclient.NewLightningClient(conn)
+
+	for _, node := range n.LightningNodes {
+		if node.Name != nodeName {
+			continue
+		}
+		pubkey, err := node.GetPubKey(client)
+		if err != nil {
+			return types.PubKey{}, errors.Wrapf(err, "Getting pubkey for %v", node.Name)
+		}
+		return pubkey, nil
+	}
+	return types.PubKey{}, errors.New("Node not found")
 }
