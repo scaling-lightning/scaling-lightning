@@ -210,18 +210,14 @@ func DiscoverStartedNetwork(
 			slnetwork.BitcoinNodes = append(slnetwork.BitcoinNodes, bitcoinNode)
 		case strings.Contains(release.Chart, "lnd"):
 			lightningNode := lightningnode.LightningNode{
-				Name:        release.Name,
-				SLNetwork:   &slnetwork,
-				BitcoinNode: &bitcoinnode.BitcoinNode{Name: "bitcoind"},
-				Impl:        lightningnode.LND,
+				Name: release.Name,
+				Impl: lightningnode.LND,
 			}
 			slnetwork.LightningNodes = append(slnetwork.LightningNodes, lightningNode)
 		case strings.Contains(release.Chart, "cln"):
 			lightningNode := lightningnode.LightningNode{
-				Name:        release.Name,
-				SLNetwork:   &slnetwork,
-				BitcoinNode: &bitcoinnode.BitcoinNode{Name: "bitcoind"},
-				Impl:        lightningnode.CLN,
+				Name: release.Name,
+				Impl: lightningnode.CLN,
 			}
 			slnetwork.LightningNodes = append(slnetwork.LightningNodes, lightningNode)
 		}
@@ -441,10 +437,8 @@ func parseHelmfileForNodes(
 			lightningNodes = append(
 				lightningNodes,
 				lightningnode.LightningNode{
-					Name:        release.Name,
-					SLNetwork:   slnetwork,
-					Impl:        lightningnode.LND,
-					BitcoinNode: &bitcoinnode.BitcoinNode{Name: "bitcoind"},
+					Name: release.Name,
+					Impl: lightningnode.LND,
 				},
 			)
 		}
@@ -452,10 +446,8 @@ func parseHelmfileForNodes(
 			lightningNodes = append(
 				lightningNodes,
 				lightningnode.LightningNode{
-					Name:        release.Name,
-					SLNetwork:   slnetwork,
-					Impl:        lightningnode.CLN,
-					BitcoinNode: &bitcoinnode.BitcoinNode{Name: "bitcoind"},
+					Name: release.Name,
+					Impl: lightningnode.CLN,
 				},
 			)
 		}
@@ -482,13 +474,21 @@ func (n *SLNetwork) GetWalletBalance(nodeName string) (types.Amount, error) {
 		if node.Name != nodeName {
 			continue
 		}
-		return node.GetWalletBalance(client)
+		walletBalance, err := node.GetWalletBalance(client)
+		if err != nil {
+			return types.NewAmountSats(0), errors.Wrapf(err, "Getting wallet balance for %v", node.Name)
+		}
+		return walletBalance, nil
 	}
 	for _, node := range n.LightningNodes {
 		if node.Name != nodeName {
 			continue
 		}
-		return node.GetWalletBalance(client)
+		walletBalance, err := node.GetWalletBalance(client)
+		if err != nil {
+			return types.NewAmountSats(0), errors.Wrapf(err, "Getting wallet balance for %v", node.Name)
+		}
+		return walletBalance, nil
 	}
 	return types.NewAmountSats(0), errors.New("Node not found")
 }
@@ -528,13 +528,21 @@ func (n *SLNetwork) GetNewAddress(nodeName string) (string, error) {
 		if node.Name != nodeName {
 			continue
 		}
-		return node.GetNewAddress(client)
+		newAddress, err := node.GetNewAddress(client)
+		if err != nil {
+			return "", errors.Wrapf(err, "Getting new address for %v", node.Name)
+		}
+		return newAddress, nil
 	}
 	for _, node := range n.LightningNodes {
 		if node.Name != nodeName {
 			continue
 		}
-		return node.GetNewAddress(client)
+		newAddress, err := node.GetNewAddress(client)
+		if err != nil {
+			return "", errors.Wrapf(err, "Getting new address for %v", node.Name)
+		}
+		return newAddress, nil
 	}
 	return "", errors.New("Node not found")
 }
@@ -561,13 +569,20 @@ func (n *SLNetwork) GetConnectionDetails(nodeName string) ([]ConnectionDetails, 
 			{Name: "rpc", Host: n.ApiHost, Port: rpcPort},
 			{Name: "zmq blocks", Host: n.ApiHost, Port: zmqBlockPort},
 			{Name: "zmp txs", Host: n.ApiHost, Port: zmqTxPort},
-		}, err
+		}, nil
 	}
 
 	for _, node := range n.LightningNodes {
 		if node.Name != nodeName {
 			continue
 		}
+		port, err := node.GetConnectionPort(n.kubeConfig)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Getting grpc endpoint for %v", nodeName)
+		}
+		return []ConnectionDetails{
+			{Name: "grpc", Host: n.ApiHost, Port: port},
+		}, nil
 		//TODO: return lightning node connection details!! Not optional!!
 	}
 

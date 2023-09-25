@@ -122,74 +122,34 @@ func (n *LightningNode) GetWalletBalance(client stdcommonclient.CommonClient) (b
 	return basictypes.NewAmountSats(walletBalance.BalanceSats), nil
 }
 
-func (n *LightningNode) ConnectPeer(to Node) error {
-	log.Debug().Msgf("Connecting %v to %v", n.Name, to)
-	conn, err := connectToGRPCServer(n.SLNetwork.ApiHost, n.SLNetwork.ApiPort, n.Name)
-	if err != nil {
-		return errors.Wrapf(err, "Connecting to gRPC for %v's client", n.Name)
-	}
-	defer conn.Close()
-	client := stdlightningclient.NewLightningClient(conn)
-
-	toNode, err := n.SLNetwork.GetLightningNode(to.GetName())
-	if err != nil {
-		return errors.Wrapf(err, "Looking up lightning node for %v", to.GetName())
-	}
-	toPubKey, err := toNode.GetPubKey()
-	if err != nil {
-		return errors.Wrapf(err, "Getting pubkey for %v", to)
-	}
-
-	_, err = client.ConnectPeer(
+func (n *LightningNode) ConnectPeer(client stdlightningclient.LightningClient, pubkey string, nodeName string) error {
+	_, err := client.ConnectPeer(
 		context.Background(),
 		&stdlightningclient.ConnectPeerRequest{
-			PubKey: toPubKey.AsBytes(),
-			Host:   to.GetName(),
+			PubKey: []byte(pubkey),
+			Host:   nodeName,
 			Port:   9735,
 		},
 	)
 	if err != nil {
-		return errors.Wrapf(err, "Connecting %v to %v", n.Name, to)
+		return errors.Wrapf(err, "Connecting %v to %v", n.Name, pubkey)
 	}
 
 	return nil
 }
 
 func (n *LightningNode) OpenChannel(
-	to *LightningNode,
+	client stdlightningclient.LightningClient,
+	pubkey string,
 	localAmt basictypes.Amount,
 ) (basictypes.ChannelPoint, error) {
 	log.Debug().
-		Msgf("Opening channel from %v to %v for %d sats", n.Name, to.GetName(), localAmt.AsSats())
-
-	conn, err := connectToGRPCServer(n.SLNetwork.ApiHost, n.SLNetwork.ApiPort, n.Name)
-	if err != nil {
-		return basictypes.ChannelPoint{}, errors.Wrapf(
-			err,
-			"Connecting to gRPC for %v's client",
-			n.Name,
-		)
-	}
-	defer conn.Close()
-	client := stdlightningclient.NewLightningClient(conn)
-
-	toNode, err := n.SLNetwork.GetLightningNode(to.GetName())
-	if err != nil {
-		return basictypes.ChannelPoint{}, errors.Wrapf(
-			err,
-			"Looking up lightning node for %v",
-			to.GetName(),
-		)
-	}
-	toPubKey, err := toNode.GetPubKey()
-	if err != nil {
-		return basictypes.ChannelPoint{}, errors.Wrapf(err, "Getting pubkey for %v", to.GetName())
-	}
+		Msgf("Opening channel from %v to %v for %d sats", n.Name, pubkey, localAmt.AsSats())
 
 	openChannelRes, err := client.OpenChannel(
 		context.Background(),
 		&stdlightningclient.OpenChannelRequest{
-			PubKey:       toPubKey.AsBytes(),
+			PubKey:       []byte(pubkey),
 			LocalAmtSats: localAmt.AsSats(),
 		},
 	)
@@ -198,13 +158,9 @@ func (n *LightningNode) OpenChannel(
 			err,
 			"Opening channel from %v to %v for %d sats",
 			n.Name,
-			to.GetName(),
+			pubkey,
 			localAmt.AsSats(),
 		)
-	}
-	_, err = n.BitcoinNode.Generate(50)
-	if err != nil {
-		return basictypes.ChannelPoint{}, errors.Wrapf(err, "Generating blocks for %v", "bitcoind")
 	}
 	return basictypes.ChannelPoint{
 		FundingTx:   basictypes.NewTransactionFromByte(openChannelRes.FundingTxId),
@@ -212,14 +168,14 @@ func (n *LightningNode) OpenChannel(
 	}, nil
 }
 
-func (n *LightningNode) GetConnectionFiles() (*ConnectionFiles, error) {
+func (n *LightningNode) GetConnectionFiles(network string, kubeConfig string) (*ConnectionFiles, error) {
 	dir, err := os.MkdirTemp("", "slconnectionfiles")
 	if err != nil {
 		return nil, errors.Wrap(err, "Creating temp dir")
 	}
 	defer os.RemoveAll(dir)
 
-	err = n.WriteAuthFilesToDirectory(dir)
+	err = n.WriteAuthFilesToDirectory(network, kubeConfig, dir)
 	if err != nil {
 		return nil, errors.Wrap(err, "Writing auth files")
 	}
@@ -261,12 +217,11 @@ func (n *LightningNode) GetConnectionFiles() (*ConnectionFiles, error) {
 	}
 }
 
-func (n *LightningNode) WriteAuthFilesToDirectory(dir string) error {
-	network := n.SLNetwork.Network.String()
+func (n *LightningNode) WriteAuthFilesToDirectory(network string, kubeConfig string, dir string) error {
 	switch n.Impl {
 	case LND:
 		err := kube.KubeCP(
-			n.SLNetwork.kubeConfig,
+			kubeConfig,
 			fmt.Sprintf("%v-0:root/.lnd/tls.cert", n.Name),
 			path.Join(dir, "tls.cert"),
 		)
@@ -274,7 +229,7 @@ func (n *LightningNode) WriteAuthFilesToDirectory(dir string) error {
 			return errors.Wrap(err, "KubeCP LND's tls.cert")
 		}
 		err = kube.KubeCP(
-			n.SLNetwork.kubeConfig,
+			kubeConfig,
 			fmt.Sprintf("%v-0:root/.lnd/data/chain/bitcoin/%v/admin.macaroon", n.Name, network),
 			path.Join(dir, "admin.macaroon"),
 		)
@@ -283,7 +238,7 @@ func (n *LightningNode) WriteAuthFilesToDirectory(dir string) error {
 		}
 	case CLN:
 		err := kube.KubeCP(
-			n.SLNetwork.kubeConfig,
+			kubeConfig,
 			fmt.Sprintf("%v-0:root/.lightning/%v/client.pem", n.Name, network),
 			path.Join(dir, "client.pem"),
 		)
@@ -291,7 +246,7 @@ func (n *LightningNode) WriteAuthFilesToDirectory(dir string) error {
 			return errors.Wrap(err, "KubeCP CLN's client.pem")
 		}
 		err = kube.KubeCP(
-			n.SLNetwork.kubeConfig,
+			kubeConfig,
 			fmt.Sprintf("%v-0:root/.lightning/%v/client-key.pem", n.Name, network),
 			path.Join(dir, "client-key.pem"),
 		)
@@ -299,7 +254,7 @@ func (n *LightningNode) WriteAuthFilesToDirectory(dir string) error {
 			return errors.Wrap(err, "KubeCP CLN's client-key.pem")
 		}
 		err = kube.KubeCP(
-			n.SLNetwork.kubeConfig,
+			kubeConfig,
 			fmt.Sprintf("%v-0:root/.lightning/%v/ca.pem", n.Name, network),
 			path.Join(dir, "ca.pem"),
 		)
@@ -310,22 +265,15 @@ func (n *LightningNode) WriteAuthFilesToDirectory(dir string) error {
 	return nil
 }
 
-func (n *LightningNode) GetConnectionDetails() ([]ConnectionDetails, error) {
-	port, err := kube.GetEndpointForNode(n.SLNetwork.kubeConfig, n.Name+"-direct-grpc", kube.ModeTCP)
+func (n *LightningNode) GetConnectionPort(kubeConfig string) (uint16, error) {
+	port, err := kube.GetEndpointForNode(kubeConfig, n.Name+"-direct-grpc", kube.ModeTCP)
 	if err != nil {
-		return nil, errors.Wrapf(err, "Getting endpoint for %v", n.Name)
+		return 0, errors.Wrapf(err, "Getting endpoint for %v", n.Name)
 	}
-	return []ConnectionDetails{{Name: "grpc", Host: n.SLNetwork.ApiHost, Port: port}}, err
+	return port, nil
 }
 
-func (n *LightningNode) CreateInvoice(amountSats uint64) (string, error) {
-	conn, err := connectToGRPCServer(n.SLNetwork.ApiHost, n.SLNetwork.ApiPort, n.Name)
-	if err != nil {
-		return "", errors.Wrapf(err, "Connecting to gRPC for %v's client", n.Name)
-	}
-	defer conn.Close()
-	client := stdlightningclient.NewLightningClient(conn)
-
+func (n *LightningNode) CreateInvoice(client stdlightningclient.LightningClient, amountSats uint64) (string, error) {
 	invoiceRes, err := client.CreateInvoice(
 		context.Background(),
 		&stdlightningclient.CreateInvoiceRequest{
@@ -338,14 +286,7 @@ func (n *LightningNode) CreateInvoice(amountSats uint64) (string, error) {
 	return invoiceRes.Invoice, nil
 }
 
-func (n *LightningNode) PayInvoice(invoice string) (string, error) {
-	conn, err := connectToGRPCServer(n.SLNetwork.ApiHost, n.SLNetwork.ApiPort, n.Name)
-	if err != nil {
-		return "", errors.Wrapf(err, "Connecting to gRPC for %v's client", n.Name)
-	}
-	defer conn.Close()
-	client := stdlightningclient.NewLightningClient(conn)
-
+func (n *LightningNode) PayInvoice(client stdlightningclient.LightningClient, invoice string) (string, error) {
 	payRes, err := client.PayInvoice(
 		context.Background(),
 		&stdlightningclient.PayInvoiceRequest{
@@ -360,14 +301,7 @@ func (n *LightningNode) PayInvoice(invoice string) (string, error) {
 	return preImageStr, nil
 }
 
-func (n *LightningNode) ChannelBalance() (basictypes.Amount, error) {
-	conn, err := connectToGRPCServer(n.SLNetwork.ApiHost, n.SLNetwork.ApiPort, n.Name)
-	if err != nil {
-		return basictypes.Amount{}, errors.Wrapf(err, "Connecting to gRPC for %v's client", n.Name)
-	}
-	defer conn.Close()
-	client := stdlightningclient.NewLightningClient(conn)
-
+func (n *LightningNode) ChannelBalance(client stdlightningclient.LightningClient) (basictypes.Amount, error) {
 	balanceRes, err := client.ChannelBalance(
 		context.Background(),
 		&stdlightningclient.ChannelBalanceRequest{},
