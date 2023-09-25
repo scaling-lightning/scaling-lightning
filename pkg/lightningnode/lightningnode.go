@@ -67,10 +67,6 @@ type LightningNode struct {
 	Impl NodeImpl
 }
 
-func (n *LightningNode) GetName() string {
-	return n.Name
-}
-
 func (n *LightningNode) SendToAddress(
 	client stdcommonclient.CommonClient,
 	address string,

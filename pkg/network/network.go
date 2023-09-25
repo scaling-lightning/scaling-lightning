@@ -59,8 +59,6 @@ type SLNetworkInterface interface {
 	Stop() error
 	GetBitcoinNode(name string) (*bitcoinnode.BitcoinNode, error)
 	GetLightningNode(name string) (*lightningnode.LightningNode, error)
-	GetNode(name string) (Node, error)
-	GetAllNodes() []Node
 }
 
 type SLNetwork struct {
@@ -93,14 +91,6 @@ type CLNConnectionFiles struct {
 	ClientCert []byte
 	ClientKey  []byte
 	CACert     []byte
-}
-
-type Node interface {
-	GetNewAddress() (string, error)
-	Send(Node, types.Amount) (string, error)
-	GetName() string
-	GetWalletBalance() (types.Amount, error)
-	GetConnectionDetails() ([]ConnectionDetails, error)
 }
 
 func (n *SLNetwork) CheckDependencies() error {
@@ -382,33 +372,6 @@ func (n *SLNetwork) GetLightningNode(name string) (*lightningnode.LightningNode,
 	}
 	return nil, errors.New("Lightning node not found")
 }
-
-// func (n *SLNetwork) GetNode(name string) (Node, error) {
-// 	var node Node
-// 	node, err := n.GetLightningNode(name)
-// 	if err != nil {
-// 		node, err = n.GetBitcoinNode(name)
-// 		if err != nil {
-// 			return nil, errors.Wrapf(err, "Looking up node %v", name)
-// 		}
-// 	}
-// 	if node.GetName() != name {
-// 		return nil, errors.New("Node not found")
-// 	}
-
-// 	return node, nil
-// }
-
-// func (n *SLNetwork) GetAllNodes() []Node {
-// 	nodes := []Node{}
-// 	for i := range n.BitcoinNodes {
-// 		nodes = append(nodes, &n.BitcoinNodes[i])
-// 	}
-// 	for i := range n.LightningNodes {
-// 		nodes = append(nodes, &n.LightningNodes[i])
-// 	}
-// 	return nodes
-// }
 
 type helmFile struct {
 	Releases []struct {
