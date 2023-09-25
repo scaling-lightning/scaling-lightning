@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/cockroachdb/errors"
+	"github.com/scaling-lightning/scaling-lightning/pkg/kube"
 	stdbitcoinclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/bitcoin"
 	stdcommonclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/common"
 
@@ -83,4 +84,29 @@ func (n *BitcoinNode) GetNewAddress(client stdcommonclient.CommonClient) (string
 	}
 
 	return newAddress.Address, nil
+}
+
+type ConnectionPorts struct {
+	Name string
+	Port uint16
+}
+
+func (n *BitcoinNode) GetConnectionPorts(kubeConfig string) ([]ConnectionPorts, error) {
+	rpcPort, err := kube.GetEndpointForNode(kubeConfig, n.Name+"-direct-rpc", kube.ModeHTTP)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Getting endpoint for %v", n.Name)
+	}
+	zmqBlockPort, err := kube.GetEndpointForNode(kubeConfig, n.Name+"-direct-zmq-pub-block", kube.ModeTCP)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Getting endpoint for %v", n.Name)
+	}
+	zmqTxPort, err := kube.GetEndpointForNode(kubeConfig, n.Name+"-direct-zmq-pub-tx", kube.ModeTCP)
+	if err != nil {
+		return nil, errors.Wrapf(err, "Getting endpoint for %v", n.Name)
+	}
+	return []ConnectionPorts{
+		{Name: "rpc", Port: rpcPort},
+		{Name: "zmq blocks", Port: zmqBlockPort},
+		{Name: "zmp txs", Port: zmqTxPort},
+	}, nil
 }

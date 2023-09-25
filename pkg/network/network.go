@@ -11,7 +11,6 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
 	"github.com/scaling-lightning/scaling-lightning/pkg/bitcoinnode"
-	"github.com/scaling-lightning/scaling-lightning/pkg/kube"
 	"github.com/scaling-lightning/scaling-lightning/pkg/lightningnode"
 	stdbitcoinclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/bitcoin"
 	stdcommonclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/common"
@@ -553,23 +552,22 @@ func (n *SLNetwork) GetConnectionDetails(nodeName string) ([]ConnectionDetails, 
 		if node.Name != nodeName {
 			continue
 		}
-		rpcPort, err := kube.GetEndpointForNode(n.kubeConfig, nodeName+"-direct-rpc", kube.ModeHTTP)
+		connectionPorts, err := node.GetConnectionPorts(n.kubeConfig)
 		if err != nil {
-			return nil, errors.Wrapf(err, "Getting endpoint for %v", nodeName)
+			return nil, errors.Wrapf(err, "Getting connection ports for %v", nodeName)
 		}
-		zmqBlockPort, err := kube.GetEndpointForNode(n.kubeConfig, nodeName+"-direct-zmq-pub-block", kube.ModeTCP)
-		if err != nil {
-			return nil, errors.Wrapf(err, "Getting endpoint for %v", nodeName)
+		connectionDetails := []ConnectionDetails{}
+		for _, connectionPort := range connectionPorts {
+			connectionDetails = append(
+				connectionDetails,
+				ConnectionDetails{
+					Name: connectionPort.Name,
+					Host: n.ApiHost,
+					Port: connectionPort.Port,
+				},
+			)
 		}
-		zmqTxPort, err := kube.GetEndpointForNode(n.kubeConfig, nodeName+"-direct-zmq-pub-tx", kube.ModeTCP)
-		if err != nil {
-			return nil, errors.Wrapf(err, "Getting endpoint for %v", nodeName)
-		}
-		return []ConnectionDetails{
-			{Name: "rpc", Host: n.ApiHost, Port: rpcPort},
-			{Name: "zmq blocks", Host: n.ApiHost, Port: zmqBlockPort},
-			{Name: "zmp txs", Host: n.ApiHost, Port: zmqTxPort},
-		}, nil
+		return connectionDetails, nil
 	}
 
 	for _, node := range n.LightningNodes {
@@ -583,7 +581,6 @@ func (n *SLNetwork) GetConnectionDetails(nodeName string) ([]ConnectionDetails, 
 		return []ConnectionDetails{
 			{Name: "grpc", Host: n.ApiHost, Port: port},
 		}, nil
-		//TODO: return lightning node connection details!! Not optional!!
 	}
 
 	return nil, errors.New("Node not found")
