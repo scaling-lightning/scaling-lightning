@@ -63,8 +63,8 @@ type LightningNodeInterface interface {
 }
 
 type LightningNode struct {
-	Name        string
-	Impl        NodeImpl
+	Name string
+	Impl NodeImpl
 }
 
 func (n *LightningNode) GetName() string {
@@ -72,16 +72,10 @@ func (n *LightningNode) GetName() string {
 }
 
 func (n *LightningNode) SendToAddress(
+	client stdcommonclient.CommonClient,
 	address string,
 	amount basictypes.Amount,
 ) (string, error) {
-
-	conn, err := connectToGRPCServer(n.SLNetwork.ApiHost, n.SLNetwork.ApiPort, n.Name)
-	if err != nil {
-		return "", errors.Wrapf(err, "Connecting to gRPC for %v's client", n.Name)
-	}
-	defer conn.Close()
-	client := stdcommonclient.NewCommonClient(conn)
 
 	sendRes, err := client.Send(
 		context.Background(),
@@ -96,14 +90,7 @@ func (n *LightningNode) SendToAddress(
 	return sendRes.TxId, nil
 }
 
-func (n *LightningNode) GetNewAddress() (string, error) {
-	conn, err := connectToGRPCServer(n.SLNetwork.ApiHost, n.SLNetwork.ApiPort, n.Name)
-	if err != nil {
-		return "", errors.Wrapf(err, "Connecting to gRPC for %v's client", n.Name)
-	}
-	defer conn.Close()
-	client := stdcommonclient.NewCommonClient(conn)
-
+func (n *LightningNode) GetNewAddress(client stdcommonclient.CommonClient) (string, error) {
 	newAddress, err := client.NewAddress(
 		context.Background(),
 		&stdcommonclient.NewAddressRequest{},
@@ -115,14 +102,7 @@ func (n *LightningNode) GetNewAddress() (string, error) {
 	return newAddress.Address, nil
 }
 
-func (n *LightningNode) GetPubKey() (basictypes.PubKey, error) {
-	conn, err := connectToGRPCServer(n.SLNetwork.ApiHost, n.SLNetwork.ApiPort, n.Name)
-	if err != nil {
-		return basictypes.PubKey{}, errors.Wrapf(err, "Connecting to gRPC for %v's client", n.Name)
-	}
-	defer conn.Close()
-	client := stdlightningclient.NewLightningClient(conn)
-
+func (n *LightningNode) GetPubKey(client stdlightningclient.LightningClient) (basictypes.PubKey, error) {
 	pubKeyRes, err := client.PubKey(context.Background(), &stdlightningclient.PubKeyRequest{})
 	if err != nil {
 		return basictypes.PubKey{}, errors.Wrapf(err, "Getting pubkey for %v", n.Name)
@@ -131,13 +111,7 @@ func (n *LightningNode) GetPubKey() (basictypes.PubKey, error) {
 	return basictypes.NewPubKeyFromByte(pubKeyRes.PubKey), nil
 }
 
-func (n *LightningNode) GetWalletBalance() (basictypes.Amount, error) {
-	conn, err := connectToGRPCServer(n.SLNetwork.ApiHost, n.SLNetwork.ApiPort, n.Name)
-	if err != nil {
-		return basictypes.Amount{}, errors.Wrapf(err, "Connecting to gRPC for %v's client", n.Name)
-	}
-	defer conn.Close()
-	client := stdcommonclient.NewCommonClient(conn)
+func (n *LightningNode) GetWalletBalance(client stdcommonclient.CommonClient) (basictypes.Amount, error) {
 	walletBalance, err := client.WalletBalance(
 		context.Background(),
 		&stdcommonclient.WalletBalanceRequest{},
