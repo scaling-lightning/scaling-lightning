@@ -638,3 +638,31 @@ func (n *SLNetwork) GetPubKey(nodeName string) (types.PubKey, error) {
 	}
 	return types.PubKey{}, errors.New("Node not found")
 }
+
+func (n *SLNetwork) ConnectPeer(fromNodeName string, toNodeName string) error {
+	log.Debug().Msgf("Connecting %v to %v", fromNodeName, toNodeName)
+
+	conn, err := connectToGRPCServer(n.ApiHost, n.ApiPort, fromNodeName)
+	if err != nil {
+		return errors.Wrapf(err, "Connecting to gRPC for %v's client", fromNodeName)
+	}
+	defer conn.Close()
+
+	client := stdlightningclient.NewLightningClient(conn)
+
+	toPubKey, err := n.GetPubKey(toNodeName)
+	if err != nil {
+		return errors.Wrapf(err, "Getting pubkey for peer: %v", toNodeName)
+	}
+
+	for _, node := range n.LightningNodes {
+		if node.Name != fromNodeName {
+			continue
+		}
+		err = node.ConnectPeer(client, toPubKey, toNodeName)
+		if err != nil {
+			return errors.Wrapf(err, "Connecting to %v", toNodeName)
+		}
+	}
+	return errors.New("Node not found")
+}

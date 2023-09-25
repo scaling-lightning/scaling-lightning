@@ -118,17 +118,17 @@ func (n *LightningNode) GetWalletBalance(client stdcommonclient.CommonClient) (b
 	return basictypes.NewAmountSats(walletBalance.BalanceSats), nil
 }
 
-func (n *LightningNode) ConnectPeer(client stdlightningclient.LightningClient, pubkey string, nodeName string) error {
+func (n *LightningNode) ConnectPeer(client stdlightningclient.LightningClient, pubkey basictypes.PubKey, nodeName string) error {
 	_, err := client.ConnectPeer(
 		context.Background(),
 		&stdlightningclient.ConnectPeerRequest{
-			PubKey: []byte(pubkey),
+			PubKey: pubkey.AsBytes(),
 			Host:   nodeName,
 			Port:   9735,
 		},
 	)
 	if err != nil {
-		return errors.Wrapf(err, "Connecting %v to %v", n.Name, pubkey)
+		return errors.Wrapf(err, "Connecting %v to %v", n.Name, pubkey.AsHexString())
 	}
 
 	return nil
