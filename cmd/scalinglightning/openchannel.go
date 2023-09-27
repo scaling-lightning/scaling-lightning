@@ -43,7 +43,7 @@ func init() {
 			}
 
 			fmt.Printf(
-				"Open channel command received. Txid: %v OutputIndex: %d",
+				"Open channel command received.\nTxid: %v\nOutputIndex: %d\n",
 				chanPoint.FundingTx.IdAsHexString(),
 				chanPoint.OutputIndex,
 			)
