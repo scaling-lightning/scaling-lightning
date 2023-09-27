@@ -703,6 +703,7 @@ func (n *SLNetwork) ConnectPeer(fromNodeName string, toNodeName string) error {
 		if err != nil {
 			return errors.Wrapf(err, "Connecting to %v", toNodeName)
 		}
+		return nil
 	}
 	return errors.New("Node not found")
 }
@@ -731,6 +732,10 @@ func (n *SLNetwork) OpenChannel(fromNodeName string, toNodeName string, localAmo
 		channelPoint, err := node.OpenChannel(client, toPubKey, amount)
 		if err != nil {
 			return types.ChannelPoint{}, errors.Wrapf(err, "Opening channel to %v", toNodeName)
+		}
+		_, err = n.Generate("bitcoind")
+		if err != nil {
+			return types.ChannelPoint{}, errors.Wrap(err, "Generating blocks after opening channel")
 		}
 		return channelPoint, nil
 	}
