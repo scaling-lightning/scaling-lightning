@@ -25,27 +25,12 @@ func init() {
 				)
 				return
 			}
-			allNodes := slnetwork.LightningNodes
-			for _, node := range allNodes {
-				if node.GetName() == nodeName {
-					channelBalance, err := node.ChannelBalance()
-					if err != nil {
-						fmt.Printf("Problem getting wallet balance: %v\n", err.Error())
-						return
-					}
-					fmt.Printf("%d sats\n", channelBalance.AsSats())
-					return
-				}
+			channelBalance, err := slnetwork.ChannelBalance(nodeName)
+			if err != nil {
+				fmt.Printf("Problem getting wallet balance: %v\n", err.Error())
+				return
 			}
-			allNames := []string{}
-			for _, node := range allNodes {
-				allNames = append(allNames, node.GetName())
-			}
-			fmt.Printf(
-				"Can't find node with name %v, here are the nodes that are running: %v\n",
-				nodeName,
-				allNames,
-			)
+			fmt.Printf("%d sats\n", channelBalance.AsSats())
 		},
 	}
 

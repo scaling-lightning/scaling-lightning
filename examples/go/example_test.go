@@ -9,7 +9,6 @@ import (
 	"github.com/rs/zerolog/log"
 	sl "github.com/scaling-lightning/scaling-lightning/pkg/network"
 	"github.com/scaling-lightning/scaling-lightning/pkg/tools"
-	"github.com/scaling-lightning/scaling-lightning/pkg/types"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -23,12 +22,6 @@ func TestMain(t *testing.T) {
 		log.Fatal().Err(err).Msg("Problem starting network")
 	}
 
-	bitcoind, err := network.GetBitcoinNode("bitcoind")
-	assert.NoError(err)
-
-	cln1, err := network.GetLightningNode("cln1")
-	assert.NoError(err)
-
 	cln2, err := network.GetLightningNode("cln2")
 	assert.NoError(err)
 
@@ -40,24 +33,24 @@ func TestMain(t *testing.T) {
 
 	// this one will take a little while as the network is starting up
 	err = tools.Retry(func() error {
-		_, err := bitcoind.Send(cln1, types.NewAmountSats(1_000_000))
+		_, err := network.Send("cln1", "cln2", 1_000_000)
 		return errors.Wrap(err, "Sending million sats to cln1")
 	}, time.Second*15, time.Minute*2)
 	assert.NoError(err)
 
 	err = tools.Retry(func() error {
-		return errors.Wrap(cln1.ConnectPeer(cln2), "Connecting cln1 to cln2")
+		return errors.Wrap(network.ConnectPeer("cln1", "cln2"), "Connecting cln1 to cln2")
 	}, time.Second*15, time.Minute*3)
 	assert.NoError(err)
 
 	err = tools.Retry(func() error {
-		_, err := cln1.OpenChannel(cln2, types.NewAmountSats(40_001))
+		_, err := network.OpenChannel("cln1", "cln2", 40_001)
 		return errors.Wrap(err, "Opening channel from cln1 to cln2")
 	}, time.Second*15, time.Minute*3)
 	assert.NoError(err)
 
 	err = tools.Retry(func() error {
-		balance, err := cln1.GetWalletBalance()
+		balance, err := network.GetWalletBalance("cln1")
 		if err != nil {
 			return errors.Wrap(err, "Getting cln1 balance")
 		}
@@ -67,7 +60,7 @@ func TestMain(t *testing.T) {
 	assert.NoError(err)
 
 	err = tools.Retry(func() error {
-		connectionDetails, err := cln2.GetConnectionDetails()
+		connectionDetails, err := network.GetConnectionDetails("cln2")
 		if err != nil {
 			return errors.Wrap(err, "Getting cln2 connection details")
 		}
@@ -78,7 +71,7 @@ func TestMain(t *testing.T) {
 
 	assert.NoError(err)
 	err = tools.Retry(func() error {
-		connectionFiles, err := cln2.GetConnectionFiles()
+		connectionFiles, err := cln2.GetConnectionFiles(network.Network.String(), "")
 		if err != nil {
 			return errors.Wrap(err, "Getting cln2 connection files")
 		}

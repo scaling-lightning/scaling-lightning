@@ -73,9 +73,10 @@ type SLNetwork struct {
 }
 
 type ConnectionDetails struct {
-	Name string
-	Host string
-	Port uint16
+	NodeName string
+	Type     string
+	Host     string
+	Port     uint16
 }
 
 type ConnectionFiles struct {
@@ -510,6 +511,43 @@ func (n *SLNetwork) GetNewAddress(nodeName string) (string, error) {
 	return "", errors.New("Node not found")
 }
 
+func (n *SLNetwork) GetConnectionDetailsForAllNodes() ([]ConnectionDetails, error) {
+	connectionDetails := []ConnectionDetails{}
+	for _, node := range n.BitcoinNodes {
+		connectionPorts, err := node.GetConnectionPorts(n.kubeConfig)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Getting connection ports for %v", node.Name)
+		}
+		for _, connectionPort := range connectionPorts {
+			connectionDetails = append(
+				connectionDetails,
+				ConnectionDetails{
+					NodeName: node.Name,
+					Type:     connectionPort.Name,
+					Host:     n.ApiHost,
+					Port:     connectionPort.Port,
+				},
+			)
+		}
+	}
+	for _, node := range n.LightningNodes {
+		port, err := node.GetConnectionPort(n.kubeConfig)
+		if err != nil {
+			return nil, errors.Wrapf(err, "Getting grpc endpoint for %v", node.Name)
+		}
+		connectionDetails = append(
+			connectionDetails,
+			ConnectionDetails{
+				NodeName: node.Name,
+				Type:     "grpc",
+				Host:     n.ApiHost,
+				Port:     port,
+			},
+		)
+	}
+	return connectionDetails, nil
+}
+
 func (n *SLNetwork) GetConnectionDetails(nodeName string) ([]ConnectionDetails, error) {
 
 	for _, node := range n.BitcoinNodes {
@@ -525,7 +563,7 @@ func (n *SLNetwork) GetConnectionDetails(nodeName string) ([]ConnectionDetails, 
 			connectionDetails = append(
 				connectionDetails,
 				ConnectionDetails{
-					Name: connectionPort.Name,
+					Type: connectionPort.Name,
 					Host: n.ApiHost,
 					Port: connectionPort.Port,
 				},
@@ -543,21 +581,22 @@ func (n *SLNetwork) GetConnectionDetails(nodeName string) ([]ConnectionDetails, 
 			return nil, errors.Wrapf(err, "Getting grpc endpoint for %v", nodeName)
 		}
 		return []ConnectionDetails{
-			{Name: "grpc", Host: n.ApiHost, Port: port},
+			{Type: "grpc", Host: n.ApiHost, Port: port},
 		}, nil
 	}
 
 	return nil, errors.New("Node not found")
 }
 
-func (n *SLNetwork) Send(fromNodeName string, toNodeName string, amount types.Amount) (string, error) {
-	log.Debug().Msgf("Sending %v from %v to %v", amount, fromNodeName, toNodeName)
+func (n *SLNetwork) Send(fromNodeName string, toNodeName string, amountSats uint64) (string, error) {
+	log.Debug().Msgf("Sending %v from %v to %v", amountSats, fromNodeName, toNodeName)
 
 	address, err := n.GetNewAddress(toNodeName)
 	if err != nil {
 		return "", errors.Wrapf(err, "Getting new address for %v", toNodeName)
 	}
 
+	amount := types.NewAmountSats(amountSats)
 	conn, err := connectToGRPCServer(n.ApiHost, n.ApiPort, fromNodeName)
 	if err != nil {
 		return "", errors.Wrapf(err, "Connecting to gRPC for %v's client", fromNodeName)
@@ -665,4 +704,100 @@ func (n *SLNetwork) ConnectPeer(fromNodeName string, toNodeName string) error {
 		}
 	}
 	return errors.New("Node not found")
+}
+
+func (n *SLNetwork) OpenChannel(fromNodeName string, toNodeName string, localAmountSats uint64) (types.ChannelPoint, error) {
+	log.Debug().Msgf("Opening channel from %v to %v for %d sats", fromNodeName, toNodeName, localAmountSats)
+
+	conn, err := connectToGRPCServer(n.ApiHost, n.ApiPort, fromNodeName)
+	if err != nil {
+		return types.ChannelPoint{}, errors.Wrapf(err, "Connecting to gRPC for %v's client", fromNodeName)
+	}
+	defer conn.Close()
+
+	client := stdlightningclient.NewLightningClient(conn)
+
+	amount := types.NewAmountSats(localAmountSats)
+	toPubKey, err := n.GetPubKey(toNodeName)
+	if err != nil {
+		return types.ChannelPoint{}, errors.Wrapf(err, "Getting pubkey for peer: %v", toNodeName)
+	}
+
+	for _, node := range n.LightningNodes {
+		if node.Name != fromNodeName {
+			continue
+		}
+		channelPoint, err := node.OpenChannel(client, toPubKey, amount)
+		if err != nil {
+			return types.ChannelPoint{}, errors.Wrapf(err, "Opening channel to %v", toNodeName)
+		}
+		return channelPoint, nil
+	}
+	return types.ChannelPoint{}, errors.New("Node not found")
+}
+
+func (n *SLNetwork) ChannelBalance(nodeName string) (types.Amount, error) {
+	conn, err := connectToGRPCServer(n.ApiHost, n.ApiPort, nodeName)
+	if err != nil {
+		return types.NewAmountSats(0), errors.Wrapf(err, "Connecting to gRPC for %v's client", nodeName)
+	}
+	defer conn.Close()
+
+	client := stdlightningclient.NewLightningClient(conn)
+
+	for _, node := range n.LightningNodes {
+		if node.Name != nodeName {
+			continue
+		}
+		channelBalance, err := node.ChannelBalance(client)
+		if err != nil {
+			return types.NewAmountSats(0), errors.Wrapf(err, "Getting channel balance for %v", node.Name)
+		}
+		return channelBalance, nil
+	}
+	return types.NewAmountSats(0), errors.New("Node not found")
+}
+
+func (n *SLNetwork) CreateInvoice(nodeName string, amountSats uint64) (string, error) {
+	conn, err := connectToGRPCServer(n.ApiHost, n.ApiPort, nodeName)
+	if err != nil {
+		return "", errors.Wrapf(err, "Connecting to gRPC for %v's client", nodeName)
+	}
+	defer conn.Close()
+
+	client := stdlightningclient.NewLightningClient(conn)
+
+	for _, node := range n.LightningNodes {
+		if node.Name != nodeName {
+			continue
+		}
+		invoice, err := node.CreateInvoice(client, amountSats)
+		if err != nil {
+			return "", errors.Wrapf(err, "Creating invoice for %v", node.Name)
+		}
+		return invoice, nil
+	}
+	return "", errors.New("Node not found")
+}
+
+func (n *SLNetwork) PayInvoice(nodeName string, invoice string) (preimage string, err error) {
+	conn, err := connectToGRPCServer(n.ApiHost, n.ApiPort, nodeName)
+	if err != nil {
+		return "", errors.Wrapf(err, "Connecting to gRPC for %v's client", nodeName)
+	}
+	defer conn.Close()
+
+	client := stdlightningclient.NewLightningClient(conn)
+
+	for _, node := range n.LightningNodes {
+		if node.Name != nodeName {
+			continue
+		}
+		preimage, err = node.PayInvoice(client, invoice)
+		if err != nil {
+			return "", errors.Wrapf(err, "Paying invoice for %v", node.Name)
+		}
+		return preimage, nil
+	}
+	return "", errors.New("Node not found")
 }

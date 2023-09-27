@@ -26,27 +26,12 @@ func init() {
 				)
 				return
 			}
-			allNodes := slnetwork.LightningNodes
-			for _, node := range allNodes {
-				if node.GetName() == nodeName {
-					paymentPreimage, err := node.PayInvoice(invoice)
-					if err != nil {
-						fmt.Printf("Problem paying the invoice: %v\n", err.Error())
-						return
-					}
-					fmt.Printf("preimage: %v\n", paymentPreimage)
-					return
-				}
+			preimage, err := slnetwork.PayInvoice(nodeName, invoice)
+			if err != nil {
+				fmt.Printf("Problem paying the invoice: %v\n", err.Error())
+				return
 			}
-			allNames := []string{}
-			for _, node := range allNodes {
-				allNames = append(allNames, node.GetName())
-			}
-			fmt.Printf(
-				"Can't find node with name %v, here are the nodes that are running: %v\n",
-				nodeName,
-				allNames,
-			)
+			fmt.Printf("preimage: %v\n", preimage)
 		},
 	}
 

@@ -5,7 +5,6 @@ import (
 	"log"
 
 	sl "github.com/scaling-lightning/scaling-lightning/pkg/network"
-	"github.com/scaling-lightning/scaling-lightning/pkg/types"
 	"github.com/spf13/cobra"
 )
 
@@ -32,38 +31,8 @@ func init() {
 				)
 				return
 			}
-			var sendFromNode sl.Node
-			var sendToNode sl.Node
-			allNodes := slnetwork.GetAllNodes()
-			for _, node := range allNodes {
-				if node.GetName() == sendFromName {
-					sendFromNode = node
-					continue
-				}
-				if node.GetName() == sendToName {
-					sendToNode = node
-				}
-			}
-			allNames := []string{}
-			for _, node := range allNodes {
-				allNames = append(allNames, node.GetName())
-			}
-			if sendFromNode == nil {
-				fmt.Printf(
-					"Can't find node with name %v, here are the nodes that are running: %v\n",
-					sendFromName,
-					allNames,
-				)
-			}
-			if sendToNode == nil {
-				fmt.Printf(
-					"Can't find node with name %v, here are the nodes that are running: %v\n",
-					sendToName,
-					allNames,
-				)
-			}
 
-			sendRes, err := sendFromNode.Send(sendToNode, types.NewAmountSats(sendAmount))
+			sendRes, err := slnetwork.Send(sendFromName, sendToName, sendAmount)
 			if err != nil {
 				fmt.Printf("Problem sending funds: %v\n", err.Error())
 				return

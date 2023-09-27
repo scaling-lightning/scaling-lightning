@@ -26,42 +26,11 @@ func init() {
 				)
 				return
 			}
-			var connectpeerFromNode sl.LightningNode
-			var connectpeerToNode sl.LightningNode
-			for _, node := range slnetwork.LightningNodes {
-				if node.GetName() == connectpeerFromName {
-					connectpeerFromNode = node
-					continue
-				}
-				if node.GetName() == connectpeerToName {
-					connectpeerToNode = node
-				}
-			}
-			allNames := []string{}
-			for _, node := range slnetwork.LightningNodes {
-				allNames = append(allNames, node.GetName())
-			}
-			if connectpeerFromNode.Name == "" {
-				fmt.Printf(
-					"Can't find node with name %v, here are the lightnign nodes that are running: %v\n",
-					connectpeerFromName,
-					allNames,
-				)
-			}
-			if connectpeerToNode.Name == "" {
-				fmt.Printf(
-					"Can't find node with name %v, here are the lightning nodes that are running: %v\n",
-					connectpeerToName,
-					allNames,
-				)
-			}
-
-			err = connectpeerFromNode.ConnectPeer(&connectpeerToNode)
+			err = slnetwork.ConnectPeer(connectpeerFromName, connectpeerToName)
 			if err != nil {
 				fmt.Printf("Problem connecting peer: %v\n", err.Error())
 				return
 			}
-
 			fmt.Println("Connect peer command received")
 		},
 	}

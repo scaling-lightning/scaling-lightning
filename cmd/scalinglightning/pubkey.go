@@ -25,27 +25,12 @@ func init() {
 				)
 				return
 			}
-			for _, node := range slnetwork.LightningNodes {
-				if node.GetName() == pubkeyNodeName {
-					pubkey, err := node.GetPubKey()
-					if err != nil {
-						fmt.Printf("Problem getting pubkey: %v\n", err.Error())
-						return
-					}
-					fmt.Println(pubkey.AsHexString())
-					return
-				}
+			pubkey, err := slnetwork.GetPubKey(pubkeyNodeName)
+			if err != nil {
+				fmt.Printf("Problem getting pubkey: %v\n", err.Error())
+				return
 			}
-
-			allNames := []string{}
-			for _, node := range slnetwork.LightningNodes {
-				allNames = append(allNames, node.GetName())
-			}
-			fmt.Printf(
-				"Can't find node with name %v, here are the lightning nodes that are running: %v\n",
-				pubkeyNodeName,
-				allNames,
-			)
+			fmt.Println(pubkey.AsHexString())
 		},
 	}
 

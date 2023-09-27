@@ -17,7 +17,7 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			processDebugFlag(cmd)
 			nodeName := cmd.Flag("node").Value.String()
-			numOfBlocks, err := cmd.Flags().GetUint32("blocks")
+			_, err := cmd.Flags().GetUint32("blocks")
 			if err != nil {
 				fmt.Println("Not a valid number of blocks")
 				return
@@ -31,26 +31,8 @@ func init() {
 				)
 				return
 			}
-			var bitcoinNode sl.BitcoinNode
-			for _, node := range slnetwork.BitcoinNodes {
-				if node.GetName() == nodeName {
-					bitcoinNode = node
-					continue
-				}
-			}
-			allNames := []string{}
-			for _, node := range slnetwork.BitcoinNodes {
-				allNames = append(allNames, node.GetName())
-			}
-			if bitcoinNode.Name == "" {
-				fmt.Printf(
-					"Can't find node with name %v, here are the nodes that are running: %v\n",
-					nodeName,
-					allNames,
-				)
-			}
 
-			generateRes, err := bitcoinNode.Generate(numOfBlocks)
+			generateRes, err := slnetwork.Generate(nodeName)
 			if err != nil {
 				fmt.Printf("Problem sending funds: %v\n", err.Error())
 				return

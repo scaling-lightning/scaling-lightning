@@ -5,7 +5,6 @@ import (
 	"log"
 
 	sl "github.com/scaling-lightning/scaling-lightning/pkg/network"
-	"github.com/scaling-lightning/scaling-lightning/pkg/types"
 	"github.com/spf13/cobra"
 )
 
@@ -33,39 +32,10 @@ func init() {
 				)
 				return
 			}
-			var openchannelFromNode sl.LightningNode
-			var openchannelToNode sl.LightningNode
-			for _, node := range slnetwork.LightningNodes {
-				if node.GetName() == openchannelFromName {
-					openchannelFromNode = node
-					continue
-				}
-				if node.GetName() == openchannelToName {
-					openchannelToNode = node
-				}
-			}
-			allNames := []string{}
-			for _, node := range slnetwork.LightningNodes {
-				allNames = append(allNames, node.GetName())
-			}
-			if openchannelFromNode.Name == "" {
-				fmt.Printf(
-					"Can't find node with name %v, here are the lightnign nodes that are running: %v\n",
-					openchannelFromName,
-					allNames,
-				)
-			}
-			if openchannelToNode.Name == "" {
-				fmt.Printf(
-					"Can't find node with name %v, here are the lightning nodes that are running: %v\n",
-					openchannelToName,
-					allNames,
-				)
-			}
-
-			chanPoint, err := openchannelFromNode.OpenChannel(
-				&openchannelToNode,
-				types.NewAmountSats(openchannelLocalAmt),
+			chanPoint, err := slnetwork.OpenChannel(
+				openchannelFromName,
+				openchannelToName,
+				openchannelLocalAmt,
 			)
 			if err != nil {
 				fmt.Printf("Problem opening channel: %v\n", err.Error())

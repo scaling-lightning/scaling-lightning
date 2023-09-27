@@ -3,7 +3,6 @@ package scalinglightning
 import (
 	"fmt"
 
-	"github.com/rs/zerolog/log"
 	sl "github.com/scaling-lightning/scaling-lightning/pkg/network"
 	"github.com/spf13/cobra"
 )
@@ -16,8 +15,8 @@ func init() {
 		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
 			processDebugFlag(cmd)
-			nodeName := cmd.Flag("node").Value.String()
-			all, err := cmd.Flags().GetBool("all")
+			_ = cmd.Flag("node").Value.String()
+			_, err := cmd.Flags().GetBool("all")
 			if err != nil {
 				fmt.Printf("Problem getting all flag: %v\n", err.Error())
 				return
@@ -31,36 +30,25 @@ func init() {
 				)
 				return
 			}
-			foundANode := false
-			for _, node := range slnetwork.GetAllNodes() {
-				if node.GetName() == nodeName || all {
-					connectionDetailsList, err := node.GetConnectionDetails()
-					if err != nil {
-						log.Debug().
-							Msgf("Problem getting connection details. This could be perfectly normal as it may not have an endpoint configured: %v", err.Error())
-						continue
-					}
-					foundANode = true
-					fmt.Println(node.GetName())
-					for _, conDetails := range connectionDetailsList {
-						fmt.Println("  type: ", conDetails.Name)
-						fmt.Printf("  host: %v\n", conDetails.Host)
-						fmt.Printf("  port: %v\n\n", conDetails.Port)
-					}
-				}
-			}
-			if foundANode {
+			connectionDetails, err := slnetwork.GetConnectionDetailsForAllNodes()
+			if err != nil {
+				fmt.Printf("Problem getting connection details: %v\n", err.Error())
 				return
 			}
+			previousNodeName := ""
+			for _, conDetails := range connectionDetails {
+				if conDetails.NodeName != previousNodeName {
+					if previousNodeName != "" {
+						fmt.Println()
+					}
+					fmt.Println(conDetails.NodeName)
+				}
+				fmt.Println("  type: ", conDetails.Type)
+				fmt.Printf("  host: %v\n", conDetails.Host)
+				fmt.Printf("  port: %v\n\n", conDetails.Port)
 
-			allNames := []string{}
-			for _, node := range slnetwork.LightningNodes {
-				allNames = append(allNames, node.GetName())
+				previousNodeName = conDetails.NodeName
 			}
-			fmt.Printf(
-				"Can't find node(s), here are the lightning nodes that are running: %v\n",
-				allNames,
-			)
 		},
 	}
 

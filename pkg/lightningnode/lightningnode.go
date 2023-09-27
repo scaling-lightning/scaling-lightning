@@ -136,7 +136,7 @@ func (n *LightningNode) ConnectPeer(client stdlightningclient.LightningClient, p
 
 func (n *LightningNode) OpenChannel(
 	client stdlightningclient.LightningClient,
-	pubkey string,
+	pubkey basictypes.PubKey,
 	localAmt basictypes.Amount,
 ) (basictypes.ChannelPoint, error) {
 	log.Debug().
@@ -145,7 +145,7 @@ func (n *LightningNode) OpenChannel(
 	openChannelRes, err := client.OpenChannel(
 		context.Background(),
 		&stdlightningclient.OpenChannelRequest{
-			PubKey:       []byte(pubkey),
+			PubKey:       pubkey.AsBytes(),
 			LocalAmtSats: localAmt.AsSats(),
 		},
 	)
