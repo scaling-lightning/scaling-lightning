@@ -1,6 +1,6 @@
 name: Scaling Lightning On MiniKube using GitHub Actions
 
-on:
+"on":
   push:
     branches:
       - main
