@@ -633,6 +633,7 @@ func (n *SLNetwork) Send(fromNodeName string, toNodeName string, amountSats uint
 		if err != nil {
 			return "", errors.Wrapf(err, "Generating blocks for %v", "bitcoind")
 		}
+		return txid, nil
 	}
 
 	return "", errors.New("Node not found")
