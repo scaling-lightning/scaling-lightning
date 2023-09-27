@@ -38,9 +38,6 @@ func init() {
 			previousNodeName := ""
 			for _, conDetails := range connectionDetails {
 				if conDetails.NodeName != previousNodeName {
-					if previousNodeName != "" {
-						fmt.Println()
-					}
 					fmt.Println(conDetails.NodeName)
 				}
 				fmt.Println("  type: ", conDetails.Type)
