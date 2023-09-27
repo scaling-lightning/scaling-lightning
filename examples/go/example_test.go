@@ -33,7 +33,7 @@ func TestMain(t *testing.T) {
 
 	// this one will take a little while as the network is starting up
 	err = tools.Retry(func() error {
-		_, err := network.Send("cln1", "cln2", 1_000_000)
+		_, err := network.Send("bitcoind", "cln1", 1_000_000)
 		return errors.Wrap(err, "Sending million sats to cln1")
 	}, time.Second*15, time.Minute*2)
 	assert.NoError(err)
