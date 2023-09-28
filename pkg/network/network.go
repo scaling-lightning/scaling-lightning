@@ -457,7 +457,7 @@ func (n *SLNetwork) GetWalletBalance(nodeName string) (types.Amount, error) {
 	return types.NewAmountSats(0), errors.New("Node not found")
 }
 
-func (n *SLNetwork) Generate(nodeName string) (hashes []string, err error) {
+func (n *SLNetwork) Generate(nodeName string, numBlocks uint32) (hashes []string, err error) {
 	conn, err := connectToGRPCServer(n.ApiHost, n.ApiPort, nodeName)
 	if err != nil {
 		return []string{}, errors.Wrapf(err, "Connecting to gRPC for %v's client", nodeName)
@@ -471,7 +471,7 @@ func (n *SLNetwork) Generate(nodeName string) (hashes []string, err error) {
 		if node.Name != nodeName {
 			continue
 		}
-		hashes, err := node.Generate(client, commonClient, 50)
+		hashes, err := node.Generate(client, commonClient, numBlocks)
 		if err != nil {
 			log.Error().Err(err).Msgf("Generating blocks for %v", node.Name)
 		}
@@ -629,7 +629,7 @@ func (n *SLNetwork) Send(fromNodeName string, toNodeName string, amountSats uint
 
 	if txid != "" {
 		// TODO: Look this up
-		_, err = n.Generate("bitcoind")
+		_, err = n.Generate("bitcoind", 10)
 		if err != nil {
 			return "", errors.Wrapf(err, "Generating blocks for %v", "bitcoind")
 		}
@@ -733,7 +733,7 @@ func (n *SLNetwork) OpenChannel(fromNodeName string, toNodeName string, localAmo
 		if err != nil {
 			return types.ChannelPoint{}, errors.Wrapf(err, "Opening channel to %v", toNodeName)
 		}
-		_, err = n.Generate("bitcoind")
+		_, err = n.Generate("bitcoind", 10)
 		if err != nil {
 			return types.ChannelPoint{}, errors.Wrap(err, "Generating blocks after opening channel")
 		}

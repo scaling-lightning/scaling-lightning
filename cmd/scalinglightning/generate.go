@@ -17,7 +17,7 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			processDebugFlag(cmd)
 			nodeName := cmd.Flag("node").Value.String()
-			_, err := cmd.Flags().GetUint32("blocks")
+			numBlocks, err := cmd.Flags().GetUint32("blocks")
 			if err != nil {
 				fmt.Println("Not a valid number of blocks")
 				return
@@ -32,7 +32,7 @@ func init() {
 				return
 			}
 
-			generateRes, err := slnetwork.Generate(nodeName)
+			generateRes, err := slnetwork.Generate(nodeName, numBlocks)
 			if err != nil {
 				fmt.Printf("Problem sending funds: %v\n", err.Error())
 				return
