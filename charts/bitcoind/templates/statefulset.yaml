@@ -71,3 +71,4 @@ spec:
           args:
             - -rpchost=bitcoind
             - -rpccookiefile=/bitcoind/regtest/.cookie
+            - -autogen={{ .Values.autoGen }}

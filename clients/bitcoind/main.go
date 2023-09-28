@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"net"
@@ -23,6 +24,7 @@ type appConfig struct {
 	rpcPort       int
 	chain         string
 	apiPort       int
+	autoGen       bool
 }
 
 func main() {
@@ -76,13 +78,41 @@ func main() {
 	}
 	log.Info().Msgf("Block count: %d", blockCount)
 
+	// start auto-generate of blocks
+	if appConfig.autoGen {
+		log.Info().Msg("Starting auto-generate of blocks")
+		go autoGenerateBlocks(context.Background(), client)
+	}
+
 	// start api
 	err = startGRPCServer(appConfig.apiPort, client)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Problem starting gRPC api server")
 	}
+}
 
-	log.Info().Msg("Waiting for command")
+func autoGenerateBlocks(ctx context.Context, client rpcClient) {
+	for {
+
+		select {
+		case <-ctx.Done():
+			return
+		default:
+		}
+
+		address, err := client.GetNewAddress(walletName)
+		if err != nil {
+			log.Error().Err(err).Msg("Problem getting new address for auto-generate")
+			return
+		}
+		_, err = client.GenerateToAddress(1, address, nil)
+		if err != nil {
+			log.Error().Err(err).Msg("Problem generating blocks for auto-generate")
+			return
+		}
+
+		time.Sleep(10 * time.Second)
+	}
 }
 
 type bitcoinServer struct {
@@ -133,6 +163,8 @@ func parseFlags(appConfig *appConfig, helpRequested error) error {
 		"Current chain. Valid options: regtest, signet",
 	)
 	flag.IntVar(&appConfig.apiPort, "apiport", 8080, "Optional: Port to run gRPC API on")
+
+	flag.BoolVar(&appConfig.autoGen, "autogen", true, "Optional: Auto-generate blocks")
 
 	flag.Parse()
 

@@ -7,6 +7,7 @@ releases:
       - clientImage:
           repository: bitcoind-client
           pullPolicy: IfNotPresent
+      - autoGen: true
   - name: cln1
     namespace: sl
     chart: ../../charts/cln

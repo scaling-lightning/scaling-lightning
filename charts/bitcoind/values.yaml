@@ -22,6 +22,9 @@ zmqPubTxPort: 28333
 
 clientPort: 8181
 
+# automatically generate a block every 10 seconds
+autoGen: true
+
 network: regtest
 
 # set to one of the endpoints defined in traefik's values file e.g. (endpoint1, endpoint2, endpoint3, endpoint4)
@@ -32,5 +35,7 @@ zmqPubTxEntryPoint: null
 
 # This gives persistence to nodes. If no storage is set then the node will be ephemeral between upgrades.
 volume:
-  size: "" # example 1Gi for 1 gibibyte (1024^3 bytes). Blank string for no storage.
-  storageClass: "" # example do-block-storage for DigitalOcean's standard block storage. Blank for default storage class.
+  # example 1Gi for 1 gibibyte (1024^3 bytes). Blank string for no storage.
+  size: ""
+  # example do-block-storage for DigitalOcean's standard block storage. Blank for default storage class.
+  storageClass: ""
