@@ -9,6 +9,7 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
+
 	"github.com/scaling-lightning/scaling-lightning/pkg/kube"
 	stdcommonclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/common"
 	stdlightningclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
@@ -140,7 +141,7 @@ func (n *LightningNode) OpenChannel(
 	localAmt basictypes.Amount,
 ) (basictypes.ChannelPoint, error) {
 	log.Debug().
-		Msgf("Opening channel from %v to %v for %d sats", n.Name, pubkey, localAmt.AsSats())
+		Msgf("Opening channel from %v to %v for %d sats", n.Name, pubkey.AsHexString(), localAmt.AsSats())
 
 	openChannelRes, err := client.OpenChannel(
 		context.Background(),
@@ -154,7 +155,7 @@ func (n *LightningNode) OpenChannel(
 			err,
 			"Opening channel from %v to %v for %d sats",
 			n.Name,
-			pubkey,
+			pubkey.AsHexString(),
 			localAmt.AsSats(),
 		)
 	}
