@@ -10,6 +10,10 @@ import (
 
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"gopkg.in/yaml.v3"
+
 	"github.com/scaling-lightning/scaling-lightning/pkg/bitcoinnode"
 	"github.com/scaling-lightning/scaling-lightning/pkg/lightningnode"
 	stdbitcoinclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/bitcoin"
@@ -18,9 +22,6 @@ import (
 	"github.com/scaling-lightning/scaling-lightning/pkg/tools"
 	"github.com/scaling-lightning/scaling-lightning/pkg/tools/grpc_helpers"
 	"github.com/scaling-lightning/scaling-lightning/pkg/types"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-	"gopkg.in/yaml.v3"
 )
 
 const mainNamespace = "sl"
@@ -563,9 +564,10 @@ func (n *SLNetwork) GetConnectionDetails(nodeName string) ([]ConnectionDetails, 
 			connectionDetails = append(
 				connectionDetails,
 				ConnectionDetails{
-					Type: connectionPort.Name,
-					Host: n.ApiHost,
-					Port: connectionPort.Port,
+					NodeName: node.Name,
+					Type:     connectionPort.Name,
+					Host:     n.ApiHost,
+					Port:     connectionPort.Port,
 				},
 			)
 		}
@@ -581,7 +583,7 @@ func (n *SLNetwork) GetConnectionDetails(nodeName string) ([]ConnectionDetails, 
 			return nil, errors.Wrapf(err, "Getting grpc endpoint for %v", nodeName)
 		}
 		return []ConnectionDetails{
-			{Type: "grpc", Host: n.ApiHost, Port: port},
+			{NodeName: node.Name, Type: "grpc", Host: n.ApiHost, Port: port},
 		}, nil
 	}
 
