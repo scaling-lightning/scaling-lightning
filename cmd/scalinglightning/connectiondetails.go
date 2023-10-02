@@ -15,8 +15,8 @@ func init() {
 		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
 			processDebugFlag(cmd)
-			_ = cmd.Flag("node").Value.String()
-			_, err := cmd.Flags().GetBool("all")
+			node := cmd.Flag("node").Value.String()
+			all, err := cmd.Flags().GetBool("all")
 			if err != nil {
 				fmt.Printf("Problem getting all flag: %v\n", err.Error())
 				return
@@ -30,10 +30,23 @@ func init() {
 				)
 				return
 			}
-			connectionDetails, err := slnetwork.GetConnectionDetailsForAllNodes()
-			if err != nil {
-				fmt.Printf("Problem getting connection details: %v\n", err.Error())
-				return
+			connectionDetails := []sl.ConnectionDetails{}
+			if all {
+				connectionDetails, err = slnetwork.GetConnectionDetailsForAllNodes()
+				if err != nil {
+					fmt.Printf("Problem getting connection details: %v\n", err.Error())
+					return
+				}
+			} else {
+				if node == "" {
+					fmt.Println("Must specify a node or use the --all flag")
+					return
+				}
+				connectionDetails, err = slnetwork.GetConnectionDetailsForNode(node)
+				if err != nil {
+					fmt.Printf("Problem getting connection details: %v\n", err.Error())
+					return
+				}
 			}
 			previousNodeName := ""
 			for _, conDetails := range connectionDetails {

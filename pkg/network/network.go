@@ -513,37 +513,23 @@ func (n *SLNetwork) GetNewAddress(nodeName string) (string, error) {
 
 func (n *SLNetwork) GetConnectionDetailsForAllNodes() ([]ConnectionDetails, error) {
 	connectionDetails := []ConnectionDetails{}
-	for _, node := range n.BitcoinNodes {
-		connectionPorts, err := node.GetConnectionPorts(n.kubeConfig)
+	getDetailForNode := func(nodeName string) error {
+		connDetails, err := n.GetConnectionDetails(nodeName)
 		if err != nil {
-			return nil, errors.Wrapf(err, "Getting connection ports for %v", node.Name)
+			return err
 		}
-		for _, connectionPort := range connectionPorts {
-			connectionDetails = append(
-				connectionDetails,
-				ConnectionDetails{
-					NodeName: node.Name,
-					Type:     connectionPort.Name,
-					Host:     n.ApiHost,
-					Port:     connectionPort.Port,
-				},
-			)
+		connectionDetails = append(connectionDetails, connDetails...)
+		return nil
+	}
+	for _, node := range n.BitcoinNodes {
+		if err := getDetailForNode(node.Name); err != nil {
+			return nil, errors.Wrapf(err, "Getting connection details for %v", node.Name)
 		}
 	}
 	for _, node := range n.LightningNodes {
-		port, err := node.GetConnectionPort(n.kubeConfig)
-		if err != nil {
-			return nil, errors.Wrapf(err, "Getting grpc endpoint for %v", node.Name)
+		if err := getDetailForNode(node.Name); err != nil {
+			return nil, errors.Wrapf(err, "Getting connection details for %v", node.Name)
 		}
-		connectionDetails = append(
-			connectionDetails,
-			ConnectionDetails{
-				NodeName: node.Name,
-				Type:     "grpc",
-				Host:     n.ApiHost,
-				Port:     port,
-			},
-		)
 	}
 	return connectionDetails, nil
 }
@@ -563,9 +549,10 @@ func (n *SLNetwork) GetConnectionDetails(nodeName string) ([]ConnectionDetails, 
 			connectionDetails = append(
 				connectionDetails,
 				ConnectionDetails{
-					Type: connectionPort.Name,
-					Host: n.ApiHost,
-					Port: connectionPort.Port,
+					NodeName: node.Name,
+					Type:     connectionPort.Name,
+					Host:     n.ApiHost,
+					Port:     connectionPort.Port,
 				},
 			)
 		}
@@ -581,11 +568,11 @@ func (n *SLNetwork) GetConnectionDetails(nodeName string) ([]ConnectionDetails, 
 			return nil, errors.Wrapf(err, "Getting grpc endpoint for %v", nodeName)
 		}
 		return []ConnectionDetails{
-			{Type: "grpc", Host: n.ApiHost, Port: port},
+			{Type: "grpc", Host: n.ApiHost, Port: port, NodeName: node.Name},
 		}, nil
 	}
 
-	return nil, errors.New("Node not found")
+	return nil, errors.Newf("Node not found. Available nodes: %v", n.listNodes(false, true))
 }
 
 func (n *SLNetwork) Send(fromNodeName string, toNodeName string, amountSats uint64) (string, error) {
@@ -636,7 +623,7 @@ func (n *SLNetwork) Send(fromNodeName string, toNodeName string, amountSats uint
 		return txid, nil
 	}
 
-	return "", errors.New("Node not found")
+	return "", errors.Newf("Node not found. Available nodes: %v", n.listNodes(true, true))
 }
 
 func connectToGRPCServer(host string, port uint16, nodeName string) (*grpc.ClientConn, error) {
@@ -676,7 +663,7 @@ func (n *SLNetwork) GetPubKey(nodeName string) (types.PubKey, error) {
 		}
 		return pubkey, nil
 	}
-	return types.PubKey{}, errors.New("Node not found")
+	return types.PubKey{}, errors.Newf("Node not found. Available nodes: %v", n.listNodes(false, true))
 }
 
 func (n *SLNetwork) ConnectPeer(fromNodeName string, toNodeName string) error {
@@ -705,7 +692,7 @@ func (n *SLNetwork) ConnectPeer(fromNodeName string, toNodeName string) error {
 		}
 		return nil
 	}
-	return errors.New("Node not found")
+	return errors.Newf("Node not found. Available nodes: %v", n.listNodes(false, true))
 }
 
 func (n *SLNetwork) OpenChannel(fromNodeName string, toNodeName string, localAmountSats uint64) (types.ChannelPoint, error) {
@@ -739,7 +726,7 @@ func (n *SLNetwork) OpenChannel(fromNodeName string, toNodeName string, localAmo
 		}
 		return channelPoint, nil
 	}
-	return types.ChannelPoint{}, errors.New("Node not found")
+	return types.ChannelPoint{}, errors.Newf("Node not found. Available nodes: %v", n.listNodes(false, true))
 }
 
 func (n *SLNetwork) ChannelBalance(nodeName string) (types.Amount, error) {
@@ -761,7 +748,7 @@ func (n *SLNetwork) ChannelBalance(nodeName string) (types.Amount, error) {
 		}
 		return channelBalance, nil
 	}
-	return types.NewAmountSats(0), errors.New("Node not found")
+	return types.NewAmountSats(0), errors.Newf("Node not found. Available nodes: %v", n.listNodes(false, true))
 }
 
 func (n *SLNetwork) CreateInvoice(nodeName string, amountSats uint64) (string, error) {
@@ -783,7 +770,7 @@ func (n *SLNetwork) CreateInvoice(nodeName string, amountSats uint64) (string, e
 		}
 		return invoice, nil
 	}
-	return "", errors.New("Node not found")
+	return "", errors.Newf("Node not found. Available nodes: %v", n.listNodes(false, true))
 }
 
 func (n *SLNetwork) PayInvoice(nodeName string, invoice string) (preimage string, err error) {
@@ -805,5 +792,19 @@ func (n *SLNetwork) PayInvoice(nodeName string, invoice string) (preimage string
 		}
 		return preimage, nil
 	}
-	return "", errors.New("Node not found")
+	return "", errors.Newf("Node not found. Available nodes: %v", n.listNodes(false, true))
+}
+
+func (n *SLNetwork) listNodes(bitcoin bool, lightning bool) (nodes []string) {
+	if bitcoin {
+		for _, node := range n.BitcoinNodes {
+			nodes = append(nodes, node.Name)
+		}
+	}
+	if lightning {
+		for _, node := range n.LightningNodes {
+			nodes = append(nodes, node.Name)
+		}
+	}
+	return nodes
 }
