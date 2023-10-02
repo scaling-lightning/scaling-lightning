@@ -30,7 +30,7 @@ func init() {
 				)
 				return
 			}
-			connectionDetails := []sl.ConnectionDetails{}
+			var connectionDetails []sl.ConnectionDetails
 			if all {
 				connectionDetails, err = slnetwork.GetConnectionDetailsForAllNodes()
 				if err != nil {
@@ -42,7 +42,7 @@ func init() {
 					fmt.Println("Must specify a node or use the --all flag")
 					return
 				}
-				connectionDetails, err = slnetwork.GetConnectionDetailsForNode(node)
+				connectionDetails, err = slnetwork.GetConnectionDetails(node)
 				if err != nil {
 					fmt.Printf("Problem getting connection details: %v\n", err.Error())
 					return
