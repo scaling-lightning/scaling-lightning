@@ -90,7 +90,7 @@ func GetEndpointForNode(kubeconfig string, ingressName string, mode endpointMode
 	log.Debug().Msgf("kubectl output was: %v", string(kubectlOut))
 	if err != nil {
 		log.Error().Err(err).Msgf("kubectl output was: %v", string(kubectlOut))
-		return 0, errors.Wrap(err, "Running kubectl get endpoints command")
+		return 0, errors.Wrap(err, "Running kubectl get ingress command")
 	}
 	ingressRouteTCPData := ingressRouteTCPData{}
 	err = json.Unmarshal(kubectlOut, &ingressRouteTCPData)
