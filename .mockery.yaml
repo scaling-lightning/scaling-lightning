@@ -1,12 +1,35 @@
-# testonly: true # try again in future
 with-expecter: true
 packages:
   github.com/scaling-lightning/scaling-lightning/pkg/network:
     config:
-      outpkg: "mocks"
-      dir: "pkg/network/mocks/"
+      dir: "{{.InterfaceDir}}"
+      filename: "mock_{{.InterfaceName}}_test.go"
+      outpkg: "{{.PackageName}}"
+      inpackage: true
     interfaces:
-      SLNetworkInterface:
-        config:
-          # replace-type:
-          #   - github.com/scaling-lightning/scaling-lightning/pkg/network.Node=github.com/scaling-lightning/scaling-lightning/pkg/network/mocks.MockNode
+      LightningNodeInterface:
+      BitcoinNodeInterface:
+  github.com/scaling-lightning/scaling-lightning/pkg/standardclient/common:
+    config:
+      dir: "{{.InterfaceDir}}"
+      filename: "mock_{{.InterfaceName}}_test.go"
+      outpkg: "{{.PackageName}}"
+      inpackage: true
+    interfaces:
+      CommonClient:
+  github.com/scaling-lightning/scaling-lightning/pkg/standardclient/bitcoin:
+    config:
+      dir: "{{.InterfaceDir}}"
+      filename: "mock_{{.InterfaceName}}_test.go"
+      outpkg: "{{.PackageName}}"
+      inpackage: true
+    interfaces:
+      BitcoinClient:
+  github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning:
+    config:
+      dir: "{{.InterfaceDir}}"
+      filename: "mock_{{.InterfaceName}}_test.go"
+      outpkg: "{{.PackageName}}"
+      inpackage: true
+    interfaces:
+      LightningClient:
