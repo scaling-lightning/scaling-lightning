@@ -12,7 +12,7 @@ packages:
   github.com/scaling-lightning/scaling-lightning/pkg/standardclient/common:
     config:
       dir: "{{.InterfaceDir}}"
-      filename: "mock_{{.InterfaceName}}_test.go"
+      filename: "mock_{{.InterfaceName}}.go"
       outpkg: "{{.PackageName}}"
       inpackage: true
     interfaces:
@@ -20,7 +20,7 @@ packages:
   github.com/scaling-lightning/scaling-lightning/pkg/standardclient/bitcoin:
     config:
       dir: "{{.InterfaceDir}}"
-      filename: "mock_{{.InterfaceName}}_test.go"
+      filename: "mock_{{.InterfaceName}}.go"
       outpkg: "{{.PackageName}}"
       inpackage: true
     interfaces:
@@ -28,7 +28,7 @@ packages:
   github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning:
     config:
       dir: "{{.InterfaceDir}}"
-      filename: "mock_{{.InterfaceName}}_test.go"
+      filename: "mock_{{.InterfaceName}}.go"
       outpkg: "{{.PackageName}}"
       inpackage: true
     interfaces:
