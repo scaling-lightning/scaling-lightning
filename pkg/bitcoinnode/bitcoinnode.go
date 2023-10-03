@@ -11,22 +11,9 @@ import (
 	basictypes "github.com/scaling-lightning/scaling-lightning/pkg/types"
 )
 
-//go:generate mockery --name LightningNodeInterface --exported
-type BitcoinNodeInterface interface {
-	GetName() string
-	Generate(numBlocks uint32) (hashes []string, err error)
-	GetWalletBalance() (basictypes.Amount, error)
-	SendToAddress(address string, amount basictypes.Amount) (string, error)
-	GetNewAddress() (string, error)
-}
-
 type BitcoinNode struct {
 	Name string
 	stdbitcoinclient.BitcoinClient
-}
-
-func (n *BitcoinNode) GetName() string {
-	return n.Name
 }
 
 func (n *BitcoinNode) Generate(client stdbitcoinclient.BitcoinClient, commonClient stdcommonclient.CommonClient, numBlocks uint32) (hashes []string, err error) {
@@ -89,6 +76,10 @@ func (n *BitcoinNode) GetNewAddress(client stdcommonclient.CommonClient) (string
 type ConnectionPorts struct {
 	Name string
 	Port uint16
+}
+
+func (n *BitcoinNode) GetName() string {
+	return n.Name
 }
 
 func (n *BitcoinNode) GetConnectionPorts(kubeConfig string) ([]ConnectionPorts, error) {

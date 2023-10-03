@@ -37,9 +37,9 @@ func init() {
 			originalAuthFilesDir := authFilesDir
 			for _, node := range slnetwork.LightningNodes {
 				if all {
-					authFilesDir = path.Join(originalAuthFilesDir, node.Name)
+					authFilesDir = path.Join(originalAuthFilesDir, node.GetName())
 				}
-				if node.Name == nodeName || all {
+				if node.GetName() == nodeName || all {
 					err := node.WriteAuthFilesToDirectory(slnetwork.Network.String(), kubeConfigPath, authFilesDir)
 					if err != nil {
 						fmt.Printf("Problem writing auth files: %v\n", err.Error())
@@ -55,7 +55,7 @@ func init() {
 
 			allNames := []string{}
 			for _, node := range slnetwork.LightningNodes {
-				allNames = append(allNames, node.Name)
+				allNames = append(allNames, node.GetName())
 			}
 			fmt.Printf(
 				"Can't find node(s), here are the lightning nodes that are running: %v\n",

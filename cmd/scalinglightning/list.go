@@ -29,7 +29,7 @@ func init() {
 			}
 			fmt.Printf("\nLightning nodes:\n\n")
 			for _, node := range slnetwork.LightningNodes {
-				fmt.Printf("	%v\n", node.Name)
+				fmt.Printf("	%v\n", node.GetName())
 			}
 		},
 	}

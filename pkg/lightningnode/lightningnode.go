@@ -47,25 +47,13 @@ type CLNConnectionFiles struct {
 	CACert     []byte
 }
 
-//go:generate mockery --name LightningNodeInterface --exported
-type LightningNodeInterface interface {
-	GetName() string
-	SendToAddress(address string, amount basictypes.Amount) (string, error)
-	GetNewAddress() (string, error)
-	GetPubKey() (basictypes.PubKey, error)
-	GetWalletBalance() (basictypes.Amount, error)
-	ConnectPeer(toPubkey string) error
-	OpenChannel(to *LightningNode, localAmt basictypes.Amount) (basictypes.ChannelPoint, error)
-	WriteAuthFilesToDirectory(dir string) error
-	GetConnectionDetails() (ConnectionDetails, error)
-	CreateInvoice(amountSats uint64) (string, error)
-	PayInvoice(invoice string) (string, error)
-	ChannelBalance() (basictypes.Amount, error)
-}
-
 type LightningNode struct {
 	Name string
 	Impl NodeImpl
+}
+
+func (n *LightningNode) GetName() string {
+	return n.Name
 }
 
 func (n *LightningNode) SendToAddress(
