@@ -138,7 +138,7 @@ func (n *SLNetwork) CheckDependencies() error {
 	if err != nil {
 		return errors.Wrap(err, "Running helm plugin list command")
 	}
-	if !strings.Contains(string(hplOut), "diff.") {
+	if !strings.Contains(string(hplOut), "diff\t") {
 		log.Debug().Err(err).Msgf("helm plugin list output was: %v", string(hplOut))
 		return errors.New("Helm plugin diff not installed")
 	}
