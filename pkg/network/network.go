@@ -353,6 +353,26 @@ func (n *SLNetwork) CreateAndStart() error {
 	return nil
 }
 
+func (n *SLNetwork) Start() error {
+	log.Debug().Msg("Starting network")
+	for _, node := range n.GetAllNodes() {
+		err := n.StartNode(node.GetName())
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (n *SLNetwork) StartNode(nodeName string) error {
+	log.Debug().Msg("Starting node")
+	err := kube.Scale(n.kubeConfig, nodeName, "statefulset", 1)
+	if err != nil {
+		return errors.Wrapf(err, "Scaling node %v to 1 replicas", nodeName)
+	}
+	return nil
+}
+
 func (n *SLNetwork) Stop() error {
 	log.Debug().Msg("Stopping network")
 	for _, node := range n.GetAllNodes() {
@@ -368,7 +388,7 @@ func (n *SLNetwork) StopNode(nodeName string) error {
 	log.Debug().Msg("Stopping node")
 	err := kube.Scale(n.kubeConfig, nodeName, "statefulset", 0)
 	if err != nil {
-		return errors.Wrapf(err, "Scaling node %v to 0", nodeName)
+		return errors.Wrapf(err, "Scaling node %v to 0 replicas", nodeName)
 	}
 	return nil
 }

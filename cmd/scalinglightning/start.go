@@ -2,35 +2,58 @@ package scalinglightning
 
 import (
 	"fmt"
-	"log"
 
 	sl "github.com/scaling-lightning/scaling-lightning/pkg/network"
 	"github.com/spf13/cobra"
 )
 
 func init() {
+
 	var startCmd = &cobra.Command{
 		Use:   "start",
-		Short: "Start a stopped network or node",
+		Short: "Start a stopped network",
 		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
 			processDebugFlag(cmd)
-			helmfile := cmd.Flag("helmfile").Value.String()
-			fmt.Println("Starting the network")
-			slnetwork := sl.NewSLNetwork(helmfile, kubeConfigPath, sl.Regtest)
-			err := slnetwork.CreateAndStart()
+			node := cmd.Flag("node").Value.String()
+			all, err := cmd.Flags().GetBool("all")
+			if err != nil {
+				fmt.Printf("Problem getting all flag: %v\n", err.Error())
+				return
+			}
+
+			slnetwork, err := sl.DiscoverRunningNetwork(kubeConfigPath, apiHost, apiPort)
+			if err != nil {
+				fmt.Printf(
+					"Problem with network discovery, is there a network running? Error: %v\n",
+					err.Error(),
+				)
+				return
+			}
+			if all {
+				err := slnetwork.Start()
+				if err != nil {
+					fmt.Println(err.Error())
+					return
+				}
+				fmt.Println("Network started")
+				return
+			}
+
+			err = slnetwork.StartNode(node)
 			if err != nil {
 				fmt.Println(err.Error())
 			}
+			fmt.Println("Node started")
 		},
 	}
 
 	rootCmd.AddCommand(startCmd)
 
 	startCmd.Flags().
-		StringP("helmfile", "f", "", "Location of helmfile.yaml (required)")
-	err := startCmd.MarkFlagRequired("helmfile")
-	if err != nil {
-		log.Fatalf("Problem marking helmfile flag as required: %v", err.Error())
-	}
+		StringP("node", "n", "", "The name of the node to start")
+
+	startCmd.Flags().
+		BoolP("all", "a", false, "Start all nodes")
+
 }
