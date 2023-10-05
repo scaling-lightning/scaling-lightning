@@ -54,14 +54,6 @@ func (n NetworkType) String() string {
 	}
 }
 
-//go:generate mockery --name SLNetworkInterface --exported
-type SLNetworkInterface interface {
-	Start() error
-	Stop() error
-	GetBitcoinNode(name string) (*bitcoinnode.BitcoinNode, error)
-	GetLightningNode(name string) (*lightningnode.LightningNode, error)
-}
-
 type LightningNodeInterface interface {
 	GetName() string
 	SendToAddress(client stdcommonclient.CommonClient, address string, amount types.Amount) (string, error)
@@ -370,7 +362,7 @@ func (n *SLNetwork) discoverConnectionDetails() error {
 	return nil
 }
 
-func (n *SLNetwork) Stop() error {
+func (n *SLNetwork) Destroy() error {
 	log.Debug().Msg("Stopping network")
 
 	// TODO: santise helmfile flag

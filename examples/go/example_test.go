@@ -27,7 +27,7 @@ func TestMain(t *testing.T) {
 
 	assert.NoError(err)
 	defer func() {
-		err = network.Stop()
+		err = network.Destroy()
 		assert.NoError(err)
 	}()
 

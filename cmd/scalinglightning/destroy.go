@@ -10,15 +10,15 @@ import (
 
 func init() {
 
-	var stopCmd = &cobra.Command{
-		Use:   "stop",
-		Short: "Stop the network",
+	var destroyCmd = &cobra.Command{
+		Use:   "destroy",
+		Short: "destroy the network",
 		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
 			processDebugFlag(cmd)
-			stopHelmfile := cmd.Flag("helmfile").Value.String()
-			fmt.Println("Stopping the network")
-			slnetwork := sl.NewSLNetwork(stopHelmfile, kubeConfigPath, sl.Regtest)
+			destroyHelmfile := cmd.Flag("helmfile").Value.String()
+			fmt.Println("Destroying the network")
+			slnetwork := sl.NewSLNetwork(destroyHelmfile, kubeConfigPath, sl.Regtest)
 			err := slnetwork.Destroy()
 			if err != nil {
 				fmt.Println(err.Error())
@@ -26,11 +26,11 @@ func init() {
 		},
 	}
 
-	rootCmd.AddCommand(stopCmd)
+	rootCmd.AddCommand(destroyCmd)
 
-	stopCmd.Flags().
+	destroyCmd.Flags().
 		StringP("helmfile", "f", "", "Location of helmfile.yaml (required)")
-	err := stopCmd.MarkFlagRequired("helmfile")
+	err := destroyCmd.MarkFlagRequired("helmfile")
 	if err != nil {
 		log.Fatalf("Problem marking helmfile flag as required: %v", err.Error())
 	}
