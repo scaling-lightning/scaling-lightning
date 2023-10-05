@@ -16,7 +16,7 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			processDebugFlag(cmd)
 			helmfile := cmd.Flag("helmfile").Value.String()
-			fmt.Println("Creating the network")
+			fmt.Println("Creating and starting the network")
 			slnetwork := sl.NewSLNetwork(helmfile, kubeConfigPath, sl.Regtest)
 			err := slnetwork.CreateAndStart()
 			if err != nil {
