@@ -406,18 +406,9 @@ func (n *SLNetwork) discoverConnectionDetails() error {
 func (n *SLNetwork) Destroy() error {
 	log.Debug().Msg("Stopping network")
 
-	// TODO: santise helmfile flag
-	helmfileCmd := exec.Command( //nolint:gosec
-		"helmfile",
-		"destroy",
-		"-f",
-		n.helmfile,
-	)
-	helmfileCmd.Env = append(os.Environ(), "KUBECONFIG="+n.kubeConfig)
-	helmfileOut, err := helmfileCmd.CombinedOutput()
+	err := kube.DeleteMainNamespace(n.kubeConfig)
 	if err != nil {
-		log.Debug().Err(err).Msgf("helmfile output was: %v", string(helmfileOut))
-		return errors.Wrap(err, "Running helmfile destroy command")
+		return errors.Wrap(err, "Deleting main namespace")
 	}
 	return nil
 }

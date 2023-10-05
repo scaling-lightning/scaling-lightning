@@ -160,7 +160,28 @@ func Scale(kubeconfig string, deploymentName string, deploymentType string, repl
 	}
 	if err != nil {
 		log.Error().Err(err).Msgf("kubectl output was: %v", string(kubectlOut))
-		return errors.Wrap(err, "Running kubectl get ingress command")
+		return errors.Wrap(err, "Running kubectl scale command")
+	}
+	return nil
+}
+
+func DeleteMainNamespace(kubeconfig string) error {
+	// TODO: sanitise inputs here
+	kubectlCmd := exec.Command( //nolint:gosec
+		"kubectl",
+		"--kubeconfig",
+		kubeconfig,
+		"delete",
+		"namespace",
+		mainNamespace,
+	)
+	kubectlOut, err := kubectlCmd.CombinedOutput()
+	if zerolog.GlobalLevel() == zerolog.DebugLevel {
+		fmt.Printf("kubectl output was:\n\n%v", kubectlOut)
+	}
+	if err != nil {
+		log.Error().Err(err).Msgf("kubectl output was: %v", string(kubectlOut))
+		return errors.Wrap(err, "Running kubectl delete namespace command")
 	}
 	return nil
 }
