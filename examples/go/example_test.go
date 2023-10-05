@@ -17,7 +17,7 @@ func TestMain(t *testing.T) {
 	zerolog.SetGlobalLevel(zerolog.TraceLevel)
 	assert := assert.New(t)
 	network := sl.NewSLNetwork("../helmfiles/public.yaml", "", sl.Regtest)
-	err := network.Start()
+	err := network.CreateAndStart()
 	if err != nil {
 		log.Fatal().Err(err).Msg("Problem starting network")
 	}

@@ -9,14 +9,14 @@ import (
 )
 
 func init() {
-	var startCmd = &cobra.Command{
-		Use:   "start",
-		Short: "Start a stopped network or node",
+	var createCmd = &cobra.Command{
+		Use:   "create",
+		Short: "Create and start the network",
 		Long:  ``,
 		Run: func(cmd *cobra.Command, args []string) {
 			processDebugFlag(cmd)
 			helmfile := cmd.Flag("helmfile").Value.String()
-			fmt.Println("Starting the network")
+			fmt.Println("Creating the network")
 			slnetwork := sl.NewSLNetwork(helmfile, kubeConfigPath, sl.Regtest)
 			err := slnetwork.CreateAndStart()
 			if err != nil {
@@ -25,11 +25,11 @@ func init() {
 		},
 	}
 
-	rootCmd.AddCommand(startCmd)
+	rootCmd.AddCommand(createCmd)
 
-	startCmd.Flags().
+	createCmd.Flags().
 		StringP("helmfile", "f", "", "Location of helmfile.yaml (required)")
-	err := startCmd.MarkFlagRequired("helmfile")
+	err := createCmd.MarkFlagRequired("helmfile")
 	if err != nil {
 		log.Fatalf("Problem marking helmfile flag as required: %v", err.Error())
 	}

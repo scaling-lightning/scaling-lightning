@@ -309,8 +309,8 @@ func GetLoadbalancerHostname(
 	return host, nil
 }
 
-func (n *SLNetwork) Start() error {
-	log.Debug().Msg("Starting network")
+func (n *SLNetwork) CreateAndStart() error {
+	log.Debug().Msg("Creating network")
 	if err := n.CheckDependencies(); err != nil {
 		return errors.Wrap(err, "Checking dependencies")
 	}
