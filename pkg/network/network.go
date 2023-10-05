@@ -11,6 +11,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
 	"github.com/scaling-lightning/scaling-lightning/pkg/bitcoinnode"
+	"github.com/scaling-lightning/scaling-lightning/pkg/kube"
 	"github.com/scaling-lightning/scaling-lightning/pkg/lightningnode"
 	stdbitcoinclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/bitcoin"
 	stdcommonclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/common"
@@ -352,6 +353,26 @@ func (n *SLNetwork) CreateAndStart() error {
 	return nil
 }
 
+func (n *SLNetwork) Stop() error {
+	log.Debug().Msg("Stopping network")
+	for _, node := range n.GetAllNodes() {
+		err := n.StopNode(node.GetName())
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (n *SLNetwork) StopNode(nodeName string) error {
+	log.Debug().Msg("Stopping node")
+	err := kube.Scale(n.kubeConfig, nodeName, "statefulset", 0)
+	if err != nil {
+		return errors.Wrapf(err, "Scaling node %v to 0", nodeName)
+	}
+	return nil
+}
+
 func (n *SLNetwork) discoverConnectionDetails() error {
 	loadbalancer, err := GetLoadbalancerHostname("traefik", traefikNamespace, n.kubeConfig)
 	if err != nil {
@@ -411,6 +432,17 @@ func (n *SLNetwork) GetNode(name string) (NodeInterface, error) {
 		}
 	}
 	return nil, errors.New("Node not found")
+}
+
+func (n *SLNetwork) GetAllNodes() []NodeInterface {
+	nodes := []NodeInterface{}
+	for _, node := range n.BitcoinNodes {
+		nodes = append(nodes, node)
+	}
+	for _, node := range n.LightningNodes {
+		nodes = append(nodes, node)
+	}
+	return nodes
 }
 
 type helmFile struct {

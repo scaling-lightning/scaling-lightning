@@ -2,10 +2,13 @@ package kube
 
 import (
 	"encoding/json"
+	"fmt"
 	"os/exec"
+	"strconv"
 	"strings"
 
 	"github.com/cockroachdb/errors"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
@@ -136,4 +139,28 @@ func GetEndpointForNode(kubeconfig string, ingressName string, mode endpointMode
 		}
 	}
 	return 0, errors.New("Couldn't find port")
+}
+
+func Scale(kubeconfig string, deploymentName string, deploymentType string, replicas int) error {
+	// TODO: sanitise inputs here
+	kubectlCmd := exec.Command( //nolint:gosec
+		"kubectl",
+		"--kubeconfig",
+		kubeconfig,
+		"-n",
+		mainNamespace,
+		"scale",
+		deploymentType,
+		deploymentName,
+		"--replicas="+strconv.Itoa(replicas),
+	)
+	kubectlOut, err := kubectlCmd.CombinedOutput()
+	if zerolog.GlobalLevel() == zerolog.DebugLevel {
+		fmt.Printf("kubectl output was:\n\n%v", kubectlOut)
+	}
+	if err != nil {
+		log.Error().Err(err).Msgf("kubectl output was: %v", string(kubectlOut))
+		return errors.Wrap(err, "Running kubectl get ingress command")
+	}
+	return nil
 }
