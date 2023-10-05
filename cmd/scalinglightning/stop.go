@@ -22,6 +22,11 @@ func init() {
 				return
 			}
 
+			if !all && node == "" {
+				fmt.Println("Must specify a node or use the --all flag")
+				return
+			}
+
 			slnetwork, err := sl.DiscoverRunningNetwork(kubeConfigPath, apiHost, apiPort)
 			if err != nil {
 				fmt.Printf(
