@@ -413,6 +413,15 @@ func (n *SLNetwork) Destroy() error {
 	return nil
 }
 
+func (n *SLNetwork) IsNodeRunning(nodeName string) (bool, error) {
+	log.Debug().Msg("Checking if node is running")
+	scale, err := kube.GetScale(n.kubeConfig, nodeName)
+	if err != nil {
+		return false, errors.Wrapf(err, "Getting scale for %v", nodeName)
+	}
+	return scale > 0, nil
+}
+
 func (n *SLNetwork) GetBitcoinNode(name string) (BitcoinNodeInterface, error) {
 	for _, node := range n.BitcoinNodes {
 		if node.GetName() == name {

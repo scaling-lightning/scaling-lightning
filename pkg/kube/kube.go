@@ -185,3 +185,43 @@ func DeleteMainNamespace(kubeconfig string) error {
 	}
 	return nil
 }
+
+//	"status": {
+//	    "replicas": 1,
+//	}
+type statefulset struct {
+	Status struct {
+		Replicas int `json:"replicas"`
+	} `json:"status"`
+}
+
+func GetScale(kubeconfig string, deploymentName string) (int, error) {
+	// TODO: sanitise inputs here
+	kubectlCmd := exec.Command( //nolint:gosec
+		"kubectl",
+		"--kubeconfig",
+		kubeconfig,
+		"-n",
+		mainNamespace,
+		"get",
+		"statefulset",
+		deploymentName,
+		"-o",
+		"json",
+	)
+
+	kubectlOut, err := kubectlCmd.Output()
+	if zerolog.GlobalLevel() == zerolog.DebugLevel {
+		fmt.Printf("kubectl output was:\n\n%v", kubectlOut)
+	}
+	if err != nil {
+		return 0, errors.Wrap(err, "Running kubectl get statefulset command")
+	}
+
+	statefulset := statefulset{}
+	err = json.Unmarshal(kubectlOut, &statefulset)
+	if err != nil {
+		return 0, errors.Wrap(err, "Unmarshalling statefulset")
+	}
+	return statefulset.Status.Replicas, nil
+}
