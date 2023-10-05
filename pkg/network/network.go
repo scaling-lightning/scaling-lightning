@@ -190,7 +190,7 @@ type helmListOutput struct {
 	AppVersion string `json:"app_version"`
 }
 
-func DiscoverStartedNetwork(
+func DiscoverRunningNetwork(
 	kubeconfig string,
 	overrideAPIHost string,
 	overrideAPIPort uint16,

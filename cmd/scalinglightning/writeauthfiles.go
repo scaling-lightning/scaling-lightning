@@ -24,7 +24,7 @@ func init() {
 				return
 			}
 
-			slnetwork, err := sl.DiscoverStartedNetwork(kubeConfigPath, apiHost, apiPort)
+			slnetwork, err := sl.DiscoverRunningNetwork(kubeConfigPath, apiHost, apiPort)
 			if err != nil {
 				fmt.Printf(
 					"Problem with network discovery, is there a network running? Error: %v\n",
