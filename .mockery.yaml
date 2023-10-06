@@ -33,3 +33,11 @@ packages:
       inpackage: true
     interfaces:
       LightningClient:
+  github.com/scaling-lightning/scaling-lightning/pkg/initialstate:
+    config:
+      dir: "{{.InterfaceDir}}"
+      filename: "mock_{{.InterfaceName}}.go"
+      outpkg: "{{.PackageName}}"
+      inpackage: true
+    interfaces:
+      SLNetworkInterface:
