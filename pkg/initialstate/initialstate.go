@@ -11,8 +11,8 @@ type SLNetworkInterface interface {
 	CreateInvoice(nodeName string, amountSats uint64) (string, error)
 	PayInvoice(nodeName string, invoice string) (string, error)
 	ChannelBalance(nodeName string) (types.Amount, error)
-	ConnectPeer(nodeName string, pubkey types.PubKey) error
-	OpenChannel(nodeName string, pubkey types.PubKey, localAmt types.Amount) (types.ChannelPoint, error)
+	ConnectPeer(fromNodeName string, toNodeName string) error
+	OpenChannel(fromNodeName string, toNodeName string, localAmt uint64) (types.ChannelPoint, error)
 }
 
 type initialStateYAML []initialStateCommand
@@ -47,7 +47,7 @@ func (is *initialState) ApplyToNetwork(network string) error {
 		for commandName, args := range command {
 			switch commandName {
 			case "OpenChannels":
-				err := network.OpenChannels(args)
+				_, err := is.network.OpenChannel("lnd1", "lnd2", 200_000)
 				if err != nil {
 					return errors.Wrap(err, "Opening channels")
 				}
