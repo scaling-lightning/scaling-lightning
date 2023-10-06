@@ -20,7 +20,7 @@ const exampleInitialState = `
 - OpenChannels:
     - { from: lnd1, to: lnd2, localAmountSats: 250_000 }
 - SendOverChannel:
-    - { from: lnd1, to: lnd2, amountMSat 2_000_000 }
+    - { from: lnd1, to: lnd2, amountMSat: 2_000_000 }
 `
 func TestParseInitialStateFile(t *testing.T) {
 	assert := assert.New(t)
