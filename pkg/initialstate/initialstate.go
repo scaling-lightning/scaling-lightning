@@ -15,15 +15,15 @@ type SLNetworkInterface interface {
 	OpenChannel(fromNodeName string, toNodeName string, localAmt uint64) (types.ChannelPoint, error)
 }
 
-type initialStateYAML []initialStateCommand
-type initialStateCommand map[string][]string
+type initialStateYAML []map[string][]map[string]interface{}
+type initialStateCommand []map[string]map[string]interface{}
 
 type initialState struct {
-	commands initialStateYAML
+	commands initialStateCommand
 	network SLNetworkInterface
 }
 
-func newInitialState(yamlBytes []byte) (*initialState, error) {
+func NewInitialState(yamlBytes []byte) (*initialState, error) {
 	initialState := initialState{}
 	err := initialState.parseYAML(yamlBytes)
 	if err != nil {
@@ -34,10 +34,22 @@ func newInitialState(yamlBytes []byte) (*initialState, error) {
 
 func (is *initialState) parseYAML(yamlBytes []byte) error {
 
-	err := yaml.Unmarshal(yamlBytes, &is.commands)
+	yamlData := initialStateYAML{}
+	err := yaml.Unmarshal(yamlBytes, &yamlData)
 	if err != nil {
 		return errors.Wrap(err, "Unmarshalling yaml")
 	}
+	for _, commandType := range yamlData {
+		for commandName, commands := range commandType {
+			for _, command := range commands {
+				is.commands = append(is.commands, map[string]map[string]interface{}{
+					commandName: command,
+				})
+			}
+			break
+		}
+	}
+
 	return nil
 }
 

@@ -26,8 +26,10 @@ func TestParseInitialStateFile(t *testing.T) {
 	assert := assert.New(t)
 	assert.Nil(nil)
 
-	initialState, err := newInitialState([]byte(exampleInitialState))
+	initialState, err := NewInitialState([]byte(exampleInitialState))
 	assert.Nil(err)
+
+	assert.Equal(7, len(initialState.commands))
 
 	log.Printf("%v", initialState)
 }
