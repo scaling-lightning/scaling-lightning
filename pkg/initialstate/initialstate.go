@@ -15,11 +15,14 @@ type SLNetworkInterface interface {
 	OpenChannel(fromNodeName string, toNodeName string, localAmt uint64) (types.ChannelPoint, error)
 }
 
-type initialStateYAML []map[string][]map[string]interface{}
-type initialStateCommand []map[string]map[string]interface{}
+type yamlCommands []map[string][]map[string]interface{}
+type command struct {
+	commandType string
+	args map[string]interface{}
+}
 
 type initialState struct {
-	commands initialStateCommand
+	commands []command
 	network SLNetworkInterface
 }
 
@@ -34,16 +37,17 @@ func NewInitialState(yamlBytes []byte) (*initialState, error) {
 
 func (is *initialState) parseYAML(yamlBytes []byte) error {
 
-	yamlData := initialStateYAML{}
+	yamlData := yamlCommands{}
 	err := yaml.Unmarshal(yamlBytes, &yamlData)
 	if err != nil {
 		return errors.Wrap(err, "Unmarshalling yaml")
 	}
 	for _, commandType := range yamlData {
 		for commandName, commands := range commandType {
-			for _, command := range commands {
-				is.commands = append(is.commands, map[string]map[string]interface{}{
-					commandName: command,
+			for _, c := range commands {
+				is.commands = append(is.commands, command {
+					commandType: commandName,
+					args: c,
 				})
 			}
 			break
@@ -56,8 +60,7 @@ func (is *initialState) parseYAML(yamlBytes []byte) error {
 // function to run through commands and execute them on the network
 func (is *initialState) ApplyToNetwork(network string) error {
 	for _, command := range is.commands {
-		for commandName, args := range command {
-			switch commandName {
+			switch command.commandType {
 			case "OpenChannels":
 				_, err := is.network.OpenChannel("lnd1", "lnd2", 200_000)
 				if err != nil {
@@ -84,9 +87,8 @@ func (is *initialState) ApplyToNetwork(network string) error {
 			// 		return errors.Wrap(err, "Paying on chain")
 			// 	}
 			default:
-				return errors.Errorf("Unknown command %v %v", commandName, args)
+				return errors.Errorf("Unknown command %v", command.commandType)
 			}
-		}
 	}
 	return nil
 }

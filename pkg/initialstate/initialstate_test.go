@@ -31,5 +31,10 @@ func TestParseInitialStateFile(t *testing.T) {
 
 	assert.Equal(7, len(initialState.commands))
 
+	assert.Equal("SendOnChain", initialState.commands[0].commandType)
+	assert.Equal("OpenChannels", initialState.commands[1].commandType)
+	assert.Equal("OpenChannels", initialState.commands[2].commandType)
+	assert.Equal("ConnectPeer", initialState.commands[3].commandType)
+
 	log.Printf("%v", initialState)
 }
