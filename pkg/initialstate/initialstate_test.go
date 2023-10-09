@@ -3,38 +3,86 @@ package initialstate
 import (
 	"testing"
 
-	"github.com/rs/zerolog/log"
+	"github.com/scaling-lightning/scaling-lightning/pkg/types"
 	"github.com/stretchr/testify/assert"
 )
 
 const exampleInitialState = `
 - SendOnChain:
-    - { from: bitcoind, to: lnd1, amountSats: 2_000_000 }
-- OpenChannels:
-    - { from: lnd1, to: lnd2, localAmountSats: 200_000 }
-    - { from: lnd1, to: lnd2, localAmountSats: 300_000 }
+    - { from: bitcoind, to: alice, amountSats: 2_000_000 }
 - ConnectPeer:
-    - { from: lnd4, to: lnd5 }
-- CloseChannels:
-    - { from: lnd1, havingPeer: lnd2, havingCapacity: 300_000 }
+    - { from: alice, to: bob }
 - OpenChannels:
-    - { from: lnd1, to: lnd2, localAmountSats: 250_000 }
+    - { from: alice, to: bob, localAmountSats: 200_000 }
+    - { from: alice, to: bob, localAmountSats: 300_000 }
+- CloseChannels:
+    - { from: alice, havingPeer: bob, havingCapacity: 300_000 }
+- OpenChannels:
+    - { from: alice, to: bob, localAmountSats: 250_000 }
 - SendOverChannel:
-    - { from: lnd1, to: lnd2, amountMSat: 2_000_000 }
+    - { from: alice, to: bob, amountMSat: 2_000_000 }
 `
-func TestParseInitialStateFile(t *testing.T) {
+func TestParseInitialStateBytes(t *testing.T) {
 	assert := assert.New(t)
-	assert.Nil(nil)
 
-	initialState, err := NewInitialState([]byte(exampleInitialState))
+	initialState, err := NewInitialStateFromBytes([]byte(exampleInitialState), nil)
 	assert.Nil(err)
 
 	assert.Equal(7, len(initialState.commands))
 
 	assert.Equal("SendOnChain", initialState.commands[0].commandType)
-	assert.Equal("OpenChannels", initialState.commands[1].commandType)
+	assert.Equal("ConnectPeer", initialState.commands[1].commandType)
 	assert.Equal("OpenChannels", initialState.commands[2].commandType)
-	assert.Equal("ConnectPeer", initialState.commands[3].commandType)
+	assert.Equal("OpenChannels", initialState.commands[3].commandType)
 
-	log.Printf("%v", initialState)
+	assert.Equal("bitcoind", initialState.commands[0].args["from"])
+	assert.Equal(300_000, initialState.commands[3].args["localAmountSats"])
+}
+
+func TestSendOnChain(t *testing.T) {
+	assert := assert.New(t)
+
+	const initYAML = `
+- SendOnChain:
+    - { from: bitcoind, to: alice, amount: 2_000_000 }
+`
+	mockNetwork := NewMockSLNetworkInterface(t)
+	mockNetwork.On("Send", "bitcoind", "alice", uint64(2_000_000)).Return("txid", nil)
+	initialState, err := NewInitialStateFromBytes([]byte(initYAML), mockNetwork)
+	assert.Nil(err)
+
+	err = initialState.Apply()
+	assert.Nil(err)
+}
+
+func TestConnectPeer(t *testing.T) {
+	assert := assert.New(t)
+
+	initYAML := `
+- ConnectPeer:
+    - { from: alice, to: bob }
+`
+	mockNetwork := NewMockSLNetworkInterface(t)
+	mockNetwork.On("ConnectPeer", "alice", "bob").Return(nil)
+	initialState, err := NewInitialStateFromBytes([]byte(initYAML), mockNetwork)
+	assert.Nil(err)
+
+	err = initialState.Apply()
+	assert.Nil(err)
+}
+
+func TestOpenChannel(t *testing.T) {
+	assert := assert.New(t)
+
+	const initYAML = `
+- OpenChannels:
+    - { from: alice, to: bob, localAmountSats: 200_000 }
+`
+	mockNetwork := NewMockSLNetworkInterface(t)
+	mockNetwork.On("OpenChannel", "alice", "bob", uint64(200_000)).Return(types.ChannelPoint{FundingTx: types.Transaction{}, OutputIndex: 21}, nil)
+	initialState, err := NewInitialStateFromBytes([]byte(initYAML), mockNetwork)
+	assert.Nil(err)
+
+	err = initialState.Apply()
+	assert.Nil(err)
 }

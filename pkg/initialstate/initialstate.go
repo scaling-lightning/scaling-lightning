@@ -1,6 +1,8 @@
 package initialstate
 
 import (
+	"os"
+
 	"github.com/cockroachdb/errors"
 	"github.com/scaling-lightning/scaling-lightning/pkg/types"
 	"gopkg.in/yaml.v3"
@@ -15,7 +17,7 @@ type SLNetworkInterface interface {
 	OpenChannel(fromNodeName string, toNodeName string, localAmt uint64) (types.ChannelPoint, error)
 }
 
-type yamlCommands []map[string][]map[string]interface{}
+type yamlCommands []map[string][]map[string]any
 type command struct {
 	commandType string
 	args map[string]interface{}
@@ -26,13 +28,22 @@ type initialState struct {
 	network SLNetworkInterface
 }
 
-func NewInitialState(yamlBytes []byte) (*initialState, error) {
+func NewInitialStateFromBytes(yamlBytes []byte, network SLNetworkInterface) (*initialState, error) {
 	initialState := initialState{}
 	err := initialState.parseYAML(yamlBytes)
 	if err != nil {
 		return nil, errors.Wrap(err, "Parsing initial state yaml")
 	}
+	initialState.network = network
 	return &initialState, nil
+}
+
+func NewInitialStateFromFile(yamlFilePath string, network SLNetworkInterface) (*initialState, error) {
+	yamlBytes, err := os.ReadFile(yamlFilePath)
+	if err != nil {
+		return nil, errors.Wrap(err, "Reading yaml file")
+	}
+	return NewInitialStateFromBytes(yamlBytes, network)
 }
 
 func (is *initialState) parseYAML(yamlBytes []byte) error {
@@ -58,11 +69,29 @@ func (is *initialState) parseYAML(yamlBytes []byte) error {
 }
 
 // function to run through commands and execute them on the network
-func (is *initialState) ApplyToNetwork(network string) error {
+func (is *initialState) Apply() error {
 	for _, command := range is.commands {
 			switch command.commandType {
+			case "SendOnChain":
+				_, err := is.network.Send(
+					command.args["from"].(string),
+					command.args["to"].(string),
+					uint64(command.args["amount"].(int)))
+				if err != nil {
+					return errors.Wrap(err, "Sending on chain")
+				}
+			case "ConnectPeer":
+				err := is.network.ConnectPeer(
+					command.args["from"].(string),
+					command.args["to"].(string))
+				if err != nil {
+					return errors.Wrap(err, "Connecting peer")
+				}
 			case "OpenChannels":
-				_, err := is.network.OpenChannel("lnd1", "lnd2", 200_000)
+				_, err := is.network.OpenChannel(
+					command.args["from"].(string),
+					command.args["to"].(string),
+					uint64(command.args["localAmountSats"].(int)))
 				if err != nil {
 					return errors.Wrap(err, "Opening channels")
 				}
@@ -80,11 +109,6 @@ func (is *initialState) ApplyToNetwork(network string) error {
 			// 	err := network.PayInvoice(args)
 			// 	if err != nil {
 			// 		return errors.Wrap(err, "Paying invoice")
-			// 	}
-			// case "PayOnChain":
-			// 	err := network.PayOnChain(args)
-			// 	if err != nil {
-			// 		return errors.Wrap(err, "Paying on chain")
 			// 	}
 			default:
 				return errors.Errorf("Unknown command %v", command.commandType)
