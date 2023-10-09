@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// TODO: Implement close channels
 const exampleInitialState = `
 - SendOnChain:
     - { from: bitcoind, to: alice, amountSats: 2_000_000 }
@@ -80,6 +81,23 @@ func TestOpenChannel(t *testing.T) {
 `
 	mockNetwork := NewMockSLNetworkInterface(t)
 	mockNetwork.On("OpenChannel", "alice", "bob", uint64(200_000)).Return(types.ChannelPoint{FundingTx: types.Transaction{}, OutputIndex: 21}, nil)
+	initialState, err := NewInitialStateFromBytes([]byte(initYAML), mockNetwork)
+	assert.Nil(err)
+
+	err = initialState.Apply()
+	assert.Nil(err)
+}
+
+func TestSendOnChannel(t *testing.T) {
+	assert := assert.New(t)
+
+	const initYAML = `
+- SendOverChannel:
+    - { from: alice, to: bob, amountMSat: 2_000_000 }
+`
+	mockNetwork := NewMockSLNetworkInterface(t)
+	mockNetwork.On("CreateInvoice", "bob", uint64(2_000)).Return("bolt11inv", nil)
+	mockNetwork.On("PayInvoice", "alice", "bolt11inv").Return("preimage", nil)
 	initialState, err := NewInitialStateFromBytes([]byte(initYAML), mockNetwork)
 	assert.Nil(err)
 

@@ -95,21 +95,19 @@ func (is *initialState) Apply() error {
 				if err != nil {
 					return errors.Wrap(err, "Opening channels")
 				}
-			// case "CloseChannels":
-			// 	err := network.CloseChannels(args)
-			// 	if err != nil {
-			// 		return errors.Wrap(err, "Closing channels")
-			// 	}
-			// case "ConnectPeer":
-			// 	err := network.ConnectPeer(args)
-			// 	if err != nil {
-			// 		return errors.Wrap(err, "Connecting peer")
-			// 	}
-			// case "PayInvoice":
-			// 	err := network.PayInvoice(args)
-			// 	if err != nil {
-			// 		return errors.Wrap(err, "Paying invoice")
-			// 	}
+			case "SendOverChannel":
+				invoice, err := is.network.CreateInvoice(
+					command.args["to"].(string),
+					uint64(command.args["amountMSat"].(int))/1000)
+				if err != nil {
+					return errors.Wrap(err, "Creating invoice")
+				}
+				_, err = is.network.PayInvoice(
+					command.args["from"].(string),
+					invoice)
+				if err != nil {
+					return errors.Wrap(err, "Paying invoice")
+				}
 			default:
 				return errors.Errorf("Unknown command %v", command.commandType)
 			}
