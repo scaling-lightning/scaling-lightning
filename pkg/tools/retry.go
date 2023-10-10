@@ -1,36 +1,66 @@
 package tools
 
 import (
+	"context"
 	"time"
 
 	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog/log"
 )
 
-type NoRetryError struct{}
-
-func (nre NoRetryError) Error() string {
-	return "Fundamental problem, skipping retries"
+func RetryWithReturn[T any](
+	operation func(cancelFn context.CancelFunc) (T, error),
+	delay time.Duration,
+	timeout time.Duration,
+) (T, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	ticker := time.NewTicker(delay)
+	defer ticker.Stop()
+	var returnVal T
+	for {
+		select {
+		case <-ctx.Done():
+			return returnVal, errors.Wrap(ctx.Err(), "Retry ending")
+		case <-ticker.C:
+			var err error
+			returnVal, err = operation(cancel)
+			if err != nil {
+				log.Trace().Err(err).Msg("Error was")
+				log.Debug().Msg("Retrying...")
+				// retry
+				continue
+			}
+		}
+		break
+	}
+	return returnVal, nil
 }
 
-func Retry(operation func() error, delay time.Duration, maxWait time.Duration) error {
-	var totalWaited time.Duration
+func Retry(
+	operation func(cancelFn context.CancelFunc) error,
+	delay time.Duration,
+	timeout time.Duration,
+) error {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+	ticker := time.NewTicker(delay)
+	defer ticker.Stop()
 	for {
-		if totalWaited > maxWait {
-			return errors.New("Exceeded maximum wait period")
+		select {
+		case <-ctx.Done():
+			return errors.Wrap(ctx.Err(), "Retry ending")
+		case <-ticker.C:
+			var err error
+			err = operation(cancel)
+			if err != nil {
+				log.Trace().Err(err).Msg("Error was")
+				log.Debug().Msg("Retrying...")
+				// retry
+				continue
+			}
 		}
-		err := operation()
-		var noRetry NoRetryError
-		if errors.As(err, &noRetry) {
-			return err
-		}
-		if err == nil {
-			break
-		}
-		log.Trace().Err(err).Msg("Error was")
-		log.Info().Msg("Retry...")
-		time.Sleep(delay)
-		totalWaited += delay
+		break
 	}
 	return nil
 }
