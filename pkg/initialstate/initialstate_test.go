@@ -45,7 +45,7 @@ func TestSendOnChain(t *testing.T) {
 
 	const initYAML = `
 - SendOnChain:
-    - { from: bitcoind, to: alice, amount: 2_000_000 }
+    - { from: bitcoind, to: alice, amountSats: 2_000_000 }
 `
 	mockNetwork := NewMockSLNetworkInterface(t)
 	mockNetwork.On("Send", "bitcoind", "alice", uint64(2_000_000)).Return("txid", nil)

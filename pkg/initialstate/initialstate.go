@@ -76,7 +76,7 @@ func (is *initialState) Apply() error {
 				_, err := is.network.Send(
 					command.args["from"].(string),
 					command.args["to"].(string),
-					uint64(command.args["amount"].(int)))
+					uint64(command.args["amountSats"].(int)))
 				if err != nil {
 					return errors.Wrap(err, "Sending on chain")
 				}
