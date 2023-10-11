@@ -2,13 +2,11 @@ package main
 
 import (
 	"testing"
-	"time"
 
-	"github.com/cockroachdb/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/scaling-lightning/scaling-lightning/pkg/initialstate"
 	sl "github.com/scaling-lightning/scaling-lightning/pkg/network"
-	"github.com/scaling-lightning/scaling-lightning/pkg/tools"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -22,6 +20,22 @@ func TestMain(t *testing.T) {
 		log.Fatal().Err(err).Msg("Problem starting network")
 	}
 
+	const initialStateYAML = `
+- SendOnChain:
+    - { from: bitcoind, to: cln1, amountSats: 1_000_000 }
+- ConnectPeer:
+    - { from: cln1, to: cln2 }
+- OpenChannels:
+    - { from: cln1, to: cln2, localAmountSats: 200_000 }
+    - { from: cln1, to: cln2, localAmountSats: 300_000 }
+- SendOverChannel:
+    - { from: cln1, to: cln2, amountMSat: 2_000_000 }
+`
+	initialState, err := initialstate.NewInitialStateFromBytes([]byte(initialStateYAML), &network)
+	assert.NoError(err)
+	err = initialState.Apply()
+	assert.NoError(err)
+
 	cln2, err := network.GetLightningNode("cln2")
 	assert.NoError(err)
 
@@ -31,52 +45,16 @@ func TestMain(t *testing.T) {
 		assert.NoError(err)
 	}()
 
-	// this one will take a little while as the network is starting up
-	err = tools.Retry(func() error {
-		_, err := network.Send("bitcoind", "cln1", 1_000_000)
-		return errors.Wrap(err, "Sending million sats to cln1")
-	}, time.Second*15, time.Minute*2)
-	assert.NoError(err)
+	balance, err := network.GetWalletBalance("cln1")
+	assert.NotNil(err)
+	log.Info().Msgf("cln1 balance: %d", balance.AsSats())
 
-	err = tools.Retry(func() error {
-		return errors.Wrap(network.ConnectPeer("cln1", "cln2"), "Connecting cln1 to cln2")
-	}, time.Second*15, time.Minute*3)
-	assert.NoError(err)
+	connectionDetails, err := network.GetConnectionDetails("cln2")
+	assert.NotNil(err)
+	log.Info().Msgf("cln2 connection host: %v", connectionDetails[0].Host)
+	log.Info().Msgf("cln2 connection host: %d", connectionDetails[0].Port)
 
-	err = tools.Retry(func() error {
-		_, err := network.OpenChannel("cln1", "cln2", 40_001)
-		return errors.Wrap(err, "Opening channel from cln1 to cln2")
-	}, time.Second*15, time.Minute*3)
-	assert.NoError(err)
-
-	err = tools.Retry(func() error {
-		balance, err := network.GetWalletBalance("cln1")
-		if err != nil {
-			return errors.Wrap(err, "Getting cln1 balance")
-		}
-		log.Info().Msgf("cln1 balance: %d", balance.AsSats())
-		return nil
-	}, time.Second*15, time.Minute*2)
-	assert.NoError(err)
-
-	err = tools.Retry(func() error {
-		connectionDetails, err := network.GetConnectionDetails("cln2")
-		if err != nil {
-			return errors.Wrap(err, "Getting cln2 connection details")
-		}
-		log.Info().Msgf("cln2 connection host: %v", connectionDetails[0].Host)
-		log.Info().Msgf("cln2 connection host: %d", connectionDetails[0].Port)
-		return nil
-	}, time.Second*15, time.Minute*2)
-
-	assert.NoError(err)
-	err = tools.Retry(func() error {
-		connectionFiles, err := cln2.GetConnectionFiles(network.Network.String(), "")
-		if err != nil {
-			return errors.Wrap(err, "Getting cln2 connection files")
-		}
-		log.Info().Msgf("cln2 client cert size : %v", len(connectionFiles.CLN.ClientCert))
-		return nil
-	}, time.Second*15, time.Minute*2)
-	assert.NoError(err)
+	connectionFiles, err := cln2.GetConnectionFiles(network.Network.String(), "")
+	assert.NotNil(err)
+	log.Info().Msgf("cln2 client cert size : %v", len(connectionFiles.CLN.ClientCert))
 }

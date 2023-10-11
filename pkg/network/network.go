@@ -1,6 +1,7 @@
 package network
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -57,12 +58,24 @@ func (n NetworkType) String() string {
 
 type LightningNodeInterface interface {
 	GetName() string
-	SendToAddress(client stdcommonclient.CommonClient, address string, amount types.Amount) (string, error)
+	SendToAddress(
+		client stdcommonclient.CommonClient,
+		address string,
+		amount types.Amount,
+	) (string, error)
 	GetNewAddress(client stdcommonclient.CommonClient) (string, error)
 	GetPubKey(client stdlightningclient.LightningClient) (types.PubKey, error)
 	GetWalletBalance(client stdcommonclient.CommonClient) (types.Amount, error)
-	ConnectPeer(client stdlightningclient.LightningClient, pubkey types.PubKey, nodeName string) error
-	OpenChannel(client stdlightningclient.LightningClient, pubkey types.PubKey, localAmt types.Amount) (types.ChannelPoint, error)
+	ConnectPeer(
+		client stdlightningclient.LightningClient,
+		pubkey types.PubKey,
+		nodeName string,
+	) error
+	OpenChannel(
+		client stdlightningclient.LightningClient,
+		pubkey types.PubKey,
+		localAmt types.Amount,
+	) (types.ChannelPoint, error)
 	GetConnectionFiles(network string, kubeConfig string) (*lightningnode.ConnectionFiles, error)
 	WriteAuthFilesToDirectory(network string, kubeConfig string, dir string) error
 	GetConnectionPort(kubeConfig string) (uint16, error)
@@ -73,9 +86,17 @@ type LightningNodeInterface interface {
 
 type BitcoinNodeInterface interface {
 	GetName() string
-	Generate(client stdbitcoinclient.BitcoinClient, commonClient stdcommonclient.CommonClient, numBlocks uint32) (hashes []string, err error)
+	Generate(
+		client stdbitcoinclient.BitcoinClient,
+		commonClient stdcommonclient.CommonClient,
+		numBlocks uint32,
+	) (hashes []string, err error)
 	GetWalletBalance(client stdcommonclient.CommonClient) (types.Amount, error)
-	SendToAddress(client stdcommonclient.CommonClient, address string, amount types.Amount) (TxId string, err error)
+	SendToAddress(
+		client stdcommonclient.CommonClient,
+		address string,
+		amount types.Amount,
+	) (TxId string, err error)
 	GetNewAddress(client stdcommonclient.CommonClient) (string, error)
 	GetConnectionPorts(kubeConfig string) ([]bitcoinnode.ConnectionPorts, error)
 }
@@ -83,7 +104,11 @@ type BitcoinNodeInterface interface {
 type NodeInterface interface {
 	GetName() string
 	GetWalletBalance(client stdcommonclient.CommonClient) (types.Amount, error)
-	SendToAddress(client stdcommonclient.CommonClient, address string, amount types.Amount) (TxId string, err error)
+	SendToAddress(
+		client stdcommonclient.CommonClient,
+		address string,
+		amount types.Amount,
+	) (TxId string, err error)
 	GetNewAddress(client stdcommonclient.CommonClient) (string, error)
 }
 
@@ -95,6 +120,9 @@ type SLNetwork struct {
 	ApiHost        string
 	ApiPort        uint16
 	Network        NetworkType
+	RetryCommands  bool
+	RetryDelay     time.Duration
+	RetryTimeout   time.Duration
 }
 
 type ConnectionDetails struct {
@@ -175,9 +203,12 @@ func (n *SLNetwork) CheckDependencies() error {
 
 func NewSLNetwork(helmfile string, kubeConfig string, Network NetworkType) SLNetwork {
 	return SLNetwork{
-		helmfile:   helmfile,
-		kubeConfig: kubeConfig,
-		Network:    Network,
+		helmfile:      helmfile,
+		kubeConfig:    kubeConfig,
+		Network:       Network,
+		RetryCommands: true,
+		RetryDelay:    time.Second * 10,
+		RetryTimeout:  time.Minute * 3,
 	}
 }
 
@@ -337,10 +368,11 @@ func (n *SLNetwork) CreateAndStart() error {
 	n.BitcoinNodes = bitcoinNodes
 
 	log.Info().Msg("Discovering ingress connection details, may take a few minutes")
-	err = tools.Retry(func() error {
+
+	err = tools.Retry(func(cancel context.CancelFunc) error {
 		log.Info().Msg("waiting...")
 		return n.discoverConnectionDetails()
-	}, time.Second*30, time.Minute*5)
+	}, n.RetryDelay, n.RetryTimeout)
 	if err != nil {
 		return errors.Wrap(err, "Discovering connection details timeout")
 	}
@@ -517,9 +549,32 @@ func parseHelmfileForNodes(
 }
 
 func (n *SLNetwork) GetWalletBalance(nodeName string) (types.Amount, error) {
+	if !n.RetryCommands {
+		return n.getWalletBalance(nodeName)
+	}
+	balance, err := tools.RetryWithReturn(func(cancel context.CancelFunc) (types.Amount, error) {
+		balance, err := n.getWalletBalance(nodeName)
+		if err != nil {
+			return types.NewAmountSats(0), err
+		}
+		return balance, nil
+	}, n.RetryDelay, n.RetryTimeout)
+	if err != nil {
+		return types.NewAmountSats(0), errors.Wrap(err, "Getting wallet balance")
+	}
+	return balance, nil
+}
+
+func (n *SLNetwork) getWalletBalance(nodeName string) (types.Amount, error) {
 	conn, err := connectToGRPCServer(n.ApiHost, n.ApiPort, nodeName)
 	if err != nil {
-		return types.NewAmountSats(0), errors.Wrapf(err, "Connecting to gRPC for %v's client", nodeName)
+		return types.NewAmountSats(
+				0,
+			), errors.Wrapf(
+				err,
+				"Connecting to gRPC for %v's client",
+				nodeName,
+			)
 	}
 	defer conn.Close()
 	client := stdcommonclient.NewCommonClient(conn)
@@ -531,12 +586,35 @@ func (n *SLNetwork) GetWalletBalance(nodeName string) (types.Amount, error) {
 
 	walletBalance, err := node.GetWalletBalance(client)
 	if err != nil {
-		return types.NewAmountSats(0), errors.Wrapf(err, "Getting wallet balance for %v", node.GetName())
+		return types.NewAmountSats(
+				0,
+			), errors.Wrapf(
+				err,
+				"Getting wallet balance for %v",
+				node.GetName(),
+			)
 	}
 	return walletBalance, nil
 }
 
 func (n *SLNetwork) Generate(nodeName string, numBlocks uint32) (hashes []string, err error) {
+	if !n.RetryCommands {
+		return n.generate(nodeName, numBlocks)
+	}
+	hashes, err = tools.RetryWithReturn(func(cancel context.CancelFunc) ([]string, error) {
+		hashes, err := n.generate(nodeName, numBlocks)
+		if err != nil {
+			return []string{}, err
+		}
+		return hashes, nil
+	}, n.RetryDelay, n.RetryTimeout)
+	if err != nil {
+		return []string{}, errors.Wrap(err, "Generating blocks")
+	}
+	return hashes, nil
+}
+
+func (n *SLNetwork) generate(nodeName string, numBlocks uint32) (hashes []string, err error) {
 	conn, err := connectToGRPCServer(n.ApiHost, n.ApiPort, nodeName)
 	if err != nil {
 		return []string{}, errors.Wrapf(err, "Connecting to gRPC for %v's client", nodeName)
@@ -559,6 +637,22 @@ func (n *SLNetwork) Generate(nodeName string, numBlocks uint32) (hashes []string
 }
 
 func (n *SLNetwork) GetNewAddress(nodeName string) (string, error) {
+	if !n.RetryCommands {
+		return n.getNewAddress(nodeName)
+	}
+	address, err := tools.RetryWithReturn(func(cancel context.CancelFunc) (string, error) {
+		address, err := n.getNewAddress(nodeName)
+		if err != nil {
+			return "", err
+		}
+		return address, nil
+	}, n.RetryDelay, n.RetryTimeout)
+	if err != nil {
+		return "", errors.Wrap(err, "Getting new address")
+	}
+	return address, nil
+}
+func (n *SLNetwork) getNewAddress(nodeName string) (string, error) {
 	conn, err := connectToGRPCServer(n.ApiHost, n.ApiPort, nodeName)
 	if err != nil {
 		return "", errors.Wrapf(err, "Connecting to gRPC for %v's client", nodeName)
@@ -637,7 +731,32 @@ func (n *SLNetwork) GetConnectionDetails(nodeName string) ([]ConnectionDetails, 
 	}, nil
 }
 
-func (n *SLNetwork) Send(fromNodeName string, toNodeName string, amountSats uint64) (string, error) {
+func (n *SLNetwork) Send(
+	fromNodeName string,
+	toNodeName string,
+	amountSats uint64,
+) (string, error) {
+	if !n.RetryCommands {
+		return n.send(fromNodeName, toNodeName, amountSats)
+	}
+	txid, err := tools.RetryWithReturn(func(cancel context.CancelFunc) (string, error) {
+		txid, err := n.send(fromNodeName, toNodeName, amountSats)
+		if err != nil {
+			return "", err
+		}
+		return txid, nil
+	}, n.RetryDelay, n.RetryTimeout)
+	if err != nil {
+		return "", errors.Wrap(err, "Sending onchain")
+	}
+	return txid, nil
+}
+
+func (n *SLNetwork) send(
+	fromNodeName string,
+	toNodeName string,
+	amountSats uint64,
+) (string, error) {
 	log.Debug().Msgf("Sending %v from %v to %v", amountSats, fromNodeName, toNodeName)
 
 	address, err := n.GetNewAddress(toNodeName)
@@ -666,7 +785,12 @@ func (n *SLNetwork) Send(fromNodeName string, toNodeName string, amountSats uint
 
 	_, err = n.Generate("bitcoind", 10)
 	if err != nil {
-		return "", errors.Wrapf(err, "TxId was: %v but problem generating blocks on %v", txid, "bitcoind")
+		return "", errors.Wrapf(
+			err,
+			"TxId was: %v but problem generating blocks on %v",
+			txid,
+			"bitcoind",
+		)
 	}
 	return txid, nil
 }
@@ -690,6 +814,23 @@ func connectToGRPCServer(host string, port uint16, nodeName string) (*grpc.Clien
 }
 
 func (n *SLNetwork) GetPubKey(nodeName string) (types.PubKey, error) {
+	if !n.RetryCommands {
+		return n.getPubKey(nodeName)
+	}
+	pubkey, err := tools.RetryWithReturn(func(cancel context.CancelFunc) (types.PubKey, error) {
+		pubkey, err := n.getPubKey(nodeName)
+		if err != nil {
+			return types.PubKey{}, err
+		}
+		return pubkey, nil
+	}, n.RetryDelay, n.RetryTimeout)
+	if err != nil {
+		return types.PubKey{}, errors.Wrap(err, "Getting pubkey")
+	}
+	return pubkey, nil
+}
+
+func (n *SLNetwork) getPubKey(nodeName string) (types.PubKey, error) {
 	conn, err := connectToGRPCServer(n.ApiHost, n.ApiPort, nodeName)
 	if err != nil {
 		return types.PubKey{}, errors.Wrapf(err, "Connecting to gRPC for %v's client", nodeName)
@@ -700,7 +841,10 @@ func (n *SLNetwork) GetPubKey(nodeName string) (types.PubKey, error) {
 
 	node, err := n.GetLightningNode(nodeName)
 	if err != nil {
-		return types.PubKey{}, errors.Newf("Node not found. Available nodes: %v", n.listNodes(false, true))
+		return types.PubKey{}, errors.Newf(
+			"Node not found. Available nodes: %v",
+			n.listNodes(false, true),
+		)
 	}
 
 	pubkey, err := node.GetPubKey(client)
@@ -711,6 +855,23 @@ func (n *SLNetwork) GetPubKey(nodeName string) (types.PubKey, error) {
 }
 
 func (n *SLNetwork) ConnectPeer(fromNodeName string, toNodeName string) error {
+	if !n.RetryCommands {
+		return n.connectPeer(fromNodeName, toNodeName)
+	}
+	err := tools.Retry(func(cancel context.CancelFunc) error {
+		err := n.connectPeer(fromNodeName, toNodeName)
+		if err != nil {
+			return err
+		}
+		return nil
+	}, n.RetryDelay, n.RetryTimeout)
+	if err != nil {
+		return errors.Wrap(err, "Connecting peer")
+	}
+	return nil
+}
+
+func (n *SLNetwork) connectPeer(fromNodeName string, toNodeName string) error {
 	log.Debug().Msgf("Connecting %v to %v", fromNodeName, toNodeName)
 
 	conn, err := connectToGRPCServer(n.ApiHost, n.ApiPort, fromNodeName)
@@ -738,12 +899,46 @@ func (n *SLNetwork) ConnectPeer(fromNodeName string, toNodeName string) error {
 	return nil
 }
 
-func (n *SLNetwork) OpenChannel(fromNodeName string, toNodeName string, localAmountSats uint64) (types.ChannelPoint, error) {
-	log.Debug().Msgf("Opening channel from %v to %v for %d sats", fromNodeName, toNodeName, localAmountSats)
+func (n *SLNetwork) OpenChannel(
+	fromNodeName string,
+	toNodeName string,
+	localAmountSats uint64,
+) (types.ChannelPoint, error) {
+	if !n.RetryCommands {
+		return n.openChannel(fromNodeName, toNodeName, localAmountSats)
+	}
+	chanPoint, err := tools.RetryWithReturn(
+		func(cancel context.CancelFunc) (types.ChannelPoint, error) {
+			chanPoint, err := n.openChannel(fromNodeName, toNodeName, localAmountSats)
+			if err != nil {
+				return types.ChannelPoint{}, err
+			}
+			return chanPoint, nil
+		},
+		n.RetryDelay,
+		n.RetryTimeout,
+	)
+	if err != nil {
+		return types.ChannelPoint{}, errors.Wrap(err, "Opening channel")
+	}
+	return chanPoint, nil
+}
+
+func (n *SLNetwork) openChannel(
+	fromNodeName string,
+	toNodeName string,
+	localAmountSats uint64,
+) (types.ChannelPoint, error) {
+	log.Debug().
+		Msgf("Opening channel from %v to %v for %d sats", fromNodeName, toNodeName, localAmountSats)
 
 	conn, err := connectToGRPCServer(n.ApiHost, n.ApiPort, fromNodeName)
 	if err != nil {
-		return types.ChannelPoint{}, errors.Wrapf(err, "Connecting to gRPC for %v's client", fromNodeName)
+		return types.ChannelPoint{}, errors.Wrapf(
+			err,
+			"Connecting to gRPC for %v's client",
+			fromNodeName,
+		)
 	}
 	defer conn.Close()
 
@@ -757,7 +952,10 @@ func (n *SLNetwork) OpenChannel(fromNodeName string, toNodeName string, localAmo
 
 	node, err := n.GetLightningNode(fromNodeName)
 	if err != nil {
-		return types.ChannelPoint{}, errors.Newf("Node not found. Available nodes: %v", n.listNodes(false, true))
+		return types.ChannelPoint{}, errors.Newf(
+			"Node not found. Available nodes: %v",
+			n.listNodes(false, true),
+		)
 	}
 
 	channelPoint, err := node.OpenChannel(client, toPubKey, amount)
@@ -773,9 +971,32 @@ func (n *SLNetwork) OpenChannel(fromNodeName string, toNodeName string, localAmo
 }
 
 func (n *SLNetwork) ChannelBalance(nodeName string) (types.Amount, error) {
+	if !n.RetryCommands {
+		return n.channelBalance(nodeName)
+	}
+	amount, err := tools.RetryWithReturn(func(cancel context.CancelFunc) (types.Amount, error) {
+		amount, err := n.channelBalance(nodeName)
+		if err != nil {
+			return types.Amount{}, err
+		}
+		return amount, nil
+	}, n.RetryDelay, n.RetryTimeout)
+	if err != nil {
+		return types.Amount{}, errors.Wrap(err, "Getting channel balance")
+	}
+	return amount, nil
+}
+
+func (n *SLNetwork) channelBalance(nodeName string) (types.Amount, error) {
 	conn, err := connectToGRPCServer(n.ApiHost, n.ApiPort, nodeName)
 	if err != nil {
-		return types.NewAmountSats(0), errors.Wrapf(err, "Connecting to gRPC for %v's client", nodeName)
+		return types.NewAmountSats(
+				0,
+			), errors.Wrapf(
+				err,
+				"Connecting to gRPC for %v's client",
+				nodeName,
+			)
 	}
 	defer conn.Close()
 
@@ -783,17 +1004,45 @@ func (n *SLNetwork) ChannelBalance(nodeName string) (types.Amount, error) {
 
 	node, err := n.GetLightningNode(nodeName)
 	if err != nil {
-		return types.NewAmountSats(0), errors.Newf("Node not found. Available nodes: %v", n.listNodes(false, true))
+		return types.NewAmountSats(
+				0,
+			), errors.Newf(
+				"Node not found. Available nodes: %v",
+				n.listNodes(false, true),
+			)
 	}
 
 	channelBalance, err := node.ChannelBalance(client)
 	if err != nil {
-		return types.NewAmountSats(0), errors.Wrapf(err, "Getting channel balance for %v", node.GetName())
+		return types.NewAmountSats(
+				0,
+			), errors.Wrapf(
+				err,
+				"Getting channel balance for %v",
+				node.GetName(),
+			)
 	}
 	return channelBalance, nil
 }
 
 func (n *SLNetwork) CreateInvoice(nodeName string, amountSats uint64) (string, error) {
+	if !n.RetryCommands {
+		return n.createInvoice(nodeName, amountSats)
+	}
+	invoice, err := tools.RetryWithReturn(func(cancel context.CancelFunc) (string, error) {
+		invoice, err := n.createInvoice(nodeName, amountSats)
+		if err != nil {
+			return "", err
+		}
+		return invoice, nil
+	}, n.RetryDelay, n.RetryTimeout)
+	if err != nil {
+		return "", errors.Wrap(err, "Creating invoice")
+	}
+	return invoice, nil
+}
+
+func (n *SLNetwork) createInvoice(nodeName string, amountSats uint64) (string, error) {
 	conn, err := connectToGRPCServer(n.ApiHost, n.ApiPort, nodeName)
 	if err != nil {
 		return "", errors.Wrapf(err, "Connecting to gRPC for %v's client", nodeName)
@@ -815,6 +1064,23 @@ func (n *SLNetwork) CreateInvoice(nodeName string, amountSats uint64) (string, e
 }
 
 func (n *SLNetwork) PayInvoice(nodeName string, invoice string) (preimage string, err error) {
+	if !n.RetryCommands {
+		return n.payInvoice(nodeName, invoice)
+	}
+	preimage, err = tools.RetryWithReturn(func(cancel context.CancelFunc) (string, error) {
+		preimage, err := n.payInvoice(nodeName, invoice)
+		if err != nil {
+			return "", err
+		}
+		return preimage, nil
+	}, n.RetryDelay, n.RetryTimeout)
+	if err != nil {
+		return "", errors.Wrap(err, "Paying invoice")
+	}
+	return preimage, nil
+}
+
+func (n *SLNetwork) payInvoice(nodeName string, invoice string) (preimage string, err error) {
 	conn, err := connectToGRPCServer(n.ApiHost, n.ApiPort, nodeName)
 	if err != nil {
 		return "", errors.Wrapf(err, "Connecting to gRPC for %v's client", nodeName)

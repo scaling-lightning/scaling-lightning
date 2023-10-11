@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"net"
@@ -40,8 +41,7 @@ func main() {
 	}
 
 	var client lnrpc.LightningClient
-	err = tools.Retry(func() error {
-
+	err = tools.Retry(func(cancel context.CancelFunc) error {
 		grpc := fmt.Sprintf("%s:%d", appConfig.grpcAddress, appConfig.grpcPort)
 		client, err = lndclient.NewBasicClient(
 			grpc,
@@ -54,7 +54,6 @@ func main() {
 			return errors.Wrap(err, "New basic client fail")
 		}
 		return nil
-
 	}, 15*time.Second, 5*time.Minute)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Starting LND Client")

@@ -59,7 +59,7 @@ func main() {
 
 	log.Info().Msg("Attempting to initialise bitcoind")
 
-	err = tools.Retry(func() error {
+	err = tools.Retry(func(cancel context.CancelFunc) error {
 		err := initialiseBitcoind(client)
 		if err != nil {
 			log.Warn().Err(err).Msg("Problem when initialising bitcoind, perhaps it's not ready")

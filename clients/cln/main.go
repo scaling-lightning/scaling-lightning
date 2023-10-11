@@ -51,7 +51,7 @@ func main() {
 
 	var client clnGRPC.NodeClient
 
-	err = tools.Retry(func() error {
+	err = tools.Retry(func(cancel context.CancelFunc) error {
 
 		cert, err := os.ReadFile(appConfig.clientCertificate)
 		if err != nil {
