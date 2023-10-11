@@ -3,7 +3,17 @@ entries:
   bitcoind:
   - apiVersion: v2
     appVersion: "24"
-    created: "2023-10-05T15:38:22.207549051Z"
+    created: "2023-10-11T18:32:18.281109246Z"
+    description: A Helm chart for bitcoind
+    digest: de8995b2e5fa28eb0e0579be5477f4e4c7d8282278cd5d362edea15d1009cd34
+    name: bitcoind
+    type: application
+    urls:
+    - https://charts.scalinglightning.com/bitcoind-0.3.2.tgz
+    version: 0.3.2
+  - apiVersion: v2
+    appVersion: "24"
+    created: "2023-10-11T18:32:18.280798426Z"
     description: A Helm chart for bitcoind
     digest: adca48c6350f26296ada51fcbcac89f233a9b8cfeda60bcc02a99a02b9ac0b1d
     name: bitcoind
@@ -13,7 +23,7 @@ entries:
     version: 0.3.1
   - apiVersion: v2
     appVersion: "24"
-    created: "2023-10-05T15:38:22.207227754Z"
+    created: "2023-10-11T18:32:18.280511708Z"
     description: A Helm chart for bitcoind
     digest: d2c8d6caf3109d00ddae0c86549ceb72c555fb6609df3f9fb42d7d64090cc15c
     name: bitcoind
@@ -23,7 +33,7 @@ entries:
     version: 0.3.0
   - apiVersion: v2
     appVersion: "24"
-    created: "2023-10-05T15:38:22.206927058Z"
+    created: "2023-10-11T18:32:18.280204389Z"
     description: A Helm chart for bitcoind
     digest: 5e186f4d0afcbb7e8bdf444e2ca570163db65815f57ec57172f03475370ed9df
     name: bitcoind
@@ -33,7 +43,7 @@ entries:
     version: 0.2.1
   - apiVersion: v2
     appVersion: "24"
-    created: "2023-10-05T15:38:22.206634161Z"
+    created: "2023-10-11T18:32:18.279920872Z"
     description: A Helm chart for bitcoind
     digest: 2ab61949652678a3dc6458616815f5af362418feceb76603bdc8ef353834122d
     name: bitcoind
@@ -43,7 +53,7 @@ entries:
     version: 0.2.0
   - apiVersion: v2
     appVersion: "24"
-    created: "2023-10-05T15:38:22.206335565Z"
+    created: "2023-10-11T18:32:18.279616253Z"
     description: A Helm chart for bitcoind
     digest: 19cdcc7745f294b064e9455b910a6433e7c3071d0485e57c68b1ae185cf9c7fe
     name: bitcoind
@@ -53,7 +63,7 @@ entries:
     version: 0.1.1
   - apiVersion: v2
     appVersion: "24"
-    created: "2023-10-05T15:38:22.20581697Z"
+    created: "2023-10-11T18:32:18.279046317Z"
     description: A Helm chart for bitcoind
     digest: 060fc84fc7a7424777ba71ee5085ce52ffc0d96c039d5d110273e4ea288a1ace
     name: bitcoind
@@ -63,7 +73,7 @@ entries:
     version: 0.1.0
   - apiVersion: v2
     appVersion: "24"
-    created: "2023-10-05T15:38:22.206079967Z"
+    created: "2023-10-11T18:32:18.279347236Z"
     description: A Helm chart for bitcoind
     digest: bb0ef29d6e4a4e22cc8a14106ec7b40a3f1cd457bfbdcc871091935cf533cadc
     name: bitcoind
@@ -73,7 +83,7 @@ entries:
     version: 0.1.00
   - apiVersion: v2
     appVersion: "24"
-    created: "2023-10-05T15:38:22.205519274Z"
+    created: "2023-10-11T18:32:18.278709796Z"
     description: A Helm chart for bitcoind
     digest: 58a3780147de1ca99d6a03d0fce1c40ebaf79899044c5488b620aa7320b2e1d9
     name: bitcoind
@@ -84,7 +94,17 @@ entries:
   cln:
   - apiVersion: v2
     appVersion: v22.11.1
-    created: "2023-10-05T15:38:22.209605127Z"
+    created: "2023-10-11T18:32:18.284273642Z"
+    description: A Helm chart for CLN
+    digest: 58781fb4e00a7c4117da6ff8ba558f32cfad8058528b819da356511abc0d860d
+    name: cln
+    type: application
+    urls:
+    - https://charts.scalinglightning.com/cln-0.3.2.tgz
+    version: 0.3.2
+  - apiVersion: v2
+    appVersion: v22.11.1
+    created: "2023-10-11T18:32:18.283490894Z"
     description: A Helm chart for CLN
     digest: ca18f8df4a22b26c614ab532d02db118401c51566aba19c04ee193aa0a46e6b5
     name: cln
@@ -94,7 +114,7 @@ entries:
     version: 0.3.1
   - apiVersion: v2
     appVersion: v22.11.1
-    created: "2023-10-05T15:38:22.209334331Z"
+    created: "2023-10-11T18:32:18.283192075Z"
     description: A Helm chart for CLN
     digest: ee32db78b47e37a6826617bee643047a0e8bf4da86e6b42b40924416e9d70fb2
     name: cln
@@ -104,7 +124,7 @@ entries:
     version: 0.3.0
   - apiVersion: v2
     appVersion: v22.11.1
-    created: "2023-10-05T15:38:22.209063434Z"
+    created: "2023-10-11T18:32:18.282882356Z"
     description: A Helm chart for CLN
     digest: d2e43976ef5db782c34ed9e4d17581b4135272caa99221c86e3f12b5fb10ed70
     name: cln
@@ -114,7 +134,7 @@ entries:
     version: 0.2.1
   - apiVersion: v2
     appVersion: v22.11.1
-    created: "2023-10-05T15:38:22.208793537Z"
+    created: "2023-10-11T18:32:18.282575837Z"
     description: A Helm chart for CLN
     digest: dbf7dcfeda497281e3e0b3bf450587e09f9d4e89ca8e6829c241167e42396edd
     name: cln
@@ -124,7 +144,7 @@ entries:
     version: 0.2.0
   - apiVersion: v2
     appVersion: v22.11.1
-    created: "2023-10-05T15:38:22.20852784Z"
+    created: "2023-10-11T18:32:18.282241216Z"
     description: A Helm chart for CLN
     digest: 7da8872303783ff6ef87b1103013fcb2f294b4f6f0d6381938e90febb72854c6
     name: cln
@@ -134,7 +154,7 @@ entries:
     version: 0.1.1
   - apiVersion: v2
     appVersion: v22.11.1
-    created: "2023-10-05T15:38:22.208039845Z"
+    created: "2023-10-11T18:32:18.281679281Z"
     description: A Helm chart for CLN
     digest: f688f85f1844bdee0abf8dc5b8a99edb2da11852278d7f7c0e5ca263b842e1f8
     name: cln
@@ -144,7 +164,7 @@ entries:
     version: 0.1.0
   - apiVersion: v2
     appVersion: v22.11.1
-    created: "2023-10-05T15:38:22.208272743Z"
+    created: "2023-10-11T18:32:18.281967999Z"
     description: A Helm chart for CLN
     digest: e0612778f016b1722d0af249278da3230d519158a1513fb17158de7d8dab1b98
     name: cln
@@ -154,7 +174,7 @@ entries:
     version: 0.1.00
   - apiVersion: v2
     appVersion: v22.11.1
-    created: "2023-10-05T15:38:22.207798948Z"
+    created: "2023-10-11T18:32:18.281392463Z"
     description: A Helm chart for CLN
     digest: c4869d24f6cd4f6ac58313d96ac9386f56336e558975c50b1b288b69e5d70adb
     name: cln
@@ -165,7 +185,17 @@ entries:
   lnd:
   - apiVersion: v2
     appVersion: v0.16.3-beta
-    created: "2023-10-05T15:38:22.226871932Z"
+    created: "2023-10-11T18:32:18.288529007Z"
+    description: A Helm chart for LND
+    digest: f038a1a2a97a72b4a75e030e8b25303d2e98c2e266002f3eba86ed45c9dfe352
+    name: lnd
+    type: application
+    urls:
+    - https://charts.scalinglightning.com/lnd-0.3.2.tgz
+    version: 0.3.2
+  - apiVersion: v2
+    appVersion: v0.16.3-beta
+    created: "2023-10-11T18:32:18.288140483Z"
     description: A Helm chart for LND
     digest: 969114a6898ae4bb5abb75bd71b2eed4e54cb157222cf80601d361d134401ce9
     name: lnd
@@ -175,7 +205,7 @@ entries:
     version: 0.3.1
   - apiVersion: v2
     appVersion: v0.16.3-beta
-    created: "2023-10-05T15:38:22.226385737Z"
+    created: "2023-10-11T18:32:18.287468341Z"
     description: A Helm chart for LND
     digest: a43cd1b03b390dafb80b29b2b4905c01b0b5fd030d933483c714516313ed0bc5
     name: lnd
@@ -185,7 +215,7 @@ entries:
     version: 0.3.0
   - apiVersion: v2
     appVersion: v0.16.3-beta
-    created: "2023-10-05T15:38:22.225645846Z"
+    created: "2023-10-11T18:32:18.286846003Z"
     description: A Helm chart for LND
     digest: 06ffcc37b2ca2c1e90deddb0a67b76092e3a5a8362492441b6ae2991b69f5871
     name: lnd
@@ -195,7 +225,7 @@ entries:
     version: 0.2.1
   - apiVersion: v2
     appVersion: v0.16.3-beta
-    created: "2023-10-05T15:38:22.210997812Z"
+    created: "2023-10-11T18:32:18.28583494Z"
     description: A Helm chart for LND
     digest: e7f4d37d2157ad84b00265e1c9da2d2188c97d5d746a46faf896cea629c64124
     name: lnd
@@ -205,7 +235,7 @@ entries:
     version: 0.2.0
   - apiVersion: v2
     appVersion: v0.16.3-beta
-    created: "2023-10-05T15:38:22.210659216Z"
+    created: "2023-10-11T18:32:18.285488818Z"
     description: A Helm chart for LND
     digest: 8848147c67feb86fa3c2a02c0f3308b0d6f5def08e902faaea790aa6a30da975
     name: lnd
@@ -215,7 +245,7 @@ entries:
     version: 0.1.1
   - apiVersion: v2
     appVersion: v0.16.3-beta
-    created: "2023-10-05T15:38:22.210119922Z"
+    created: "2023-10-11T18:32:18.284862879Z"
     description: A Helm chart for LND
     digest: 8ffaae5a9553812edb8c50438c421f8e88934b759e86becef814e965fb476b58
     name: lnd
@@ -225,7 +255,7 @@ entries:
     version: 0.1.0
   - apiVersion: v2
     appVersion: v0.16.3-beta
-    created: "2023-10-05T15:38:22.210374419Z"
+    created: "2023-10-11T18:32:18.285167598Z"
     description: A Helm chart for LND
     digest: a99f850d3984bf4f4f88819335ebf68a2ca55232230efa9aeaf9ce0d6ab4b74d
     name: lnd
@@ -235,7 +265,7 @@ entries:
     version: 0.1.00
   - apiVersion: v2
     appVersion: v0.16.3-beta
-    created: "2023-10-05T15:38:22.209861825Z"
+    created: "2023-10-11T18:32:18.284571261Z"
     description: A Helm chart for LND
     digest: 3a80adcc35c912768a6c6a56edf5f47426f40f1fc9aab449a262615ecbc62574
     name: lnd
@@ -243,4 +273,4 @@ entries:
     urls:
     - https://charts.scalinglightning.com/lnd-0.0.33.tgz
     version: 0.0.33
-generated: "2023-10-05T15:38:22.204502385Z"
+generated: "2023-10-11T18:32:18.278194664Z"
