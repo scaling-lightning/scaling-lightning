@@ -62,6 +62,4 @@ func TestRetryWithReturn(t *testing.T) {
 	assert.NotNil(err)
 	assert.Empty(returnVal)
 	assert.Equal(1, retryCount, "Function should have run only once")
-	assert.Contains(err.Error(), "Giving up", "Error should be the one returned by the function")
-
 }

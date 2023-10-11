@@ -15,19 +15,20 @@ func RetryWithReturn[T any](
 ) (T, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	ticker := time.NewTicker(delay)
-	defer ticker.Stop()
+
 	var returnVal T
 	for {
 		select {
 		case <-ctx.Done():
 			return returnVal, errors.Wrap(ctx.Err(), "Retry ending")
-		case <-ticker.C:
+		default:
 			var err error
 			returnVal, err = operation(cancel)
 			if err != nil {
 				log.Trace().Err(err).Msg("Error was")
 				log.Debug().Msg("Retrying...")
+				// wait for delay
+				time.Sleep(delay)
 				// retry
 				continue
 			}
@@ -44,18 +45,19 @@ func Retry(
 ) error {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	ticker := time.NewTicker(delay)
-	defer ticker.Stop()
+
 	for {
 		select {
 		case <-ctx.Done():
 			return errors.Wrap(ctx.Err(), "Retry ending")
-		case <-ticker.C:
+		default:
 			var err error
 			err = operation(cancel)
 			if err != nil {
 				log.Trace().Err(err).Msg("Error was")
 				log.Debug().Msg("Retrying...")
+				// wait for delay
+				time.Sleep(delay)
 				// retry
 				continue
 			}

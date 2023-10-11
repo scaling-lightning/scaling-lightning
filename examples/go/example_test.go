@@ -12,7 +12,7 @@ import (
 
 // will need a longish (few mins) timeout
 func TestMain(t *testing.T) {
-	zerolog.SetGlobalLevel(zerolog.TraceLevel)
+	zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	assert := assert.New(t)
 	network := sl.NewSLNetwork("../helmfiles/public.yaml", "", sl.Regtest)
 	err := network.CreateAndStart()
@@ -46,15 +46,15 @@ func TestMain(t *testing.T) {
 	}()
 
 	balance, err := network.GetWalletBalance("cln1")
-	assert.NotNil(err)
+	assert.NoError(err)
 	log.Info().Msgf("cln1 balance: %d", balance.AsSats())
 
 	connectionDetails, err := network.GetConnectionDetails("cln2")
-	assert.NotNil(err)
+	assert.NoError(err)
 	log.Info().Msgf("cln2 connection host: %v", connectionDetails[0].Host)
 	log.Info().Msgf("cln2 connection host: %d", connectionDetails[0].Port)
 
 	connectionFiles, err := cln2.GetConnectionFiles(network.Network.String(), "")
-	assert.NotNil(err)
+	assert.NoError(err)
 	log.Info().Msgf("cln2 client cert size : %v", len(connectionFiles.CLN.ClientCert))
 }
