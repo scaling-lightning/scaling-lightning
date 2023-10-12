@@ -30,9 +30,11 @@ The following is a quick start guide to get something running. Please refer to t
 * Helm 3 and Helmfile.
 
   Mac OS
+
     brew install helm helmfile
 
   Windows
+
     scoop install helm helmfile
 
   For Linux check your distros package manager but you may need to download the binaries for helm and helmfile.
