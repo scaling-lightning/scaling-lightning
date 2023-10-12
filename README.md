@@ -196,7 +196,7 @@ This is an outline of the project's milestones. We will further detail these mil
   * [x] CLN
   * [ ] LDK
   * [ ] Eclair
-* [-] Create a helm chart and sidecar client for communication with Bitcoin Nodes
+* [ ] Create a helm chart and sidecar client for communication with Bitcoin Nodes
   * [x] Bitcoind
   * [ ] btcd
 * [ ] Create a library for programmatically interacting with the clients
