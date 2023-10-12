@@ -191,7 +191,7 @@ This is an outline of the project's milestones. We will further detail these mil
 
 * [x] Create a basic kubernetes setup for running a Lightning Network
 * [x] Define file format to describe initial state of the network
-* [-] Create a helm chart and sidecar client for each Lightning Network implementation
+* [ ] Create a helm chart and sidecar client for each Lightning Network implementation
   * [x] LND
   * [x] CLN
   * [ ] LDK
@@ -199,7 +199,7 @@ This is an outline of the project's milestones. We will further detail these mil
 * [-] Create a helm chart and sidecar client for communication with Bitcoin Nodes
   * [x] Bitcoind
   * [ ] btcd
-* [-] Create a library for programmatically interacting with the clients
+* [ ] Create a library for programmatically interacting with the clients
   * [x] Go
   * [ ] Rust
   * [ ] Python
@@ -212,7 +212,7 @@ This is an outline of the project's milestones. We will further detail these mil
 * [ ] Facilitate running a public signet node or network
 * [ ] Facitlitate interoperability and regression testing of the main Lightning Network implementations
 * [ ] Facilitate testing research questions such as new routing algos or channel jamming mitigations
-* [-] Thoroughly document the project and provide instructions for use
+* [x] Thoroughly document the project and provide instructions for use
 
 ## How can you help?
 
