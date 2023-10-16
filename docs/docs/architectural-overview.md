@@ -17,3 +17,5 @@ On a local machine the scaling lightning CLI or Library connects to the kubernet
 Inside the cluster, off-the-shelf containers for bitcoind and lightning implementations are used making it extremely easy to swap them out to test against a different version. To provide a common api between implementations and to make it easier to interact with the network, sidecar containers are run alongside the main implementaion containers inside the same pod.
 
 If configured, direct communication with any of the nodes is made available via their GRPC interfaces (or RPC in bitcoind's case) and exposed via a traefik endpoint. Currently a maximum of 39 endpoints (endpoint1 - endpoint39) are available to be assigned to nodes.
+
+Two types of volumes are used depending on configuration, Persistent Volume Claims or Empty Dir. Empty Dir will not persist over restarts and upgrades creating an ephemereal node. Persistent volumes will persist until deleted and will keep chain or lightning node data available.
