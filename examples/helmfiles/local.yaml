@@ -19,7 +19,6 @@ releases:
       - clientImage:
           repository: cln-client
           pullPolicy: IfNotPresent
-      - gRPCEntryPoint: endpoint1
   - name: cln2
     namespace: sl
     chart: ../../charts/cln
@@ -32,7 +31,6 @@ releases:
     namespace: sl
     chart: ../../charts/lnd
     values:
-      - gRPCEntryPoint: endpoint1
       - clientImage:
           repository: lnd-client
           pullPolicy: IfNotPresent
