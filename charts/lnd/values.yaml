@@ -6,7 +6,7 @@ fullnameOverride: ""
 
 image:
   repository: lightninglabs/lnd
-  tag: v0.16.3-beta
+  tag: v0.17.0-beta
   pullPolicy: IfNotPresent
 
 clientImage:
