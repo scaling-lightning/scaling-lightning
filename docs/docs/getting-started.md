@@ -94,7 +94,7 @@ To destroy the network run:
 
 ## Run the above from code instead of CLI
 
-See [examples/go/example_test.go](examples/go/example_test.go). This test takes around 3 minutes to pass on an M1 Macbook Pro so you may need to adjust your test runner's default timeout.
+See [examples/go/example_test.go](https://github.com/scaling-lightning/scaling-lightning/blob/main/examples/go/example_test.go). This test takes around 3 minutes to pass on an M1 Macbook Pro so you may need to adjust your test runner's default timeout.
 
 Example go test command with extra timeout:
 
