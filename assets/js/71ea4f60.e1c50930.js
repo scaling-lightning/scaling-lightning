@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[1176],{827:e=>{e.exports=JSON.parse('{"title":"How to","slug":"/category/how-to","permalink":"/docs/category/how-to","navigation":{"previous":{"title":"Specify initial state","permalink":"/docs/initial-state"},"next":{"title":"Change node image","permalink":"/docs/how-to/change-node-image"}}}')}}]);
