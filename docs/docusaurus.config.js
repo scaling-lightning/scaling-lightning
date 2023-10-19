@@ -61,7 +61,7 @@ const config = {
     ({
       colorMode: {
         defaultMode: 'light',
-        disableSwitch: true,
+        disableSwitch: false,
         respectPrefersColorScheme: false,
       },
       // Replace with your project's social card
@@ -123,6 +123,12 @@ const config = {
         darkTheme: darkCodeTheme,
       },
     }),
+    scripts: [
+      {
+        src: '/js/smartlook.js',
+        async: true,
+      },
+    ],
 };
 
 module.exports = config;
