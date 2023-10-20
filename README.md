@@ -5,6 +5,8 @@
 This initiative aims to build a testing toolkit for the Lightning Network protocol, its implementations, and
 applications that depend on the Lightning Network.
 
+[Project use cases](https://scalinglightning.com/docs/project-use-cases)
+
 The goal is to collaborate as an industry to help scale the Lightning Network and the applications that depend on it.
 
 [Current Roadmap](https://scalinglightning.com/blog/2023/08/26/roadmap)
@@ -13,21 +15,21 @@ The goal is to collaborate as an industry to help scale the Lightning Network an
 
 ## Getting started
 
-> ***The project is still far from complete***.
+> **_The project is still far from complete_**.
 
 The following is a quick start guide to get something running. Please refer to the [documentation](https://scalinglightning.com/docs) for more info.
 
-### Prerequisites:
+### Prerequisites
 
-* Kubernetes.
+- Kubernetes.
 
-    * If you are developing locally you can use Docker Desktop and enable
+  - If you are developing locally you can use Docker Desktop and enable
     Kubernetes in the dashboard.
-    * Alternatively minikube works as an alternative to Docker Desktop. Please use `minikube tunnel` to enable traefik to get an "external" ip which the library and cli requires to communicate in to the sidecar clients.
-    * SL has also been tested on Digital Ocean's hosted K8s cluster
-    * Please let us know if you have run SL on a different cluster distribution such as Kind, K3s K0s or any other cloud provider
+  - Alternatively minikube works as an alternative to Docker Desktop. Please use `minikube tunnel` to enable traefik to get an "external" ip which the library and cli requires to communicate in to the sidecar clients.
+  - SL has also been tested on Digital Ocean's hosted K8s cluster
+  - Please let us know if you have run SL on a different cluster distribution such as Kind, K3s K0s or any other cloud provider
 
-* Helm 3 and Helmfile.
+- Helm 3 and Helmfile.
 
   Mac OS
 
@@ -39,17 +41,17 @@ The following is a quick start guide to get something running. Please refer to t
 
   For Linux check your distros package manager but you may need to download the binaries for helm and helmfile.
 
-* Helm Diff:
+- Helm Diff:
 
-    helm plugin install https://github.com/databus23/helm-diff
+  helm plugin install https://github.com/databus23/helm-diff
 
-	> **_NOTE:_** On Windows the plugin install does not complete correctly and you need to download the binary manually from https://github.com/databus23/helm-diff/releases . Unzip the diff.exe file and put it in the _helm/plugins/helm-diff/bin_ folder (the _bin_ folder has to be created). You can find the folder by running _"helm env HELM_DATA_HOME"_
+  > **_NOTE:_** On Windows the plugin install does not complete correctly and you need to download the binary manually from https://github.com/databus23/helm-diff/releases . Unzip the diff.exe file and put it in the _helm/plugins/helm-diff/bin_ folder (the _bin_ folder has to be created). You can find the folder by running _"helm env HELM_DATA_HOME"_
 
-* Traefik:
+- Traefik:
 
-    helm repo add traefik https://traefik.github.io/charts
-    helm repo update
-    helm install traefik traefik/traefik -n sl-traefik --create-namespace -f https://raw.githubusercontent.com/scaling-lightning/scaling-lightning/main/charts/traefik-values.yml
+  helm repo add traefik https://traefik.github.io/charts
+  helm repo update
+  helm install traefik traefik/traefik -n sl-traefik --create-namespace -f https://raw.githubusercontent.com/scaling-lightning/scaling-lightning/main/charts/traefik-values.yml
 
 ### Installation
 
@@ -149,9 +151,7 @@ Example go test command with extra timeout:
     # uninstall traefik alternative
     helm uninstall traefik -n sl-traefik
 
-
 Note that the above commands assume you are using the default kubeconfig and context. You would need to add `--kubeconfig path/to/file.yml` or `--context mycluster` to all of the above commands if you wanted to look at a different cluster.
-
 
 ### Your own configuration
 
@@ -164,10 +164,10 @@ to shocks in transaction volume, channels, nodes, gossip messages, etc.
 
 Having a set of tools and a signet Lightning Network will help:
 
-* Developers test their applications.
-* Researchers verify their assumptions.
-* Operators test their infrastructure.
-* Novices learn how the Lightning Network and various applications work in a somewhat realistic environment without
+- Developers test their applications.
+- Researchers verify their assumptions.
+- Operators test their infrastructure.
+- Novices learn how the Lightning Network and various applications work in a somewhat realistic environment without
   risking real coins.
 
 ## How will it work?
@@ -189,41 +189,41 @@ While Polar is an excellent project it is fundamentally different from what we w
 
 This is an outline of the project's milestones. We will further detail these milestones using the features of GitHub's milestones and project management tools:
 
-* [x] Create a basic kubernetes setup for running a Lightning Network
-* [x] Define file format to describe initial state of the network
-* [ ] Create a helm chart and sidecar client for each Lightning Network implementation
-  * [x] LND
-  * [x] CLN
-  * [ ] LDK
-  * [ ] Eclair
-* [ ] Create a helm chart and sidecar client for communication with Bitcoin Nodes
-  * [x] Bitcoind
-  * [ ] btcd
-* [ ] Create a library for programmatically interacting with the clients
-  * [x] Go
-  * [ ] Rust
-  * [ ] Python
-  * [ ] JavaScript
-  * [ ] JVM
-* [x] Create a cli version of the library
-* [ ] Create or use a tool for generating or simulating network activity
-  * [ ] Internal tool
-  * [ ] SimLN
-* [ ] Facilitate running a public signet node or network
-* [ ] Facitlitate interoperability and regression testing of the main Lightning Network implementations
-* [ ] Facilitate testing research questions such as new routing algos or channel jamming mitigations
-* [x] Thoroughly document the project and provide instructions for use
+- [x] Create a basic kubernetes setup for running a Lightning Network
+- [x] Define file format to describe initial state of the network
+- [ ] Create a helm chart and sidecar client for each Lightning Network implementation
+  - [x] LND
+  - [x] CLN
+  - [ ] LDK
+  - [ ] Eclair
+- [ ] Create a helm chart and sidecar client for communication with Bitcoin Nodes
+  - [x] Bitcoind
+  - [ ] btcd
+- [ ] Create a library for programmatically interacting with the clients
+  - [x] Go
+  - [ ] Rust
+  - [ ] Python
+  - [ ] JavaScript
+  - [ ] JVM
+- [x] Create a cli version of the library
+- [ ] Create or use a tool for generating or simulating network activity
+  - [ ] Internal tool
+  - [ ] SimLN
+- [ ] Facilitate running a public signet node or network
+- [ ] Facitlitate interoperability and regression testing of the main Lightning Network implementations
+- [ ] Facilitate testing research questions such as new routing algos or channel jamming mitigations
+- [x] Thoroughly document the project and provide instructions for use
 
 ## How can you help?
 
-* Please give us feedback on the project and your lightning testing use cases
-* Directly contributing code, issues and feature requests
-* We encourage researchers to help design general tools relevant to them
-* Donate to the project to help fund development and maintain the signet Lightning Network
+- Please give us feedback on the project and your lightning testing use cases
+- Directly contributing code, issues and feature requests
+- We encourage researchers to help design general tools relevant to them
+- Donate to the project to help fund development and maintain the signet Lightning Network
 
 ## How can you reach us?
 
 If you have any questions or want to join the project you can reach us here:
 
-* Telgram: https://t.me/+AytRsS0QKH5mMzM8
-* Twitter: https://twitter.com/ScalingLN
+- Telgram: https://t.me/+AytRsS0QKH5mMzM8
+- Twitter: https://twitter.com/ScalingLN
