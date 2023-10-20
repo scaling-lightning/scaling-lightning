@@ -155,7 +155,9 @@ Note that the above commands assume you are using the default kubeconfig and con
 
 ### Your own configuration
 
-This project is still in its infancy, so we don't have a lot of configuration options yet. Please take a look in the [examples](/examples/helmfiles) directory for examples of different networks.
+Configuration is passed to the helm charts via setting values in the helmfile.
+
+Please take a look in the [configuration](https://scalinglightning.com/docs/configuration) doc for a list of configuration options.
 
 ## Why is this important?
 
