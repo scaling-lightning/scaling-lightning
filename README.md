@@ -11,7 +11,7 @@ The goal is to collaborate as an industry to help scale the Lightning Network an
 
 [Current Roadmap](https://scalinglightning.com/blog/2023/08/26/roadmap)
 
-[Full Documentation](https://scalinglightning.com/docs)
+[Full Documentation](https://scalinglightning.com/docs/project-use-cases)
 
 ## Getting started
 
