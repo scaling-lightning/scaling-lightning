@@ -17,7 +17,7 @@ The goal is to collaborate as an industry to help scale the Lightning Network an
 
 > **_The project is still far from complete_**.
 
-The following is a quick start guide to get something running. Please refer to the [documentation](https://scalinglightning.com/docs) for more info.
+The following is a quick start guide to get something running. Please refer to the [documentation](https://scalinglightning.com/docs/project-use-cases) for more info.
 
 ### Prerequisites
 
