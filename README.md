@@ -49,9 +49,11 @@ The following is a quick start guide to get something running. Please refer to t
 
 - Traefik:
 
-  helm repo add traefik https://traefik.github.io/charts
-  helm repo update
-  helm install traefik traefik/traefik -n sl-traefik --create-namespace -f https://raw.githubusercontent.com/scaling-lightning/scaling-lightning/main/charts/traefik-values.yml
+```bash
+helm repo add traefik https://traefik.github.io/charts
+helm repo update
+helm install traefik traefik/traefik -n sl-traefik --create-namespace -f https://raw.githubusercontent.com/scaling-lightning/scaling-lightning/main/charts/traefik-values.yml
+```
 
 ### Installation
 
