@@ -1,202 +1,242 @@
 ports:
   endpoint1:
     port: 28101
-    expose: true
+    expose:
+      default: true
     exposedPort: 28101
     protocol: TCP
   endpoint2:
     port: 28102
-    expose: true
+    expose:
+      default: true
     exposedPort: 28102
     protocol: TCP
   endpoint3:
     port: 28103
-    expose: true
+    expose:
+      default: true
     exposedPort: 28103
     protocol: TCP
   endpoint4:
     port: 28104
-    expose: true
+    expose:
+      default: true
     exposedPort: 28104
     protocol: TCP
   endpoint5:
     port: 28105
-    expose: true
+    expose:
+      default: true
     exposedPort: 28105
     protocol: TCP
   endpoint6:
     port: 28106
-    expose: true
+    expose:
+      default: true
     exposedPort: 28106
     protocol: TCP
   endpoint7:
     port: 28107
-    expose: true
+    expose:
+      default: true
     exposedPort: 28107
     protocol: TCP
   endpoint8:
     port: 28108
-    expose: true
+    expose:
+      default: true
     exposedPort: 28108
     protocol: TCP
   endpoint9:
     port: 28109
-    expose: true
+    expose:
+      default: true
     exposedPort: 28109
     protocol: TCP
   endpoint10:
     port: 28110
-    expose: true
+    expose:
+      default: true
     exposedPort: 28110
     protocol: TCP
   endpoint11:
     port: 28111
-    expose: true
+    expose:
+      default: true
     exposedPort: 28111
     protocol: TCP
   endpoint12:
     port: 28112
-    expose: true
+    expose:
+      default: true
     exposedPort: 28112
     protocol: TCP
   endpoint13:
     port: 28113
-    expose: true
+    expose:
+      default: true
     exposedPort: 28113
     protocol: TCP
   endpoint14:
     port: 28114
-    expose: true
+    expose:
+      default: true
     exposedPort: 28114
     protocol: TCP
   endpoint15:
     port: 28115
-    expose: true
+    expose:
+      default: true
     exposedPort: 28115
     protocol: TCP
   endpoint16:
     port: 28116
-    expose: true
+    expose:
+      default: true
     exposedPort: 28116
     protocol: TCP
   endpoint17:
     port: 28117
-    expose: true
+    expose:
+      default: true
     exposedPort: 28117
     protocol: TCP
   endpoint18:
     port: 28118
-    expose: true
+    expose:
+      default: true
     exposedPort: 28118
     protocol: TCP
   endpoint19:
     port: 28119
-    expose: true
+    expose:
+      default: true
     exposedPort: 28119
     protocol: TCP
   endpoint20:
     port: 28120
-    expose: true
+    expose:
+      default: true
     exposedPort: 28120
     protocol: TCP
   endpoint21:
     port: 28121
-    expose: true
+    expose:
+      default: true
     exposedPort: 28121
     protocol: TCP
   endpoint22:
     port: 28122
-    expose: true
+    expose:
+      default: true
     exposedPort: 28122
     protocol: TCP
   endpoint23:
     port: 28123
-    expose: true
+    expose:
+      default: true
     exposedPort: 28123
     protocol: TCP
   endpoint24:
     port: 28124
-    expose: true
+    expose:
+      default: true
     exposedPort: 28124
     protocol: TCP
   endpoint25:
     port: 28125
-    expose: true
+    expose:
+      default: true
     exposedPort: 28125
     protocol: TCP
   endpoint26:
     port: 28126
-    expose: true
+    expose:
+      default: true
     exposedPort: 28126
     protocol: TCP
   endpoint27:
     port: 28127
-    expose: true
+    expose:
+      default: true
     exposedPort: 28127
     protocol: TCP
   endpoint28:
     port: 28128
-    expose: true
+    expose:
+      default: true
     exposedPort: 28128
     protocol: TCP
   endpoint29:
     port: 28129
-    expose: true
+    expose:
+      default: true
     exposedPort: 28129
     protocol: TCP
   endpoint30:
     port: 28130
-    expose: true
+    expose:
+      default: true
     exposedPort: 28130
     protocol: TCP
   endpoint31:
     port: 28131
-    expose: true
+    expose:
+      default: true
     exposedPort: 28131
     protocol: TCP
   endpoint32:
     port: 28132
-    expose: true
+    expose:
+      default: true
     exposedPort: 28132
     protocol: TCP
   endpoint33:
     port: 28133
-    expose: true
+    expose:
+      default: true
     exposedPort: 28133
     protocol: TCP
   endpoint34:
     port: 28134
-    expose: true
+    expose:
+      default: true
     exposedPort: 28134
     protocol: TCP
   endpoint35:
     port: 28135
-    expose: true
+    expose:
+      default: true
     exposedPort: 28135
     protocol: TCP
   endpoint36:
     port: 28136
-    expose: true
+    expose:
+      default: true
     exposedPort: 28136
     protocol: TCP
   endpoint37:
     port: 28137
-    expose: true
+    expose:
+      default: true
     exposedPort: 28137
     protocol: TCP
   endpoint38:
     port: 28138
-    expose: true
+    expose:
+      default: true
     exposedPort: 28138
     protocol: TCP
   endpoint39:
     port: 28139
-    expose: true
+    expose:
+      default: true
     exposedPort: 28139
     protocol: TCP
   grpc:
     port: 28100
-    expose: true
+    expose:
+      default: true
     exposedPort: 28100
     protocol: TCP
 logs:
