@@ -13,11 +13,10 @@ import (
 )
 
 const (
-	mainNamespace    = "sl"
 	traefikNamespace = "sl-traefik"
 )
 
-func KubeCP(kubeconfig string, source string, destination string) error {
+func KubeCP(kubeconfig string, source string, destination string, namespace string) error {
 
 	//on windows remove the C: from the path as kubeCP doesn't support a path with ":"
 	if strings.HasPrefix(strings.ToLower(source), "c:") {
@@ -33,7 +32,7 @@ func KubeCP(kubeconfig string, source string, destination string) error {
 		"--kubeconfig",
 		kubeconfig,
 		"-n",
-		mainNamespace,
+		namespace,
 		"cp",
 		source,
 		destination,
@@ -70,7 +69,7 @@ const (
 	ModeTCP
 )
 
-func GetEndpointForNode(kubeconfig string, ingressName string, mode endpointMode) (uint16, error) {
+func GetEndpointForNode(kubeconfig string, ingressName string, mode endpointMode, namespace string) (uint16, error) {
 	crd := "ingressroutetcps.traefik.containo.us"
 	if mode == ModeHTTP {
 		crd = "ingressroutes.traefik.io"
@@ -82,7 +81,7 @@ func GetEndpointForNode(kubeconfig string, ingressName string, mode endpointMode
 		"--kubeconfig",
 		kubeconfig,
 		"-n",
-		mainNamespace,
+		namespace,
 		"get",
 		crd,
 		ingressName,
@@ -141,14 +140,14 @@ func GetEndpointForNode(kubeconfig string, ingressName string, mode endpointMode
 	return 0, errors.New("Couldn't find port")
 }
 
-func Scale(kubeconfig string, deploymentName string, deploymentType string, replicas int) error {
+func Scale(kubeconfig string, deploymentName string, deploymentType string, replicas int, namespace string) error {
 	// TODO: sanitise inputs here
 	kubectlCmd := exec.Command( //nolint:gosec
 		"kubectl",
 		"--kubeconfig",
 		kubeconfig,
 		"-n",
-		mainNamespace,
+		namespace,
 		"scale",
 		deploymentType,
 		deploymentName,
@@ -165,7 +164,7 @@ func Scale(kubeconfig string, deploymentName string, deploymentType string, repl
 	return nil
 }
 
-func DeleteMainNamespace(kubeconfig string) error {
+func DeleteMainNamespace(kubeconfig string, namespace string) error {
 	// TODO: sanitise inputs here
 	kubectlCmd := exec.Command( //nolint:gosec
 		"kubectl",
@@ -173,7 +172,7 @@ func DeleteMainNamespace(kubeconfig string) error {
 		kubeconfig,
 		"delete",
 		"namespace",
-		mainNamespace,
+		namespace,
 	)
 	kubectlOut, err := kubectlCmd.CombinedOutput()
 	if zerolog.GlobalLevel() == zerolog.DebugLevel {
@@ -195,14 +194,14 @@ type statefulset struct {
 	} `json:"status"`
 }
 
-func GetScale(kubeconfig string, deploymentName string) (int, error) {
+func GetScale(kubeconfig string, deploymentName string, namespace string) (int, error) {
 	// TODO: sanitise inputs here
 	kubectlCmd := exec.Command( //nolint:gosec
 		"kubectl",
 		"--kubeconfig",
 		kubeconfig,
 		"-n",
-		mainNamespace,
+		namespace,
 		"get",
 		"statefulset",
 		deploymentName,

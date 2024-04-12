@@ -11,11 +11,13 @@ import (
 )
 
 // will need a longish (few mins) timeout
-func TestMain(t *testing.T) {
+func TestMainExapmle(t *testing.T) {
 	zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	assert := assert.New(t)
-	network := sl.NewSLNetwork("../helmfiles/public.yaml", "", sl.Regtest)
-	err := network.CreateAndStart()
+	network, err := sl.NewSLNetwork("../helmfiles/public.yaml", "", sl.Regtest, sl.DefaultNamespace)
+	assert.NoError(err)
+
+	err = network.CreateAndStart()
 	if err != nil {
 		log.Fatal().Err(err).Msg("Problem starting network")
 	}

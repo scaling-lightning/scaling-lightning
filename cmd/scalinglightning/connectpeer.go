@@ -18,7 +18,7 @@ func init() {
 			processDebugFlag(cmd)
 			connectpeerFromName := cmd.Flag("from").Value.String()
 			connectpeerToName := cmd.Flag("to").Value.String()
-			slnetwork, err := sl.DiscoverRunningNetwork(kubeConfigPath, apiHost, apiPort)
+			slnetwork, err := sl.DiscoverRunningNetwork(kubeConfigPath, apiHost, apiPort, namespace)
 			if err != nil {
 				fmt.Printf(
 					"Problem with network discovery, is there a network running? Error: %v\n",

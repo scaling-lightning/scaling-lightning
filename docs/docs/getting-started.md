@@ -92,13 +92,28 @@ To destroy the network run:
     # have bitcoind generate some blocks and pay itself the block reward
     ./scaling-lightning generate -n bitcoind
 
+#### Using different Kubernetes namespaces
+
+By default, `sl` namespace is used. If you want to use a different namespace, you can specify it in the helmfile.
+
+If you use multiple namespaces, make sure that the endpoints that are used are not overlapping!
+
+    # Download example helmfile that has a custom namespace
+    wget https://raw.githubusercontent.com/scaling-lightning/scaling-lightning/main/examples/helmfiles/local-custom-namespace.yaml
+
+    # Create the nework normally, the namespace is read from the helmfile
+    ./scaling-lightning create -f local-custom-namespace.yaml
+
+    # In the following commands use the --namespace flag to interact with the created namespace (otherwise it will default to sl)
+    ./scaling-lightning --namespace my-other-sl list
+
 ## Run the above from code instead of CLI
 
 See [examples/go/example_test.go](https://github.com/scaling-lightning/scaling-lightning/blob/main/examples/go/example_test.go). This test takes around 3 minutes to pass on an M1 Macbook Pro so you may need to adjust your test runner's default timeout.
 
 Example go test command with extra timeout:
 
-    go test -run ^TestMain$ github.com/scaling-lightning/scaling-lightning/examples/go -count=1 -v -timeout=15m
+    go test -run ^TestMainExample$ github.com/scaling-lightning/scaling-lightning/examples/go -count=1 -v -timeout=15m
 
 ## Helpful Kubernetes commands
 

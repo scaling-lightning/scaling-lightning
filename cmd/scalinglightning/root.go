@@ -1,6 +1,7 @@
 package scalinglightning
 
 import (
+	"github.com/scaling-lightning/scaling-lightning/pkg/network"
 	"os"
 	"os/user"
 	"path"
@@ -13,6 +14,7 @@ import (
 var kubeConfigPath string //nolint:gochecknoglobals
 var apiHost string        //nolint:gochecknoglobals
 var apiPort uint16        //nolint:gochecknoglobals
+var namespace string      //nolint:gochecknoglobals
 
 var rootCmd = &cobra.Command{ //nolint:gochecknoglobals
 	Use:   "sl",
@@ -55,6 +57,8 @@ func init() {
 		StringVarP(&apiHost, "host", "H", "", "Host of the scaling-lightning API")
 	rootCmd.PersistentFlags().
 		Uint16VarP(&apiPort, "port", "p", 0, "Port of the scaling-lightning API")
+	rootCmd.PersistentFlags().
+		StringVarP(&namespace, "namespace", "N", network.DefaultNamespace, "Kubernetes namespace for the network")
 
 	rootCmd.PersistentFlags().BoolP("debug", "d", false, "Enable debug logging")
 }

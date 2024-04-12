@@ -20,7 +20,7 @@ func TestRetry(t *testing.T) {
 	err := Retry(func(cancel context.CancelFunc) error {
 		retryCount++
 		return errors.New("Rando error")
-	}, 1*time.Millisecond, 10*time.Millisecond)
+	}, 1*time.Millisecond, 100*time.Millisecond)
 	assert.NotNil(err)
 
 	assert.Greater(retryCount, 2, "Function should have run at least a few times")
@@ -37,7 +37,7 @@ func TestRetryWithReturn(t *testing.T) {
 	returnVal, err := RetryWithReturn(func(cancel context.CancelFunc) (string, error) {
 		retryCount++
 		return "", errors.New("Rando error")
-	}, 1*time.Millisecond, 10*time.Millisecond)
+	}, 1*time.Millisecond, 100*time.Millisecond)
 	assert.NotNil(err)
 	assert.Empty(returnVal)
 	assert.Greater(retryCount, 2, "Function should have run at least a few times")

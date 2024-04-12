@@ -17,7 +17,7 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			processDebugFlag(cmd)
 			pubkeyNodeName := cmd.Flag("node").Value.String()
-			slnetwork, err := sl.DiscoverRunningNetwork(kubeConfigPath, apiHost, apiPort)
+			slnetwork, err := sl.DiscoverRunningNetwork(kubeConfigPath, apiHost, apiPort, namespace)
 			if err != nil {
 				fmt.Printf(
 					"Problem with network discovery, is there a network running? Error: %v\n",

@@ -25,7 +25,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const mainNamespace = "sl"
+const DefaultNamespace = "sl"
 const traefikNamespace = "sl-traefik"
 const clientgRPCPort = 28100
 
@@ -123,6 +123,7 @@ type SLNetwork struct {
 	RetryCommands  bool
 	RetryDelay     time.Duration
 	RetryTimeout   time.Duration
+	Namespace      string
 }
 
 type ConnectionDetails struct {
@@ -201,7 +202,25 @@ func (n *SLNetwork) CheckDependencies() error {
 	return nil
 }
 
-func NewSLNetwork(helmfile string, kubeConfig string, Network NetworkType) SLNetwork {
+// NewSLNetworkWithoutNamespace should be only used when creating a new network from helmfile
+func NewSLNetworkWithoutNamespace(helmfile string, kubeConfig string, Network NetworkType) (SLNetwork, error) {
+	// allow empty namespace in creation, since it will be read from the helmfile
+	return newSLNetworkInternal(helmfile, kubeConfig, Network, "")
+}
+
+// NewSLNetwork creates a new SLNetwork object that is used to interact with an existing network
+func NewSLNetwork(helmfile string, kubeConfig string, Network NetworkType, namespace string) (SLNetwork, error) {
+	if namespace == "" {
+		return SLNetwork{}, errors.New("Must provide a namespace for network")
+	}
+	if namespace == traefikNamespace {
+		return SLNetwork{}, errors.New("Namespace cannot be same as the traefik namespace")
+	}
+
+	return newSLNetworkInternal(helmfile, kubeConfig, Network, namespace)
+}
+
+func newSLNetworkInternal(helmfile string, kubeConfig string, Network NetworkType, namespace string) (SLNetwork, error) {
 	return SLNetwork{
 		helmfile:      helmfile,
 		kubeConfig:    kubeConfig,
@@ -209,7 +228,8 @@ func NewSLNetwork(helmfile string, kubeConfig string, Network NetworkType) SLNet
 		RetryCommands: true,
 		RetryDelay:    time.Second * 10,
 		RetryTimeout:  time.Minute * 3,
-	}
+		Namespace:     namespace,
+	}, nil
 }
 
 type helmListOutput struct {
@@ -226,15 +246,20 @@ func DiscoverRunningNetwork(
 	kubeconfig string,
 	overrideAPIHost string,
 	overrideAPIPort uint16,
+	namespace string,
 ) (*SLNetwork, error) {
 	// TODO: santise inputs here
+	if namespace == "" {
+		return nil, errors.New("Namespace cannot be empty")
+	}
+
 	helmCmd := exec.Command( //nolint:gosec
 		"helm",
 		"--kubeconfig",
 		kubeconfig,
 		"list",
 		"-n",
-		mainNamespace,
+		namespace,
 		"-o",
 		"json",
 	)
@@ -249,22 +274,28 @@ func DiscoverRunningNetwork(
 	if err != nil {
 		return nil, errors.Wrap(err, "Unmarshalling helm list output")
 	}
-	slnetwork := NewSLNetwork("", kubeconfig, Regtest)
+	slnetwork, err := NewSLNetwork("", kubeconfig, Regtest, namespace)
+	if err != nil {
+		return nil, errors.Wrap(err, "Making SLNetwork")
+	}
+
 	for _, release := range helmListOutput {
 		switch {
 		case strings.Contains(release.Chart, "bitcoin"):
-			bitcoinNode := bitcoinnode.BitcoinNode{Name: release.Name}
+			bitcoinNode := bitcoinnode.BitcoinNode{Name: release.Name, Namespace: namespace}
 			slnetwork.BitcoinNodes = append(slnetwork.BitcoinNodes, &bitcoinNode)
 		case strings.Contains(release.Chart, "lnd"):
 			lightningNode := lightningnode.LightningNode{
-				Name: release.Name,
-				Impl: lightningnode.LND,
+				Name:      release.Name,
+				Impl:      lightningnode.LND,
+				Namespace: namespace,
 			}
 			slnetwork.LightningNodes = append(slnetwork.LightningNodes, &lightningNode)
 		case strings.Contains(release.Chart, "cln"):
 			lightningNode := lightningnode.LightningNode{
-				Name: release.Name,
-				Impl: lightningnode.CLN,
+				Name:      release.Name,
+				Impl:      lightningnode.CLN,
+				Namespace: namespace,
 			}
 			slnetwork.LightningNodes = append(slnetwork.LightningNodes, &lightningNode)
 		}
@@ -360,12 +391,19 @@ func (n *SLNetwork) CreateAndStart() error {
 		return errors.Wrap(err, "Running helmfile apply command")
 	}
 
-	lightningNodes, bitcoinNodes, err := parseHelmfileForNodes(n)
+	lightningNodes, bitcoinNodes, ns, err := parseHelmfileForNodes(n)
 	if err != nil {
 		return errors.Wrap(err, "Parsing helmfile for nodes")
 	}
 	n.LightningNodes = lightningNodes
 	n.BitcoinNodes = bitcoinNodes
+
+	if n.Namespace != "" && n.Namespace != ns {
+		log.Warn().Msgf("Namespace was set to %v, but helmfile specifies namespace %v. "+
+			"Replacing the namespace with the one in helmfile.", n.Namespace, ns)
+	}
+
+	n.Namespace = ns
 
 	log.Info().Msg("Discovering ingress connection details, may take a few minutes")
 
@@ -382,11 +420,14 @@ func (n *SLNetwork) CreateAndStart() error {
 		return errors.Wrap(err, "Discovering connection details")
 	}
 
+	fmt.Printf("Network started in namespace '%v' with %v lightning node(s) "+
+		"and %v bitcoin node(s).\n", n.Namespace, len(n.LightningNodes), len(n.BitcoinNodes))
+
 	return nil
 }
 
 func (n *SLNetwork) Start() error {
-	log.Debug().Msg("Starting network")
+	log.Debug().Msgf("Starting network in namespace '%v'", n.Namespace)
 	for _, node := range n.GetAllNodes() {
 		err := n.StartNode(node.GetName())
 		if err != nil {
@@ -398,7 +439,7 @@ func (n *SLNetwork) Start() error {
 
 func (n *SLNetwork) StartNode(nodeName string) error {
 	log.Debug().Msg("Starting node")
-	err := kube.Scale(n.kubeConfig, nodeName, "statefulset", 1)
+	err := kube.Scale(n.kubeConfig, nodeName, "statefulset", 1, n.Namespace)
 	if err != nil {
 		return errors.Wrapf(err, "Scaling node %v to 1 replicas", nodeName)
 	}
@@ -418,7 +459,7 @@ func (n *SLNetwork) Stop() error {
 
 func (n *SLNetwork) StopNode(nodeName string) error {
 	log.Debug().Msg("Stopping node")
-	err := kube.Scale(n.kubeConfig, nodeName, "statefulset", 0)
+	err := kube.Scale(n.kubeConfig, nodeName, "statefulset", 0, n.Namespace)
 	if err != nil {
 		return errors.Wrapf(err, "Scaling node %v to 0 replicas", nodeName)
 	}
@@ -438,16 +479,16 @@ func (n *SLNetwork) discoverConnectionDetails() error {
 func (n *SLNetwork) Destroy() error {
 	log.Debug().Msg("Stopping network")
 
-	err := kube.DeleteMainNamespace(n.kubeConfig)
+	err := kube.DeleteMainNamespace(n.kubeConfig, n.Namespace)
 	if err != nil {
-		return errors.Wrap(err, "Deleting main namespace")
+		return errors.Wrapf(err, "Deleting main namespace: %s", n.Namespace)
 	}
 	return nil
 }
 
 func (n *SLNetwork) IsNodeRunning(nodeName string) (bool, error) {
 	log.Debug().Msg("Checking if node is running")
-	scale, err := kube.GetScale(n.kubeConfig, nodeName)
+	scale, err := kube.GetScale(n.kubeConfig, nodeName, n.Namespace)
 	if err != nil {
 		return false, errors.Wrapf(err, "Getting scale for %v", nodeName)
 	}
@@ -499,23 +540,36 @@ func (n *SLNetwork) GetAllNodes() []NodeInterface {
 
 type helmFile struct {
 	Releases []struct {
-		Name  string `yaml:"name"`
-		Chart string `yaml:"chart"`
+		Name      string `yaml:"name"`
+		Chart     string `yaml:"chart"`
+		Namespace string `yaml:"namespace"`
 	}
 }
 
 func parseHelmfileForNodes(
 	slnetwork *SLNetwork,
-) (lightningNodes []LightningNodeInterface, bitcoinNodes []BitcoinNodeInterface, err error) {
+) (lightningNodes []LightningNodeInterface, bitcoinNodes []BitcoinNodeInterface, namespace string, err error) {
 	bytes, err := os.ReadFile(slnetwork.helmfile)
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "OS Reading helmfile")
+		return nil, nil, "", errors.Wrap(err, "OS Reading helmfile")
 	}
 
 	helmFile := &helmFile{}
 	err = yaml.Unmarshal(bytes, helmFile)
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "Unmarshalling helmfile")
+		return nil, nil, "", errors.Wrap(err, "Unmarshalling helmfile")
+	}
+
+	// check that all the namespaces are the same, and read the namespaces from the helmfile
+	namespace = ""
+
+	for _, release := range helmFile.Releases {
+		if namespace == "" {
+			namespace = release.Namespace
+		}
+		if release.Namespace != namespace {
+			return nil, nil, "", errors.New("All nodes must be in the same namespace, check the helmfile")
+		}
 	}
 
 	for _, release := range helmFile.Releases {
@@ -523,8 +577,9 @@ func parseHelmfileForNodes(
 			lightningNodes = append(
 				lightningNodes,
 				&lightningnode.LightningNode{
-					Name: release.Name,
-					Impl: lightningnode.LND,
+					Name:      release.Name,
+					Impl:      lightningnode.LND,
+					Namespace: release.Namespace,
 				},
 			)
 		}
@@ -532,20 +587,24 @@ func parseHelmfileForNodes(
 			lightningNodes = append(
 				lightningNodes,
 				&lightningnode.LightningNode{
-					Name: release.Name,
-					Impl: lightningnode.CLN,
+					Name:      release.Name,
+					Impl:      lightningnode.CLN,
+					Namespace: release.Namespace,
 				},
 			)
 		}
 		if strings.Contains(release.Chart, "bitcoind") {
 			bitcoinNodes = append(
 				bitcoinNodes,
-				&bitcoinnode.BitcoinNode{Name: release.Name},
+				&bitcoinnode.BitcoinNode{
+					Name:      release.Name,
+					Namespace: release.Namespace,
+				},
 			)
 		}
 	}
 
-	return lightningNodes, bitcoinNodes, nil
+	return lightningNodes, bitcoinNodes, namespace, nil
 }
 
 func (n *SLNetwork) GetWalletBalance(nodeName string) (types.Amount, error) {

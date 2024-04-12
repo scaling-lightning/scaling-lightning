@@ -48,8 +48,9 @@ type CLNConnectionFiles struct {
 }
 
 type LightningNode struct {
-	Name string
-	Impl NodeImpl
+	Name      string
+	Impl      NodeImpl
+	Namespace string
 }
 
 func (n *LightningNode) GetName() string {
@@ -209,6 +210,7 @@ func (n *LightningNode) WriteAuthFilesToDirectory(network string, kubeConfig str
 			kubeConfig,
 			fmt.Sprintf("%v-0:root/.lnd/tls.cert", n.Name),
 			path.Join(dir, "tls.cert"),
+			n.Namespace,
 		)
 		if err != nil {
 			return errors.Wrap(err, "KubeCP LND's tls.cert")
@@ -217,6 +219,7 @@ func (n *LightningNode) WriteAuthFilesToDirectory(network string, kubeConfig str
 			kubeConfig,
 			fmt.Sprintf("%v-0:root/.lnd/data/chain/bitcoin/%v/admin.macaroon", n.Name, network),
 			path.Join(dir, "admin.macaroon"),
+			n.Namespace,
 		)
 		if err != nil {
 			return errors.Wrap(err, "KubeCP LND's admin.macaroon")
@@ -226,6 +229,7 @@ func (n *LightningNode) WriteAuthFilesToDirectory(network string, kubeConfig str
 			kubeConfig,
 			fmt.Sprintf("%v-0:root/.lightning/%v/client.pem", n.Name, network),
 			path.Join(dir, "client.pem"),
+			n.Namespace,
 		)
 		if err != nil {
 			return errors.Wrap(err, "KubeCP CLN's client.pem")
@@ -234,6 +238,7 @@ func (n *LightningNode) WriteAuthFilesToDirectory(network string, kubeConfig str
 			kubeConfig,
 			fmt.Sprintf("%v-0:root/.lightning/%v/client-key.pem", n.Name, network),
 			path.Join(dir, "client-key.pem"),
+			n.Namespace,
 		)
 		if err != nil {
 			return errors.Wrap(err, "KubeCP CLN's client-key.pem")
@@ -242,6 +247,7 @@ func (n *LightningNode) WriteAuthFilesToDirectory(network string, kubeConfig str
 			kubeConfig,
 			fmt.Sprintf("%v-0:root/.lightning/%v/ca.pem", n.Name, network),
 			path.Join(dir, "ca.pem"),
+			n.Namespace,
 		)
 		if err != nil {
 			return errors.Wrap(err, "KubeCP CLN's ca.pem")
@@ -251,7 +257,7 @@ func (n *LightningNode) WriteAuthFilesToDirectory(network string, kubeConfig str
 }
 
 func (n *LightningNode) GetConnectionPort(kubeConfig string) (uint16, error) {
-	port, err := kube.GetEndpointForNode(kubeConfig, n.Name+"-direct-grpc", kube.ModeTCP)
+	port, err := kube.GetEndpointForNode(kubeConfig, n.Name+"-direct-grpc", kube.ModeTCP, n.Namespace)
 	if err != nil {
 		return 0, errors.Wrapf(err, "Getting endpoint for %v", n.Name)
 	}

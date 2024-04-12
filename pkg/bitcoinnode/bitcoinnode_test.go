@@ -12,7 +12,9 @@ import (
 func TestBitcoinNode(t *testing.T) {
 	assert := assert.New(t)
 
-	bitcoinNode := &BitcoinNode{}
+	bitcoinNode := &BitcoinNode{
+		Namespace: "sl",
+	}
 
 	mockGrpcClient := common.NewMockCommonClient(t)
 	mockGrpcClient.On("Send", mock.Anything, mock.Anything).Return(&common.SendResponse{}, nil)
