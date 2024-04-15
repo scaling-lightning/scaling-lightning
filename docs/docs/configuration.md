@@ -52,7 +52,7 @@ releases:
       - image:
           tag: v23.05.1 # Version of CLN docker image to use
       - clientImage:
-          repository: cln-client # Use a specific image for sidecar container (usually used when developing the scaling lightning project itself)
+          repository: scalingln/cln-client # Use a specific image for sidecar container (usually used when developing the scaling lightning project itself)
           pullPolicy: IfNotPresent # K8s Pull Policy for sidecar image. IfNotPresent helps locate updated local images.
       - volume: # Optional: if specified will create a volume and data will be persisted between restarts and upgrades
           size: "1Gi" # Size of volume in kubernetes notation. Here 1 Gibibyte (1,073,741,824 bytes) is specified.

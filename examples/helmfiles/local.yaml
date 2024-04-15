@@ -5,7 +5,7 @@ releases:
     chart: ../../charts/bitcoind
     values:
       - clientImage:
-          repository: bitcoind-client
+          repository: scalingln/bitcoind-client
           pullPolicy: IfNotPresent
       - autoGen: true
       - rpcEntryPoint: endpoint37
@@ -17,14 +17,14 @@ releases:
     values:
       - gRPCEntryPoint: endpoint1
       - clientImage:
-          repository: cln-client
+          repository: scalingln/cln-client
           pullPolicy: IfNotPresent
   - name: cln2
     namespace: sl
     chart: ../../charts/cln
     values:
       - clientImage:
-          repository: cln-client
+          repository: scalingln/cln-client
           pullPolicy: IfNotPresent
       - gRPCEntryPoint: endpoint2
   - name: lnd1
@@ -32,7 +32,7 @@ releases:
     chart: ../../charts/lnd
     values:
       - clientImage:
-          repository: lnd-client
+          repository: scalingln/lnd-client
           pullPolicy: IfNotPresent
       - gRPCEntryPoint: endpoint3
   - name: lnd2
@@ -40,6 +40,6 @@ releases:
     chart: ../../charts/lnd
     values:
       - clientImage:
-          repository: lnd-client
+          repository: scalingln/lnd-client
           pullPolicy: IfNotPresent
       - gRPCEntryPoint: endpoint4
