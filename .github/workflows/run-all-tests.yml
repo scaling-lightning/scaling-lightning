@@ -37,7 +37,7 @@ jobs:
         with:
           go-version: ">=1.21.0"
       - name: Run E2E Tests
-        run: go test -run ^TestMain$ github.com/scaling-lightning/scaling-lightning/examples/go -count=1 -v -timeout=15m
+        run: go test -run ^TestMainExample$ github.com/scaling-lightning/scaling-lightning/examples/go -count=1 -v -timeout=15m
       # setup ssh access if e2e job fails
       # - name: Setup upterm session
       #   if: always() && (steps.e2e.outcome == 'failure')

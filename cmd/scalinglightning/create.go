@@ -16,9 +16,21 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			processDebugFlag(cmd)
 			helmfile := cmd.Flag("helmfile").Value.String()
+
+			// Namespace flag should not be used with create, since namespace is read from the helmfile
+			if rootCmd.Flag("namespace").Changed {
+				fmt.Println("Cannot create. Do not use namespace flag with create. Instead specify the namespace in the helmfile.")
+				return
+			}
+
 			fmt.Println("Creating and starting the network")
-			slnetwork := sl.NewSLNetwork(helmfile, kubeConfigPath, sl.Regtest)
-			err := slnetwork.CreateAndStart()
+			slnetwork, err := sl.NewSLNetworkWithoutNamespace(helmfile, kubeConfigPath, sl.Regtest)
+			if err != nil {
+				fmt.Println(err.Error())
+				return
+			}
+
+			err = slnetwork.CreateAndStart()
 			if err != nil {
 				fmt.Println(err.Error())
 			}

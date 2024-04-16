@@ -14,6 +14,7 @@ import (
 type BitcoinNode struct {
 	Name string
 	stdbitcoinclient.BitcoinClient
+	Namespace string
 }
 
 func (n *BitcoinNode) Generate(client stdbitcoinclient.BitcoinClient, commonClient stdcommonclient.CommonClient, numBlocks uint32) (hashes []string, err error) {
@@ -83,15 +84,15 @@ func (n *BitcoinNode) GetName() string {
 }
 
 func (n *BitcoinNode) GetConnectionPorts(kubeConfig string) ([]ConnectionPorts, error) {
-	rpcPort, err := kube.GetEndpointForNode(kubeConfig, n.Name+"-direct-rpc", kube.ModeHTTP)
+	rpcPort, err := kube.GetEndpointForNode(kubeConfig, n.Name+"-direct-rpc", kube.ModeHTTP, n.Namespace)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Getting endpoint for %v", n.Name)
 	}
-	zmqBlockPort, err := kube.GetEndpointForNode(kubeConfig, n.Name+"-direct-zmq-pub-block", kube.ModeTCP)
+	zmqBlockPort, err := kube.GetEndpointForNode(kubeConfig, n.Name+"-direct-zmq-pub-block", kube.ModeTCP, n.Namespace)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Getting endpoint for %v", n.Name)
 	}
-	zmqTxPort, err := kube.GetEndpointForNode(kubeConfig, n.Name+"-direct-zmq-pub-tx", kube.ModeTCP)
+	zmqTxPort, err := kube.GetEndpointForNode(kubeConfig, n.Name+"-direct-zmq-pub-tx", kube.ModeTCP, n.Namespace)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Getting endpoint for %v", n.Name)
 	}

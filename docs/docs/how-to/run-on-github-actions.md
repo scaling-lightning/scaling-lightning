@@ -37,7 +37,7 @@ jobs:
         with:
           go-version: ">=1.21.0"
       - name: Run example test
-        run: go test -run ^TestMain$ github.com/scaling-lightning/scaling-lightning/examples/go -count=1 -v -timeout=15m
+        run: go test -run ^TestMainExample$ github.com/scaling-lightning/scaling-lightning/examples/go -count=1 -v -timeout=15m
 ```
 
 The [example test](https://github.com/scaling-lightning/scaling-lightning/blob/main/examples/go/example_test.go) can be found in our repo under examples/go.

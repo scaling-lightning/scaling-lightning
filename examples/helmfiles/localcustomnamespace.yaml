@@ -1,0 +1,30 @@
+# uses the local charts in the charts directory and images available locally
+# uses custom namespace (note that the endpoints are different from other helmfiles to avoid overlaps)
+releases:
+  - name: bitcoind
+    namespace: my-other-sl
+    chart: ../../charts/bitcoind
+    values:
+      - clientImage:
+          repository: scalingln/bitcoind-client
+          pullPolicy: IfNotPresent
+      - autoGen: true
+      - rpcEntryPoint: endpoint27
+      - zmqPubBlockEntryPoint: endpoint28
+      - zmqPubTxEntryPoint: endpoint29
+  - name: cln1
+    namespace: my-other-sl
+    chart: ../../charts/cln
+    values:
+      - gRPCEntryPoint: endpoint20
+      - clientImage:
+          repository: scalingln/cln-client
+          pullPolicy: IfNotPresent
+  - name: lnd1
+    namespace: my-other-sl
+    chart: ../../charts/lnd
+    values:
+      - clientImage:
+          repository: scalingln/lnd-client
+          pullPolicy: IfNotPresent
+      - gRPCEntryPoint: endpoint21
