@@ -6,7 +6,7 @@ spec:
   entryPoints:
     - grpc
   routes:
-    - match: Headers(`X-Node`, `{{ include "cln.fullname" .}}`)
+    - match: Header(`X-Node`, `{{ include "cln.fullname" .}}`)
       kind: Rule
       services:
         - name: {{ include "cln.fullname" . }}

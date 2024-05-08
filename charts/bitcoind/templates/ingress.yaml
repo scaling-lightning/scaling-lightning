@@ -6,7 +6,7 @@ spec:
   entryPoints:
     - grpc
   routes:
-    - match: Headers(`X-Node`, `{{ include "bitcoind.fullname" .}}`)
+    - match: Header(`X-Node`, `{{ include "bitcoind.fullname" .}}`)
       kind: Rule
       services:
         - name: {{ include "bitcoind.fullname" . }}
@@ -22,7 +22,7 @@ spec:
   entryPoints:
     - {{ .Values.rpcEntryPoint }}
   routes:
-    - match: "HostRegexp(`{host:.*}`)"
+    - match: HostRegexp(`.*`)
       kind: Rule
       services:
         - name: {{ include "bitcoind.fullname" . }}
@@ -38,7 +38,7 @@ spec:
   entryPoints:
     - {{ .Values.zmqPubBlockEntryPoint }}
   routes:
-    - match: "HostSNI(`*`)"
+    - match: HostSNI(`*`)
       services:
         - name: {{ include "bitcoind.fullname" . }}
           port: zmqpubrawblock
