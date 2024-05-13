@@ -6,7 +6,7 @@ spec:
   entryPoints:
     - grpc
   routes:
-    - match: Headers(`X-Node`, `{{ include "bitcoind.fullname" .}}`)
+    - match: Header(`X-Node`, `{{ include "bitcoind.fullname" .}}`)
       kind: Rule
       services:
         - name: {{ include "bitcoind.fullname" . }}
@@ -22,7 +22,7 @@ spec:
   entryPoints:
     - {{ .Values.rpcEntryPoint }}
   routes:
-    - match: "HostRegexp(`{host:.*}`)"
+    - match: HostRegexp(`.*`)
       kind: Rule
       services:
         - name: {{ include "bitcoind.fullname" . }}
@@ -30,7 +30,7 @@ spec:
 {{- end}}
 {{- if .Values.zmqPubBlockEntryPoint }}
 ---
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: IngressRouteTCP
 metadata:
   name: {{ include "bitcoind.fullname" . }}-direct-zmq-pub-block
@@ -38,14 +38,14 @@ spec:
   entryPoints:
     - {{ .Values.zmqPubBlockEntryPoint }}
   routes:
-    - match: "HostSNI(`*`)"
+    - match: HostSNI(`*`)
       services:
         - name: {{ include "bitcoind.fullname" . }}
           port: zmqpubrawblock
 {{- end}}
 {{- if .Values.zmqPubTxEntryPoint }}
 ---
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: IngressRouteTCP
 metadata:
   name: {{ include "bitcoind.fullname" . }}-direct-zmq-pub-tx

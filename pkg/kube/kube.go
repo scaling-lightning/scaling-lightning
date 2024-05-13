@@ -70,7 +70,7 @@ const (
 )
 
 func GetEndpointForNode(kubeconfig string, ingressName string, mode endpointMode, namespace string) (uint16, error) {
-	crd := "ingressroutetcps.traefik.containo.us"
+	crd := "ingressroutetcps.traefik.io"
 	if mode == ModeHTTP {
 		crd = "ingressroutes.traefik.io"
 	}

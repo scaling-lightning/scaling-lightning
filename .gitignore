@@ -9,5 +9,7 @@ tls.key
 *.tgz
 !charts/dist/*.tgz
 
+main.exe
+
 volumes
 sl

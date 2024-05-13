@@ -21,7 +21,7 @@ The following is a quick start guide to get something running. Please refer to t
 
 ### Prerequisites
 
-- Kubernetes.
+#### Kubernetes:
 
   - If you are developing locally you can use Docker Desktop and enable
     Kubernetes in the dashboard.
@@ -29,7 +29,7 @@ The following is a quick start guide to get something running. Please refer to t
   - SL has also been tested on Digital Ocean's hosted K8s cluster
   - Please let us know if you have run SL on a different cluster distribution such as Kind, K3s K0s or any other cloud provider
 
-- Helm 3 and Helmfile.
+#### Helm 3 and Helmfile:
 
   Mac OS
 
@@ -39,18 +39,26 @@ The following is a quick start guide to get something running. Please refer to t
 
       scoop install helm helmfile
 
-  For Linux check your distros package manager but you may need to download the binaries for helm and helmfile.
+  For Linux check your distros package manager, but you may need to download the binaries for helm and helmfile.
 
-- Helm Diff:
+#### Helm Diff:
 
-  helm plugin install https://github.com/databus23/helm-diff
+    helm plugin install https://github.com/databus23/helm-diff
 
   > **_NOTE:_** On Windows the plugin install does not complete correctly and you need to download the binary manually from https://github.com/databus23/helm-diff/releases . Unzip the diff.exe file and put it in the _helm/plugins/helm-diff/bin_ folder (the _bin_ folder has to be created). You can find the folder by running _"helm env HELM_DATA_HOME"_
 
-- Traefik:
+#### Traefik:
 
 ```bash
 helm repo add traefik https://traefik.github.io/charts
+helm repo update
+helm install traefik traefik/traefik -n sl-traefik --create-namespace -f https://raw.githubusercontent.com/scaling-lightning/scaling-lightning/main/charts/traefik-values.yml
+```
+
+Current version of Scaling Lightning supports Traefik version 3.0.0. If you have an older version of Traefik installed, you should upgrade it by running (this doesn't affect your existing network and is safe to do):
+
+```bash
+helm uninstall traefik -n sl-traefik
 helm repo update
 helm install traefik traefik/traefik -n sl-traefik --create-namespace -f https://raw.githubusercontent.com/scaling-lightning/scaling-lightning/main/charts/traefik-values.yml
 ```
