@@ -26,12 +26,12 @@ func init() {
 				)
 				return
 			}
-			err = slnetwork.ConnectPeer(connectpeerFromName, connectpeerToName)
+			result, err := slnetwork.ConnectPeer(connectpeerFromName, connectpeerToName)
 			if err != nil {
 				fmt.Printf("Problem connecting peer: %v\n", err.Error())
 				return
 			}
-			fmt.Println("Connect peer command received")
+			fmt.Println(result)
 		},
 	}
 

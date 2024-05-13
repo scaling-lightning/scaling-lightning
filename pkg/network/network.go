@@ -913,29 +913,26 @@ func (n *SLNetwork) getPubKey(nodeName string) (types.PubKey, error) {
 	return pubkey, nil
 }
 
-func (n *SLNetwork) ConnectPeer(fromNodeName string, toNodeName string) error {
+func (n *SLNetwork) ConnectPeer(fromNodeName string, toNodeName string) (string, error) {
 	if !n.RetryCommands {
 		return n.connectPeer(fromNodeName, toNodeName)
 	}
-	err := tools.Retry(func(cancel context.CancelFunc) error {
-		err := n.connectPeer(fromNodeName, toNodeName)
-		if err != nil {
-			return err
-		}
-		return nil
+	result, err := tools.RetryWithReturn(func(cancel context.CancelFunc) (string, error) {
+		return n.connectPeer(fromNodeName, toNodeName)
 	}, n.RetryDelay, n.RetryTimeout)
 	if err != nil {
-		return errors.Wrap(err, "Connecting peer")
+		return "", errors.Wrap(err, "Connecting peer")
 	}
-	return nil
+
+	return result, nil
 }
 
-func (n *SLNetwork) connectPeer(fromNodeName string, toNodeName string) error {
+func (n *SLNetwork) connectPeer(fromNodeName string, toNodeName string) (string, error) {
 	log.Debug().Msgf("Connecting %v to %v", fromNodeName, toNodeName)
 
 	conn, err := connectToGRPCServer(n.ApiHost, n.ApiPort, fromNodeName)
 	if err != nil {
-		return errors.Wrapf(err, "Connecting to gRPC for %v's client", fromNodeName)
+		return "", errors.Wrapf(err, "Connecting to gRPC for %v's client", fromNodeName)
 	}
 	defer conn.Close()
 
@@ -943,19 +940,24 @@ func (n *SLNetwork) connectPeer(fromNodeName string, toNodeName string) error {
 
 	toPubKey, err := n.GetPubKey(toNodeName)
 	if err != nil {
-		return errors.Wrapf(err, "Getting pubkey for peer: %v", toNodeName)
+		return "", errors.Wrapf(err, "Getting pubkey for peer: %v", toNodeName)
 	}
 
 	node, err := n.GetLightningNode(fromNodeName)
 	if err != nil {
-		return errors.Newf("Node not found. Available nodes: %v", n.listNodes(false, true))
+		return "", errors.Newf("Node not found. Available nodes: %v", n.listNodes(false, true))
 	}
 
 	err = node.ConnectPeer(client, toPubKey, toNodeName)
 	if err != nil {
-		return errors.Wrapf(err, "Connecting to %v", toNodeName)
+		if strings.Contains(err.Error(), "already connected") {
+			return "Already connected to " + toNodeName, nil
+		}
+
+		return "", errors.Wrapf(err, "Connecting to %v", toNodeName)
 	}
-	return nil
+
+	return "Connected to " + toNodeName, nil
 }
 
 func (n *SLNetwork) OpenChannel(
