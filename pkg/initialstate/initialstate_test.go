@@ -23,6 +23,7 @@ const exampleInitialState = `
 - SendOverChannel:
     - { from: alice, to: bob, amountMSat: 2_000_000 }
 `
+
 func TestParseInitialStateBytes(t *testing.T) {
 	assert := assert.New(t)
 
@@ -64,7 +65,7 @@ func TestConnectPeer(t *testing.T) {
     - { from: alice, to: bob }
 `
 	mockNetwork := NewMockSLNetworkInterface(t)
-	mockNetwork.On("ConnectPeer", "alice", "bob").Return(nil)
+	mockNetwork.On("ConnectPeer", "alice", "bob").Return("connect peer success", nil)
 	initialState, err := NewInitialStateFromBytes([]byte(initYAML), mockNetwork)
 	assert.Nil(err)
 
