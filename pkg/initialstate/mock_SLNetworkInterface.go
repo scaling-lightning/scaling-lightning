@@ -73,17 +73,28 @@ func (_c *MockSLNetworkInterface_ChannelBalance_Call) RunAndReturn(run func(stri
 }
 
 // ConnectPeer provides a mock function with given fields: fromNodeName, toNodeName
-func (_m *MockSLNetworkInterface) ConnectPeer(fromNodeName string, toNodeName string) error {
+func (_m *MockSLNetworkInterface) ConnectPeer(fromNodeName string, toNodeName string) (string, error) {
 	ret := _m.Called(fromNodeName, toNodeName)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(string, string) error); ok {
-		r0 = rf(fromNodeName, toNodeName)
-	} else {
-		r0 = ret.Error(0)
+	var r0 string
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, string) (string, error)); ok {
+		return rf(fromNodeName, toNodeName)
 	}
 
-	return r0
+	if rf, ok := ret.Get(0).(func(string, string) string); ok {
+		r0 = rf(fromNodeName, toNodeName)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(fromNodeName, toNodeName)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // MockSLNetworkInterface_ConnectPeer_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'ConnectPeer'
@@ -105,12 +116,12 @@ func (_c *MockSLNetworkInterface_ConnectPeer_Call) Run(run func(fromNodeName str
 	return _c
 }
 
-func (_c *MockSLNetworkInterface_ConnectPeer_Call) Return(_a0 error) *MockSLNetworkInterface_ConnectPeer_Call {
-	_c.Call.Return(_a0)
+func (_c *MockSLNetworkInterface_ConnectPeer_Call) Return(_a0 string, _a1 error) *MockSLNetworkInterface_ConnectPeer_Call {
+	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockSLNetworkInterface_ConnectPeer_Call) RunAndReturn(run func(string, string) error) *MockSLNetworkInterface_ConnectPeer_Call {
+func (_c *MockSLNetworkInterface_ConnectPeer_Call) RunAndReturn(run func(string, string) (string, error)) *MockSLNetworkInterface_ConnectPeer_Call {
 	_c.Call.Return(run)
 	return _c
 }
