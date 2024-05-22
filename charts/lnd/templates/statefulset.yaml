@@ -55,6 +55,7 @@ spec:
             - --bitcoind.zmqpubrawtx=tcp://{{ .Values.bitcoind.rpcHost }}:{{ .Values.bitcoind.zmqPubTxPort }}
             - --tlsextradomain={{ include "lnd.fullname" . }}
             - --accept-keysend
+            - --alias={{ include "lnd.fullname" . }}
         - name: {{ .Chart.Name }}-client
           image: {{ .Values.clientImage.repository }}:{{ .Values.clientImage.tag | default "latest" }}
           imagePullPolicy: {{ .Values.clientImage.pullPolicy }}
