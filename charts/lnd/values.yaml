@@ -14,13 +14,13 @@ clientImage:
   tag: latest
   pullPolicy: Always
 
-rpcPort: 8332
-
-rpcUser: foo
-rpcPass: pass
-rpcHost: bitcoind
-zmqPubBlockPort: 28332
-zmqPubTxPort: 28333
+bitcoind:
+  rpcPort: 8332
+  rpcUser: foo
+  rpcPass: pass
+  rpcHost: bitcoind
+  zmqPubBlockPort: 28332
+  zmqPubTxPort: 28333
 
 port: 9735
 gRPCPort: 10009

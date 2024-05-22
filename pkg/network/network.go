@@ -842,7 +842,7 @@ func (n *SLNetwork) send(
 		return "", errors.Wrapf(err, "Sending to addres")
 	}
 
-	_, err = n.Generate("bitcoind", 10)
+	_, err = n.Generate(n.BitcoinNodes[0].GetName(), 10)
 	if err != nil {
 		return "", errors.Wrapf(
 			err,
@@ -1023,7 +1023,7 @@ func (n *SLNetwork) openChannel(
 	if err != nil {
 		return types.ChannelPoint{}, errors.Wrapf(err, "Opening channel to %v", toNodeName)
 	}
-	_, err = n.Generate("bitcoind", 10)
+	_, err = n.Generate(n.BitcoinNodes[0].GetName(), 10)
 	if err != nil {
 		return types.ChannelPoint{}, errors.Wrapf(err,
 			"Generating blocks after opening channel with channel point: %v", channelPoint)
