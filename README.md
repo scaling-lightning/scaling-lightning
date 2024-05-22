@@ -84,7 +84,7 @@ To spin up an example network with 2 cln nodes and 4 lnd nodes, run:
     wget https://raw.githubusercontent.com/scaling-lightning/scaling-lightning/main/examples/helmfiles/public.yaml
 
     # Create and start the network. Scaling lightning will use your currently defined default k8s cluster
-    # as specified in kubectl kubectl config get-contexts
+    # as specified in kubectl config get-contexts
     ./scaling-lightning create -f public.yaml
 
 To destroy the network run:
