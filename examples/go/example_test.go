@@ -11,7 +11,7 @@ import (
 )
 
 // will need a longish (few mins) timeout
-func TestMainExapmle(t *testing.T) {
+func TestMainExample(t *testing.T) {
 	zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	assert := assert.New(t)
 	network, err := sl.NewSLNetwork("../helmfiles/public.yaml", "", sl.Regtest, sl.DefaultNamespace)

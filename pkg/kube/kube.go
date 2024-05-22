@@ -155,7 +155,7 @@ func Scale(kubeconfig string, deploymentName string, deploymentType string, repl
 	)
 	kubectlOut, err := kubectlCmd.CombinedOutput()
 	if zerolog.GlobalLevel() == zerolog.DebugLevel {
-		fmt.Printf("kubectl output was:\n\n%v", kubectlOut)
+		fmt.Printf("kubectl output was:\n%v\n", string(kubectlOut))
 	}
 	if err != nil {
 		log.Error().Err(err).Msgf("kubectl output was: %v", string(kubectlOut))
@@ -176,7 +176,7 @@ func DeleteMainNamespace(kubeconfig string, namespace string) error {
 	)
 	kubectlOut, err := kubectlCmd.CombinedOutput()
 	if zerolog.GlobalLevel() == zerolog.DebugLevel {
-		fmt.Printf("kubectl output was:\n\n%v", kubectlOut)
+		fmt.Printf("kubectl output was:\n%v\n", string(kubectlOut))
 	}
 	if err != nil {
 		log.Error().Err(err).Msgf("kubectl output was: %v", string(kubectlOut))
@@ -211,7 +211,7 @@ func GetScale(kubeconfig string, deploymentName string, namespace string) (int, 
 
 	kubectlOut, err := kubectlCmd.Output()
 	if zerolog.GlobalLevel() == zerolog.DebugLevel {
-		fmt.Printf("kubectl output was:\n\n%v", kubectlOut)
+		fmt.Printf("kubectl output was:\n%v\n", string(kubectlOut))
 	}
 	if err != nil {
 		return 0, errors.Wrap(err, "Running kubectl get statefulset command")

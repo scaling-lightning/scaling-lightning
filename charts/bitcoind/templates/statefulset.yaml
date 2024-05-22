@@ -69,6 +69,6 @@ spec:
             - name: data
               mountPath: /bitcoind
           args:
-            - -rpchost=bitcoind
+            - -rpchost={{ include "bitcoind.fullname" . }}
             - -rpccookiefile=/bitcoind/regtest/.cookie
             - -autogen={{ .Values.autoGen }}

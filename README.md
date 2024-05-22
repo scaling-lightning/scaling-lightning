@@ -122,8 +122,9 @@ To destroy the network run:
 By default, `sl` namespace is used. If you want to use a different namespace, you can specify it in the helmfile.
 
 If you use multiple namespaces, make sure that the endpoints that are used are not overlapping!
-Also the release names (specified in the helmfile) should be unique across all namespaces, since traefik is using the name as a hostname!
-Exception: name of bitcoind must always be bitcoind as it is hardcoded as a hostname in values.yaml files.
+Also the release names (specified in the helmfile) should be unique across all namespaces, since traefik is using them name as a hostname!
+If bitcoind is used with a different release name than the default ('bitcoind'), set that as the values:bitcoind:rpcHost for lightning nodes in the helmfile.
+(See localcustomnamespace.yaml)
 
     # Download example helmfile that has a custom namespace
     wget https://raw.githubusercontent.com/scaling-lightning/scaling-lightning/main/examples/helmfiles/local-custom-namespace.yaml

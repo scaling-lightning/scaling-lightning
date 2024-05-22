@@ -46,6 +46,8 @@ spec:
             - --bitcoin-rpcport={{ .Values.bitcoind.rpcPort }}
             - --bitcoin-retry-timeout=600
             - --database-upgrade=true
+            - --log-level=debug
+            - --alias={{ include "cln.fullname" . }}
         - name: {{ .Chart.Name }}-client
           image: {{ .Values.clientImage.repository }}:{{ .Values.clientImage.tag | default "latest" }}
           imagePullPolicy: {{ .Values.clientImage.pullPolicy }}

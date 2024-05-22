@@ -48,13 +48,14 @@ spec:
             {{- end }}
             - --bitcoin.active
             - --bitcoin.node=bitcoind
-            - --bitcoind.rpchost={{ .Values.rpcHost }}
-            - --bitcoind.rpcuser={{ .Values.rpcUser }}
-            - --bitcoind.rpcpass={{ .Values.rpcPass }}
-            - --bitcoind.zmqpubrawblock=tcp://{{ .Values.rpcHost }}:{{ .Values.zmqPubBlockPort }}
-            - --bitcoind.zmqpubrawtx=tcp://{{ .Values.rpcHost }}:{{ .Values.zmqPubTxPort }}
+            - --bitcoind.rpchost={{ .Values.bitcoind.rpcHost }}
+            - --bitcoind.rpcuser={{ .Values.bitcoind.rpcUser }}
+            - --bitcoind.rpcpass={{ .Values.bitcoind.rpcPass }}
+            - --bitcoind.zmqpubrawblock=tcp://{{ .Values.bitcoind.rpcHost }}:{{ .Values.bitcoind.zmqPubBlockPort }}
+            - --bitcoind.zmqpubrawtx=tcp://{{ .Values.bitcoind.rpcHost }}:{{ .Values.bitcoind.zmqPubTxPort }}
             - --tlsextradomain={{ include "lnd.fullname" . }}
             - --accept-keysend
+            - --alias={{ include "lnd.fullname" . }}
         - name: {{ .Chart.Name }}-client
           image: {{ .Values.clientImage.repository }}:{{ .Values.clientImage.tag | default "latest" }}
           imagePullPolicy: {{ .Values.clientImage.pullPolicy }}
@@ -64,7 +65,6 @@ spec:
           ports:
             - name: http
               containerPort: 8080
-          ports:
             - name: client
               containerPort: {{ .Values.clientPort }}
           args:
