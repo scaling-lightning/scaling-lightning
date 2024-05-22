@@ -48,6 +48,9 @@ spec:
             - --database-upgrade=true
             - --log-level=debug
             - --alias={{ include "cln.fullname" . }}
+            {{- if .Values.largeChannels }}
+            - --large-channels
+            {{- end }}
         - name: {{ .Chart.Name }}-client
           image: {{ .Values.clientImage.repository }}:{{ .Values.clientImage.tag | default "latest" }}
           imagePullPolicy: {{ .Values.clientImage.pullPolicy }}

@@ -56,6 +56,9 @@ spec:
             - --tlsextradomain={{ include "lnd.fullname" . }}
             - --accept-keysend
             - --alias={{ include "lnd.fullname" . }}
+            {{- if .Values.largeChannels }}
+            - --protocol.wumbo-channels
+            {{- end }}
         - name: {{ .Chart.Name }}-client
           image: {{ .Values.clientImage.repository }}:{{ .Values.clientImage.tag | default "latest" }}
           imagePullPolicy: {{ .Values.clientImage.pullPolicy }}
