@@ -24,6 +24,9 @@ clientPort: 8181
 
 network: regtest
 
+# allow large channels by default
+largeChannels: true
+
 # set to one of the endpoints defined in traefik's values file e.g. (endpoint1, endpoint2, endpoint3, endpoint4)
 # to expose direct gRPC access to the node
 gRPCEntryPoint: null
