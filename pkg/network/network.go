@@ -790,16 +790,37 @@ func (n *SLNetwork) GetConnectionDetails(nodeName string) ([]ConnectionDetails, 
 	}, nil
 }
 
+func (n *SLNetwork) SendToAddress(
+	fromNodeName string,
+	toAddress string,
+	amountSats uint64,
+) (string, error) {
+	if !n.RetryCommands {
+		return n.send(fromNodeName, nil, &toAddress, amountSats, false)
+	}
+	txid, err := tools.RetryWithReturn(func(cancel context.CancelFunc) (string, error) {
+		txid, err := n.send(fromNodeName, nil, &toAddress, amountSats, false)
+		if err != nil {
+			return "", err
+		}
+		return txid, nil
+	}, n.RetryDelay, n.RetryTimeout)
+	if err != nil {
+		return "", errors.Wrap(err, "Sending to onchain address")
+	}
+	return txid, nil
+}
+
 func (n *SLNetwork) Send(
 	fromNodeName string,
 	toNodeName string,
 	amountSats uint64,
 ) (string, error) {
 	if !n.RetryCommands {
-		return n.send(fromNodeName, toNodeName, amountSats)
+		return n.send(fromNodeName, &toNodeName, nil, amountSats, true)
 	}
 	txid, err := tools.RetryWithReturn(func(cancel context.CancelFunc) (string, error) {
-		txid, err := n.send(fromNodeName, toNodeName, amountSats)
+		txid, err := n.send(fromNodeName, &toNodeName, nil, amountSats, true)
 		if err != nil {
 			return "", err
 		}
@@ -813,14 +834,33 @@ func (n *SLNetwork) Send(
 
 func (n *SLNetwork) send(
 	fromNodeName string,
-	toNodeName string,
+	toNodeName *string,
+	toAddress *string,
 	amountSats uint64,
+	mineAfter bool,
 ) (string, error) {
-	log.Debug().Msgf("Sending %v from %v to %v", amountSats, fromNodeName, toNodeName)
+	if toNodeName == nil && toAddress == nil {
+		return "", errors.New("Must provide either toNodeName or toAddress")
+	}
 
-	address, err := n.GetNewAddress(toNodeName)
-	if err != nil {
-		return "", errors.Wrapf(err, "Getting new address for %v", toNodeName)
+	if toNodeName != nil && toAddress != nil {
+		return "", errors.New("Cannot provide both toNodeName and toAddress")
+	}
+
+	var address string
+	var err error
+
+	if toNodeName != nil {
+		log.Debug().Msgf("Sending %v from %v to %v", amountSats, fromNodeName, *toNodeName)
+
+		address, err = n.GetNewAddress(*toNodeName)
+		if err != nil {
+			return "", errors.Wrapf(err, "Getting new address for %v", toNodeName)
+		}
+	} else {
+		log.Debug().Msgf("Sending %v from %v to %v", amountSats, fromNodeName, *toAddress)
+
+		address = *toAddress
 	}
 
 	amount := types.NewAmountSats(amountSats)
@@ -842,15 +882,18 @@ func (n *SLNetwork) send(
 		return "", errors.Wrapf(err, "Sending to addres")
 	}
 
-	_, err = n.Generate(n.BitcoinNodes[0].GetName(), 10)
-	if err != nil {
-		return "", errors.Wrapf(
-			err,
-			"TxId was: %v but problem generating blocks on %v",
-			txid,
-			"bitcoind",
-		)
+	if mineAfter {
+		_, err = n.Generate(n.BitcoinNodes[0].GetName(), 10)
+		if err != nil {
+			return "", errors.Wrapf(
+				err,
+				"TxId was: %v but problem generating blocks on %v",
+				txid,
+				"bitcoind",
+			)
+		}
 	}
+
 	return txid, nil
 }
 
