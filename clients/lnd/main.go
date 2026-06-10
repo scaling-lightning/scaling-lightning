@@ -10,6 +10,7 @@ import (
 	"github.com/cockroachdb/errors"
 	"github.com/lightninglabs/lndclient"
 	"github.com/lightningnetwork/lnd/lnrpc"
+	"github.com/lightningnetwork/lnd/lnrpc/routerrpc"
 	"github.com/rs/zerolog/log"
 	stdcommonclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/common"
 	stdlightningclient "github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning"
@@ -40,10 +41,13 @@ func main() {
 		log.Fatal().Err(err).Msg("Problem parsing flags")
 	}
 
-	var client lnrpc.LightningClient
+	var lightningClient lnrpc.LightningClient
+	var routerClient routerrpc.RouterClient
+
 	err = tools.Retry(func(cancel context.CancelFunc) error {
 		grpc := fmt.Sprintf("%s:%d", appConfig.grpcAddress, appConfig.grpcPort)
-		client, err = lndclient.NewBasicClient(
+
+		conn, err := lndclient.NewBasicConn(
 			grpc,
 			appConfig.tlsFilePath,
 			appConfig.macaroonFilePath,
@@ -51,8 +55,12 @@ func main() {
 		)
 		if err != nil {
 			log.Warn().Err(err).Msg("Problem when connecting to LND's gRPC, perhaps it's not ready")
-			return errors.Wrap(err, "New basic client fail")
+			return errors.Wrap(err, "New basic connection fail")
 		}
+
+		lightningClient = lnrpc.NewLightningClient(conn)
+		routerClient = routerrpc.NewRouterClient(conn)
+
 		return nil
 	}, 15*time.Second, 5*time.Minute)
 	if err != nil {
@@ -62,7 +70,7 @@ func main() {
 	log.Info().Msg("Waiting for command")
 
 	// start api
-	err = startGRPCServer(appConfig.apiPort, client)
+	err = startGRPCServer(appConfig.apiPort, lightningClient, routerClient)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Starting gRPC api server")
 	}
@@ -70,21 +78,25 @@ func main() {
 
 type lightningServer struct {
 	stdlightningclient.UnimplementedLightningServer
-	client lnrpc.LightningClient
+	lightningClient lnrpc.LightningClient
+	routerClient    routerrpc.RouterClient
 }
 type commonServer struct {
 	stdcommonclient.UnimplementedCommonServer
 	client lnrpc.LightningClient
 }
 
-func startGRPCServer(port int, client lnrpc.LightningClient) error {
+func startGRPCServer(port int, lightningClient lnrpc.LightningClient, routerClient routerrpc.RouterClient) error {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		return errors.Wrapf(err, "Listening on port %d", port)
 	}
 	s := grpc.NewServer()
-	stdcommonclient.RegisterCommonServer(s, &commonServer{client: client})
-	stdlightningclient.RegisterLightningServer(s, &lightningServer{client: client})
+	stdcommonclient.RegisterCommonServer(s, &commonServer{client: lightningClient})
+	stdlightningclient.RegisterLightningServer(s, &lightningServer{
+		lightningClient: lightningClient,
+		routerClient:    routerClient,
+	})
 
 	log.Info().Msgf("Starting gRPC server on port %d", port)
 	if err := s.Serve(lis); err != nil {

@@ -11,8 +11,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-//go:generate mockery --name rpcClient --exported
-type rpcClient interface {
+type RpcClient interface {
 	CreateWallet(
 		name string,
 		opts ...rpcclient.CreateWalletOpt,
@@ -29,7 +28,7 @@ type rpcClient interface {
 	SendToAddress(address btcutil.Address, amount btcutil.Amount) (*chainhash.Hash, error)
 }
 
-func initialiseBitcoind(client rpcClient) error {
+func initialiseBitcoind(client RpcClient) error {
 	walletInfo, err := client.GetWalletInfo()
 	if err != nil && !strings.Contains(err.Error(), "No wallet is loaded") {
 		return errors.Wrap(err, "Getting wallet info")

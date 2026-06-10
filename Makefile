@@ -45,7 +45,7 @@ build-bitcoind-client:
 	docker build -t bitcoind-client:latest -f clients/bitcoind/Dockerfile .
 
 generate-mocks:
-	go install github.com/vektra/mockery/v2@v2.34.2
+	go install github.com/vektra/mockery/v3@v3.7.0
 	mockery
 
 .PHONY: lint test generate-mocks protoc protoc-std-common protoc-std-bitcoin protoc-std-lightning protoc-cln build-cln-client build-lnd-client build-bitcoind-client

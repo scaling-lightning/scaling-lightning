@@ -1,0 +1,43 @@
+template: testify
+include-auto-generated: true
+template-data:
+  unroll-variadic: true
+filename: mock_{{.InterfaceName}}.go
+packages:
+  github.com/scaling-lightning/scaling-lightning/clients/bitcoind:
+    config:
+      dir: '{{.InterfaceDir}}/mocks'
+      pkgname: 'mocks'
+    interfaces:
+      RpcClient: {}
+  github.com/scaling-lightning/scaling-lightning/pkg/initialstate:
+    config:
+      dir: '{{.InterfaceDir}}'
+      pkgname: '{{.SrcPackageName}}'
+    interfaces:
+      SLNetworkInterface: {}
+  github.com/scaling-lightning/scaling-lightning/pkg/network:
+    config:
+      dir: '{{.InterfaceDir}}'
+      pkgname: '{{.SrcPackageName}}'
+    interfaces:
+      BitcoinNodeInterface: {}
+      LightningNodeInterface: {}
+  github.com/scaling-lightning/scaling-lightning/pkg/standardclient/bitcoin:
+    config:
+      dir: '{{.InterfaceDir}}'
+      pkgname: '{{.SrcPackageName}}'
+    interfaces:
+      BitcoinClient: {}
+  github.com/scaling-lightning/scaling-lightning/pkg/standardclient/common:
+    config:
+      dir: '{{.InterfaceDir}}'
+      pkgname: '{{.SrcPackageName}}'
+    interfaces:
+      CommonClient: {}
+  github.com/scaling-lightning/scaling-lightning/pkg/standardclient/lightning:
+    config:
+      dir: '{{.InterfaceDir}}'
+      pkgname: '{{.SrcPackageName}}'
+    interfaces:
+      LightningClient: {}
