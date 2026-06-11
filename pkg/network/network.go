@@ -908,7 +908,7 @@ func connectToGRPCServer(host string, port uint16, nodeName string) (*grpc.Clien
 	if port == 0 {
 		port = clientgRPCPort
 	}
-	conn, err := grpc.Dial(fmt.Sprintf("%v:%d", host, port), opts...)
+	conn, err := grpc.NewClient(fmt.Sprintf("%v:%d", host, port), opts...)
 	if err != nil {
 		return nil, errors.Wrap(err, "Connecting to gRPC")
 	}
