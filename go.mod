@@ -1,5 +1,6 @@
 module github.com/scaling-lightning/scaling-lightning
 
+// when editing major version, also change in all Dockerfiles
 go 1.25.11
 
 require (
