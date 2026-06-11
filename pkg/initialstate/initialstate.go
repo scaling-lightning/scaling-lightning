@@ -23,13 +23,13 @@ type command struct {
 	args        map[string]interface{}
 }
 
-type initialState struct {
+type InitialState struct {
 	commands []command
 	network  SLNetworkInterface
 }
 
-func NewInitialStateFromBytes(yamlBytes []byte, network SLNetworkInterface) (*initialState, error) {
-	initialState := initialState{}
+func NewInitialStateFromBytes(yamlBytes []byte, network SLNetworkInterface) (*InitialState, error) {
+	initialState := InitialState{}
 	err := initialState.parseYAML(yamlBytes)
 	if err != nil {
 		return nil, errors.Wrap(err, "Parsing initial state yaml")
@@ -38,7 +38,7 @@ func NewInitialStateFromBytes(yamlBytes []byte, network SLNetworkInterface) (*in
 	return &initialState, nil
 }
 
-func NewInitialStateFromFile(yamlFilePath string, network SLNetworkInterface) (*initialState, error) {
+func NewInitialStateFromFile(yamlFilePath string, network SLNetworkInterface) (*InitialState, error) {
 	yamlBytes, err := os.ReadFile(yamlFilePath)
 	if err != nil {
 		return nil, errors.Wrap(err, "Reading yaml file")
@@ -46,7 +46,7 @@ func NewInitialStateFromFile(yamlFilePath string, network SLNetworkInterface) (*
 	return NewInitialStateFromBytes(yamlBytes, network)
 }
 
-func (is *initialState) parseYAML(yamlBytes []byte) error {
+func (is *InitialState) parseYAML(yamlBytes []byte) error {
 
 	yamlData := yamlCommands{}
 	err := yaml.Unmarshal(yamlBytes, &yamlData)
@@ -69,7 +69,7 @@ func (is *initialState) parseYAML(yamlBytes []byte) error {
 }
 
 // function to run through commands and execute them on the network
-func (is *initialState) Apply() error {
+func (is *InitialState) Apply() error {
 	for _, command := range is.commands {
 		switch command.commandType {
 		case "SendOnChain":
