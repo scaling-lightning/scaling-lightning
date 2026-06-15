@@ -3,7 +3,7 @@
 # use with either library or cli of same version for maximum compatibility
 repositories:
   - name: scalinglightning
-    url: https://charts.scalinglightning.com
+    url: https://scalinglightning.com/charts
 releases:
   - name: bitcoind
     namespace: sl

@@ -32,7 +32,7 @@ Full example:
 ```yaml title="network.yaml"
 repositories:
   - name: scalinglightning
-    url: https://charts.scalinglightning.com
+    url: https://scalinglightning.com/charts
 releases:
   - name: bitcoind
     namespace: sl

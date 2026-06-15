@@ -3,7 +3,7 @@
 # no need to clone the source code of project to use this file
 repositories:
   - name: scalinglightning
-    url: https://charts.scalinglightning.com
+    url: https://scalinglightning.com/charts
 releases:
   - name: bitcoind
     namespace: sl

@@ -15,7 +15,7 @@ The following configuration enables direct external access to bitcoind, cln and 
 ```yaml
 repositories:
   - name: scalinglightning
-    url: https://charts.scalinglightning.com
+    url: https://scalinglightning.com/charts
 releases:
   - name: bitcoind
     namespace: sl

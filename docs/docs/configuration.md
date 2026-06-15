@@ -11,7 +11,7 @@ Configuration is provided via a [helmfile](https://helmfile.readthedocs.io/en/la
 ```yaml title="network.yaml"
 repositories:
   - name: scalinglightning
-    url: https://charts.scalinglightning.com
+    url: https://scalinglightning.com/charts
 releases:
   - name: bitcoind
     namespace: sl
@@ -29,7 +29,7 @@ releases:
 ```yaml title="network.yaml"
 repositories:
   - name: scalinglightning
-    url: https://charts.scalinglightning.com
+    url: https://scalinglightning.com/charts
 releases:
   - name: bitcoind # bitcoind node must be called bitcoind and there must be one of these nodes
     namespace: sl # Must be sl namespace
