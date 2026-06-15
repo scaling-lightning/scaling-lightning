@@ -348,9 +348,9 @@ func GetLoadbalancerHostname(
 		"json",
 	)
 	kubectlOut, err := kubectlCmd.Output()
-	log.Debug().Msgf("kubectl output was: %v", string(kubectlOut))
+	log.Debug().Msgf("kubectl output was: %v", kube.FormatJsonOutputForLog(kubectlOut))
 	if err != nil {
-		log.Error().Err(err).Msgf("kubectl output was: %v", string(kubectlOut))
+		log.Error().Err(err).Msgf("kubectl output was: %v", kube.FormatJsonOutputForLog(kubectlOut))
 		return "", errors.Wrap(err, "Running kubectl get service command")
 	}
 	k8sService := k8sService{}
@@ -879,7 +879,7 @@ func (n *SLNetwork) send(
 
 	txid, err := node.SendToAddress(client, address, amount)
 	if err != nil {
-		return "", errors.Wrapf(err, "Sending to addres")
+		return "", errors.Wrapf(err, "Sending to address")
 	}
 
 	if mineAfter {
@@ -908,7 +908,7 @@ func connectToGRPCServer(host string, port uint16, nodeName string) (*grpc.Clien
 	if port == 0 {
 		port = clientgRPCPort
 	}
-	conn, err := grpc.Dial(fmt.Sprintf("%v:%d", host, port), opts...)
+	conn, err := grpc.NewClient(fmt.Sprintf("%v:%d", host, port), opts...)
 	if err != nil {
 		return nil, errors.Wrap(err, "Connecting to gRPC")
 	}

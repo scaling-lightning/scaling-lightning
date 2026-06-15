@@ -89,9 +89,9 @@ func GetEndpointForNode(kubeconfig string, ingressName string, mode endpointMode
 		"json",
 	)
 	kubectlOut, err := kubectlCmd.Output()
-	log.Debug().Msgf("kubectl output was: %v", string(kubectlOut))
+	log.Debug().Msgf("kubectl output was: %v", FormatJsonOutputForLog(kubectlOut))
 	if err != nil {
-		log.Error().Err(err).Msgf("kubectl output was: %v", string(kubectlOut))
+		log.Error().Err(err).Msgf("kubectl output was: %v", FormatJsonOutputForLog(kubectlOut))
 		return 0, errors.Wrap(err, "Running kubectl get ingress command")
 	}
 	ingressRouteTCPData := ingressRouteTCPData{}
@@ -119,9 +119,9 @@ func GetEndpointForNode(kubeconfig string, ingressName string, mode endpointMode
 	)
 
 	kubectlOut, err = kubectlCmd.Output()
-	log.Debug().Msgf("kubectl output was: %v", string(kubectlOut))
+	log.Debug().Msgf("kubectl output was: %v", FormatJsonOutputForLog(kubectlOut))
 	if err != nil {
-		log.Error().Err(err).Msgf("kubectl output was: %v", string(kubectlOut))
+		log.Error().Err(err).Msgf("kubectl output was: %v", FormatJsonOutputForLog(kubectlOut))
 		return 0, errors.Wrap(err, "Running kubectl get endpoints command")
 	}
 
@@ -211,7 +211,7 @@ func GetScale(kubeconfig string, deploymentName string, namespace string) (int, 
 
 	kubectlOut, err := kubectlCmd.Output()
 	if zerolog.GlobalLevel() == zerolog.DebugLevel {
-		fmt.Printf("kubectl output was:\n%v\n", string(kubectlOut))
+		fmt.Printf("kubectl output was:\n%v\n", FormatJsonOutputForLog(kubectlOut))
 	}
 	if err != nil {
 		return 0, errors.Wrap(err, "Running kubectl get statefulset command")
@@ -223,4 +223,23 @@ func GetScale(kubeconfig string, deploymentName string, namespace string) (int, 
 		return 0, errors.Wrap(err, "Unmarshalling statefulset")
 	}
 	return statefulset.Status.Replicas, nil
+}
+
+func FormatJsonOutputForLog(jsonOut []byte) string {
+	parsed := make(map[string]interface{})
+
+	err := json.Unmarshal(jsonOut, &parsed)
+	if err != nil {
+		log.Error().Err(err).Msgf("Error unmarshalling json: %v", string(jsonOut))
+		return string(jsonOut)
+	}
+
+	// re-marshal to remove any newlines or formatting that might mess up the logs
+	marshaled, err := json.Marshal(parsed)
+	if err != nil {
+		log.Error().Err(err).Msgf("Error marshalling json: %v", string(jsonOut))
+		return string(jsonOut)
+	}
+
+	return string(marshaled)
 }

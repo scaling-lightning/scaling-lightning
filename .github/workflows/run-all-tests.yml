@@ -8,9 +8,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v6
         with:
-          go-version: "1.21"
+          go-version: "1.25"
           go-version-file: "go.mod"
       - name: Login to Docker Hub
         uses: docker/login-action@v2
@@ -33,9 +33,9 @@ jobs:
       - name: Start minikube's loadbalancer tunnel
         run: minikube tunnel &> /dev/null &
       - uses: actions/checkout@v3
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v6
         with:
-          go-version: ">=1.21.0"
+          go-version: ">=1.25.0"
       - name: Run E2E Tests
         run: go test -run ^TestMainExample$ github.com/scaling-lightning/scaling-lightning/examples/go -count=1 -v -timeout=15m
       # setup ssh access if e2e job fails

@@ -2,7 +2,7 @@
 # docker build -t <user>/cln-client -f clients/cln/Dockerfile .
 
 # build stage
-FROM golang:buster as backend-builder
+FROM golang:1.25-bookworm AS backend-builder
 WORKDIR /app
 COPY go.mod .
 COPY go.sum .
@@ -12,7 +12,7 @@ COPY clients/cln ./clients/cln
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o cln-client ./clients/cln
 
 # final stage
-FROM debian:buster-slim
+FROM debian:bookworm-slim
 COPY --from=backend-builder /app/cln-client /app/
 RUN useradd -ms /bin/bash cln
 RUN apt-get -y update && apt-get -y --no-install-recommends install ca-certificates bash && rm -rf /var/lib/apt/lists/*;

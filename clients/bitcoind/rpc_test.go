@@ -16,7 +16,7 @@ import (
 func TestInitialiseBitcoind(t *testing.T) {
 	assert := assert.New(t)
 
-	mockClient := mocks.NewRpcClient(t)
+	mockClient := mocks.NewMockRpcClient(t)
 
 	mockClient.On("GetWalletInfo").Return(&btcjson.GetWalletInfoResult{}, nil)
 

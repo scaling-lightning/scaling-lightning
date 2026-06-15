@@ -22,6 +22,7 @@ import (
 	"github.com/scaling-lightning/scaling-lightning/pkg/tools"
 	"github.com/scaling-lightning/scaling-lightning/pkg/tools/grpc_helpers"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/connectivity"
 	"google.golang.org/grpc/credentials"
 )
 
@@ -209,9 +210,6 @@ func grpcConnect(host string,
 	logger := zerolog.New(os.Stderr)
 
 	opts := []grpc.DialOption{
-		grpc.WithReturnConnectionError(),
-		grpc.FailOnNonTempDialError(true),
-		grpc.WithBlock(),
 		grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)),
 		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(grpc_helpers.RecvMsgSize)),
 		grpc.WithChainUnaryInterceptor(
@@ -223,13 +221,29 @@ func grpcConnect(host string,
 		),
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
-	defer cancel()
-
-	conn, err := grpc.DialContext(ctx, host, opts...)
+	conn, err := grpc.NewClient(host, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("cannot dial to CLN %v", err)
 	}
 
-	return conn, nil
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*15)
+	defer cancel()
+
+	for {
+		state := conn.GetState()
+		if state == connectivity.Idle {
+			conn.Connect()
+		}
+
+		if state == connectivity.Ready {
+			return conn, nil
+		} else if state == connectivity.TransientFailure {
+			log.Debug().Msg("Connection to CLN in transient failure, retrying...")
+		}
+
+		if !conn.WaitForStateChange(ctx, state) {
+			// ctx got timeout or canceled.
+			return nil, errors.Wrap(ctx.Err(), "waiting for gRPC connect")
+		}
+	}
 }

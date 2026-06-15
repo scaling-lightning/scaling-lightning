@@ -10,7 +10,7 @@ tls.key
 !charts/*/*.tgz
 !charts/*.tgz
 
-main.exe
+*.exe
 
 volumes
 sl

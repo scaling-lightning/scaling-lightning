@@ -91,7 +91,7 @@ func main() {
 	}
 }
 
-func autoGenerateBlocks(ctx context.Context, client rpcClient) {
+func autoGenerateBlocks(ctx context.Context, client RpcClient) {
 	for {
 
 		select {
@@ -117,15 +117,15 @@ func autoGenerateBlocks(ctx context.Context, client rpcClient) {
 
 type bitcoinServer struct {
 	stdbitcoinclient.UnimplementedBitcoinServer
-	client rpcClient
+	client RpcClient
 }
 
 type commonServer struct {
 	stdcommonclient.UnimplementedCommonServer
-	client rpcClient
+	client RpcClient
 }
 
-func startGRPCServer(port int, client rpcClient) error {
+func startGRPCServer(port int, client RpcClient) error {
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		return errors.Wrapf(err, "Listening on port %d", port)

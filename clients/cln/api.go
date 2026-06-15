@@ -11,9 +11,6 @@ import (
 	"github.com/scaling-lightning/scaling-lightning/pkg/types"
 )
 
-// Probably better mock against our own interface
-//go:generate mockery --dir=grpc --name=NodeClient
-
 func (s *commonServer) WalletBalance(
 	ctx context.Context,
 	in *stdcommonclient.WalletBalanceRequest,
