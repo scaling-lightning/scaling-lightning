@@ -254,6 +254,59 @@ func (_c *MockRpcClient_GetBalance_Call) RunAndReturn(run func(account string) (
 	return _c
 }
 
+// GetBlockCount provides a mock function for the type MockRpcClient
+func (_mock *MockRpcClient) GetBlockCount() (int64, error) {
+	ret := _mock.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetBlockCount")
+	}
+
+	var r0 int64
+	var r1 error
+	if returnFunc, ok := ret.Get(0).(func() (int64, error)); ok {
+		return returnFunc()
+	}
+	if returnFunc, ok := ret.Get(0).(func() int64); ok {
+		r0 = returnFunc()
+	} else {
+		r0 = ret.Get(0).(int64)
+	}
+	if returnFunc, ok := ret.Get(1).(func() error); ok {
+		r1 = returnFunc()
+	} else {
+		r1 = ret.Error(1)
+	}
+	return r0, r1
+}
+
+// MockRpcClient_GetBlockCount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetBlockCount'
+type MockRpcClient_GetBlockCount_Call struct {
+	*mock.Call
+}
+
+// GetBlockCount is a helper method to define mock.On call
+func (_e *MockRpcClient_Expecter) GetBlockCount() *MockRpcClient_GetBlockCount_Call {
+	return &MockRpcClient_GetBlockCount_Call{Call: _e.mock.On("GetBlockCount")}
+}
+
+func (_c *MockRpcClient_GetBlockCount_Call) Run(run func()) *MockRpcClient_GetBlockCount_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockRpcClient_GetBlockCount_Call) Return(n int64, err error) *MockRpcClient_GetBlockCount_Call {
+	_c.Call.Return(n, err)
+	return _c
+}
+
+func (_c *MockRpcClient_GetBlockCount_Call) RunAndReturn(run func() (int64, error)) *MockRpcClient_GetBlockCount_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetNewAddress provides a mock function for the type MockRpcClient
 func (_mock *MockRpcClient) GetNewAddress(account string) (btcutil.Address, error) {
 	ret := _mock.Called(account)

@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"strings"
+	"time"
 
 	"github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/btcutil"
@@ -26,7 +28,11 @@ type RpcClient interface {
 	GetNewAddress(account string) (btcutil.Address, error)
 	GetWalletInfo() (*btcjson.GetWalletInfoResult, error)
 	SendToAddress(address btcutil.Address, amount btcutil.Amount) (*chainhash.Hash, error)
+	GetBlockCount() (int64, error)
 }
+
+const generateUntilBlockheight = int64(1000)
+const maxGenerateAtOnce = int64(100)
 
 func initialiseBitcoind(client RpcClient) error {
 	walletInfo, err := client.GetWalletInfo()
@@ -59,19 +65,61 @@ func initialiseBitcoind(client RpcClient) error {
 
 	log.Info().Msgf("Loaded wallet: %v", walletInfo.WalletName)
 
-	address, err := client.GetNewAddress(walletInfo.WalletName)
+	err = mineUntilTarget(client, walletInfo)
 	if err != nil {
-		return errors.Wrap(err, "Getting new address")
-	}
-
-	log.Info().Msgf("New address created to receive mined coins: %v", address.String())
-
-	// maxTries := int64(1000000)
-	_, err = client.GenerateToAddress(1000, address, nil)
-	if err != nil {
-		return errors.Wrapf(err, "Generating blocks to address: %v", address.String())
+		return errors.Wrap(err, "Mining blocks until target block height")
 	}
 
 	log.Info().Msg("Bitcoind is setup and ready to serve clients")
+
 	return nil
+}
+
+func mineUntilTarget(client RpcClient, walletInfo *btcjson.GetWalletInfoResult) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+	defer cancel()
+
+	var address btcutil.Address
+
+	for {
+		select {
+		case <-ctx.Done():
+			return errors.Wrap(ctx.Err(), "Timed out")
+		default:
+		}
+
+		currentHeight, err := client.GetBlockCount()
+		if err != nil {
+			return errors.Wrap(err, "Getting mining info")
+		}
+
+		blocksToMine := generateUntilBlockheight - currentHeight
+
+		if blocksToMine > maxGenerateAtOnce {
+			blocksToMine = maxGenerateAtOnce
+		}
+
+		if blocksToMine <= 0 {
+			log.Info().Msgf("Current block height %v is already above %v, no need to mine new blocks",
+				currentHeight, generateUntilBlockheight)
+			return nil
+		}
+
+		if address.String() == "" {
+			address, err = client.GetNewAddress(walletInfo.WalletName)
+			if err != nil {
+				return errors.Wrap(err, "Getting new address")
+			}
+
+			log.Info().Msgf("New address created to receive mined coins: %v", address.String())
+		}
+
+		log.Info().Msgf("Mining %v blocks. Current height: %v. Target height %v.",
+			blocksToMine, currentHeight, generateUntilBlockheight)
+
+		_, err = client.GenerateToAddress(blocksToMine, address, nil)
+		if err != nil {
+			return errors.Wrap(err, "Generating blocks")
+		}
+	}
 }
