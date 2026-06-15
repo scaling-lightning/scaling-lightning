@@ -1,0 +1,40 @@
+releases:
+  - name: bitcoind
+    namespace: sl
+    chart: ../charts/bitcoind
+    values:
+      - clientImage:
+          repository: bitcoind-client # locally built image
+          pullPolicy: IfNotPresent
+  - name: cln1
+    namespace: sl
+    chart: ../charts/cln
+    values:
+      - gRPCEntryPoint: endpoint1
+      - clientImage:
+          repository: cln-client # locally built image
+          pullPolicy: IfNotPresent
+  - name: cln2
+    namespace: sl
+    chart: ../charts/cln
+    values:
+      - gRPCEntryPoint: endpoint2
+      - clientImage:
+          repository: cln-client # locally built image
+          pullPolicy: IfNotPresent
+  - name: lnd1
+    namespace: sl
+    chart: ../charts/lnd
+    values:
+      - gRPCEntryPoint: endpoint3
+      - clientImage:
+          repository: lnd-client # locally built image
+          pullPolicy: IfNotPresent
+  - name: lnd2
+    namespace: sl
+    chart: ../charts/lnd
+    values:
+      - gRPCEntryPoint: endpoint4
+      - clientImage:
+          repository: lnd-client # locally built image
+          pullPolicy: IfNotPresent

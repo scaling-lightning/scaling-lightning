@@ -105,7 +105,7 @@ func mineUntilTarget(client RpcClient, walletInfo *btcjson.GetWalletInfoResult) 
 			return nil
 		}
 
-		if address.String() == "" {
+		if address == nil || address.String() == "" {
 			address, err = client.GetNewAddress(walletInfo.WalletName)
 			if err != nil {
 				return errors.Wrap(err, "Getting new address")
