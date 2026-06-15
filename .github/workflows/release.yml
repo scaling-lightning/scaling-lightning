@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: olegtarasov/get-tag@v2.1.2
+    - uses: olegtarasov/get-tag@v2.1.4
       name: Get tag
       id: tagName
       with:
@@ -66,7 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: olegtarasov/get-tag@v2.1.2
+    - uses: olegtarasov/get-tag@v2.1.4
       name: Get tag
       id: tagName
       with:
@@ -86,7 +86,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: olegtarasov/get-tag@v2.1.2
+    - uses: olegtarasov/get-tag@v2.1.4
       name: Get tag
       id: tagName
       with:

@@ -13,7 +13,7 @@ jobs:
         id: minikube
         uses: medyagh/setup-minikube@master
       - name: Setup helmfile
-        uses: mamezou-tech/setup-helmfile@v1.2.0
+        uses: mamezou-tech/setup-helmfile@v2.2.0
       - name: Install traefik CRDs
         run: |
           helm repo add traefik https://traefik.github.io/charts

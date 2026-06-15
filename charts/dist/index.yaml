@@ -9,7 +9,7 @@ entries:
     name: bitcoind
     type: application
     urls:
-    - https://charts.scalinglightning.com/bitcoind-0.4.2.tgz
+    - https://scalinglightning.com/charts/bitcoind-0.4.2.tgz
     version: 0.4.2
   - apiVersion: v2
     appVersion: "24"
@@ -19,7 +19,7 @@ entries:
     name: bitcoind
     type: application
     urls:
-    - https://charts.scalinglightning.com/bitcoind-0.4.1.tgz
+    - https://scalinglightning.com/charts/bitcoind-0.4.1.tgz
     version: 0.4.1
   - apiVersion: v2
     appVersion: "24"
@@ -29,7 +29,7 @@ entries:
     name: bitcoind
     type: application
     urls:
-    - https://charts.scalinglightning.com/bitcoind-0.4.0.tgz
+    - https://scalinglightning.com/charts/bitcoind-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v2
     appVersion: "24"
@@ -39,7 +39,7 @@ entries:
     name: bitcoind
     type: application
     urls:
-    - https://charts.scalinglightning.com/bitcoind-0.3.2.tgz
+    - https://scalinglightning.com/charts/bitcoind-0.3.2.tgz
     version: 0.3.2
   - apiVersion: v2
     appVersion: "24"
@@ -49,7 +49,7 @@ entries:
     name: bitcoind
     type: application
     urls:
-    - https://charts.scalinglightning.com/bitcoind-0.3.1.tgz
+    - https://scalinglightning.com/charts/bitcoind-0.3.1.tgz
     version: 0.3.1
   - apiVersion: v2
     appVersion: "24"
@@ -59,7 +59,7 @@ entries:
     name: bitcoind
     type: application
     urls:
-    - https://charts.scalinglightning.com/bitcoind-0.3.0.tgz
+    - https://scalinglightning.com/charts/bitcoind-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v2
     appVersion: "24"
@@ -69,7 +69,7 @@ entries:
     name: bitcoind
     type: application
     urls:
-    - https://charts.scalinglightning.com/bitcoind-0.2.1.tgz
+    - https://scalinglightning.com/charts/bitcoind-0.2.1.tgz
     version: 0.2.1
   - apiVersion: v2
     appVersion: "24"
@@ -79,7 +79,7 @@ entries:
     name: bitcoind
     type: application
     urls:
-    - https://charts.scalinglightning.com/bitcoind-0.2.0.tgz
+    - https://scalinglightning.com/charts/bitcoind-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v2
     appVersion: "24"
@@ -89,7 +89,7 @@ entries:
     name: bitcoind
     type: application
     urls:
-    - https://charts.scalinglightning.com/bitcoind-0.1.1.tgz
+    - https://scalinglightning.com/charts/bitcoind-0.1.1.tgz
     version: 0.1.1
   - apiVersion: v2
     appVersion: "24"
@@ -99,7 +99,7 @@ entries:
     name: bitcoind
     type: application
     urls:
-    - https://charts.scalinglightning.com/bitcoind-0.1.0.tgz
+    - https://scalinglightning.com/charts/bitcoind-0.1.0.tgz
     version: 0.1.0
   - apiVersion: v2
     appVersion: "24"
@@ -109,7 +109,7 @@ entries:
     name: bitcoind
     type: application
     urls:
-    - https://charts.scalinglightning.com/bitcoind-0.1.00.tgz
+    - https://scalinglightning.com/charts/bitcoind-0.1.00.tgz
     version: 0.1.00
   - apiVersion: v2
     appVersion: "24"
@@ -119,7 +119,7 @@ entries:
     name: bitcoind
     type: application
     urls:
-    - https://charts.scalinglightning.com/bitcoind-0.0.33.tgz
+    - https://scalinglightning.com/charts/bitcoind-0.0.33.tgz
     version: 0.0.33
   cln:
   - apiVersion: v2
@@ -130,7 +130,7 @@ entries:
     name: cln
     type: application
     urls:
-    - https://charts.scalinglightning.com/cln-0.4.2.tgz
+    - https://scalinglightning.com/charts/cln-0.4.2.tgz
     version: 0.4.2
   - apiVersion: v2
     appVersion: v22.11.1
@@ -140,7 +140,7 @@ entries:
     name: cln
     type: application
     urls:
-    - https://charts.scalinglightning.com/cln-0.4.1.tgz
+    - https://scalinglightning.com/charts/cln-0.4.1.tgz
     version: 0.4.1
   - apiVersion: v2
     appVersion: v22.11.1
@@ -150,7 +150,7 @@ entries:
     name: cln
     type: application
     urls:
-    - https://charts.scalinglightning.com/cln-0.4.0.tgz
+    - https://scalinglightning.com/charts/cln-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v2
     appVersion: v22.11.1
@@ -160,7 +160,7 @@ entries:
     name: cln
     type: application
     urls:
-    - https://charts.scalinglightning.com/cln-0.3.2.tgz
+    - https://scalinglightning.com/charts/cln-0.3.2.tgz
     version: 0.3.2
   - apiVersion: v2
     appVersion: v22.11.1
@@ -170,7 +170,7 @@ entries:
     name: cln
     type: application
     urls:
-    - https://charts.scalinglightning.com/cln-0.3.1.tgz
+    - https://scalinglightning.com/charts/cln-0.3.1.tgz
     version: 0.3.1
   - apiVersion: v2
     appVersion: v22.11.1
@@ -180,7 +180,7 @@ entries:
     name: cln
     type: application
     urls:
-    - https://charts.scalinglightning.com/cln-0.3.0.tgz
+    - https://scalinglightning.com/charts/cln-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v2
     appVersion: v22.11.1
@@ -190,7 +190,7 @@ entries:
     name: cln
     type: application
     urls:
-    - https://charts.scalinglightning.com/cln-0.2.1.tgz
+    - https://scalinglightning.com/charts/cln-0.2.1.tgz
     version: 0.2.1
   - apiVersion: v2
     appVersion: v22.11.1
@@ -200,7 +200,7 @@ entries:
     name: cln
     type: application
     urls:
-    - https://charts.scalinglightning.com/cln-0.2.0.tgz
+    - https://scalinglightning.com/charts/cln-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v2
     appVersion: v22.11.1
@@ -210,7 +210,7 @@ entries:
     name: cln
     type: application
     urls:
-    - https://charts.scalinglightning.com/cln-0.1.1.tgz
+    - https://scalinglightning.com/charts/cln-0.1.1.tgz
     version: 0.1.1
   - apiVersion: v2
     appVersion: v22.11.1
@@ -220,7 +220,7 @@ entries:
     name: cln
     type: application
     urls:
-    - https://charts.scalinglightning.com/cln-0.1.0.tgz
+    - https://scalinglightning.com/charts/cln-0.1.0.tgz
     version: 0.1.0
   - apiVersion: v2
     appVersion: v22.11.1
@@ -230,7 +230,7 @@ entries:
     name: cln
     type: application
     urls:
-    - https://charts.scalinglightning.com/cln-0.1.00.tgz
+    - https://scalinglightning.com/charts/cln-0.1.00.tgz
     version: 0.1.00
   - apiVersion: v2
     appVersion: v22.11.1
@@ -240,7 +240,7 @@ entries:
     name: cln
     type: application
     urls:
-    - https://charts.scalinglightning.com/cln-0.0.33.tgz
+    - https://scalinglightning.com/charts/cln-0.0.33.tgz
     version: 0.0.33
   lnd:
   - apiVersion: v2
@@ -251,7 +251,7 @@ entries:
     name: lnd
     type: application
     urls:
-    - https://charts.scalinglightning.com/lnd-0.4.2.tgz
+    - https://scalinglightning.com/charts/lnd-0.4.2.tgz
     version: 0.4.2
   - apiVersion: v2
     appVersion: v0.16.3-beta
@@ -261,7 +261,7 @@ entries:
     name: lnd
     type: application
     urls:
-    - https://charts.scalinglightning.com/lnd-0.4.1.tgz
+    - https://scalinglightning.com/charts/lnd-0.4.1.tgz
     version: 0.4.1
   - apiVersion: v2
     appVersion: v0.16.3-beta
@@ -271,7 +271,7 @@ entries:
     name: lnd
     type: application
     urls:
-    - https://charts.scalinglightning.com/lnd-0.4.0.tgz
+    - https://scalinglightning.com/charts/lnd-0.4.0.tgz
     version: 0.4.0
   - apiVersion: v2
     appVersion: v0.16.3-beta
@@ -281,7 +281,7 @@ entries:
     name: lnd
     type: application
     urls:
-    - https://charts.scalinglightning.com/lnd-0.3.2.tgz
+    - https://scalinglightning.com/charts/lnd-0.3.2.tgz
     version: 0.3.2
   - apiVersion: v2
     appVersion: v0.16.3-beta
@@ -291,7 +291,7 @@ entries:
     name: lnd
     type: application
     urls:
-    - https://charts.scalinglightning.com/lnd-0.3.1.tgz
+    - https://scalinglightning.com/charts/lnd-0.3.1.tgz
     version: 0.3.1
   - apiVersion: v2
     appVersion: v0.16.3-beta
@@ -301,7 +301,7 @@ entries:
     name: lnd
     type: application
     urls:
-    - https://charts.scalinglightning.com/lnd-0.3.0.tgz
+    - https://scalinglightning.com/charts/lnd-0.3.0.tgz
     version: 0.3.0
   - apiVersion: v2
     appVersion: v0.16.3-beta
@@ -311,7 +311,7 @@ entries:
     name: lnd
     type: application
     urls:
-    - https://charts.scalinglightning.com/lnd-0.2.1.tgz
+    - https://scalinglightning.com/charts/lnd-0.2.1.tgz
     version: 0.2.1
   - apiVersion: v2
     appVersion: v0.16.3-beta
@@ -321,7 +321,7 @@ entries:
     name: lnd
     type: application
     urls:
-    - https://charts.scalinglightning.com/lnd-0.2.0.tgz
+    - https://scalinglightning.com/charts/lnd-0.2.0.tgz
     version: 0.2.0
   - apiVersion: v2
     appVersion: v0.16.3-beta
@@ -331,7 +331,7 @@ entries:
     name: lnd
     type: application
     urls:
-    - https://charts.scalinglightning.com/lnd-0.1.1.tgz
+    - https://scalinglightning.com/charts/lnd-0.1.1.tgz
     version: 0.1.1
   - apiVersion: v2
     appVersion: v0.16.3-beta
@@ -341,7 +341,7 @@ entries:
     name: lnd
     type: application
     urls:
-    - https://charts.scalinglightning.com/lnd-0.1.0.tgz
+    - https://scalinglightning.com/charts/lnd-0.1.0.tgz
     version: 0.1.0
   - apiVersion: v2
     appVersion: v0.16.3-beta
@@ -351,7 +351,7 @@ entries:
     name: lnd
     type: application
     urls:
-    - https://charts.scalinglightning.com/lnd-0.1.00.tgz
+    - https://scalinglightning.com/charts/lnd-0.1.00.tgz
     version: 0.1.00
   - apiVersion: v2
     appVersion: v0.16.3-beta
@@ -361,6 +361,6 @@ entries:
     name: lnd
     type: application
     urls:
-    - https://charts.scalinglightning.com/lnd-0.0.33.tgz
+    - https://scalinglightning.com/charts/lnd-0.0.33.tgz
     version: 0.0.33
 generated: "2024-06-28T10:54:18.591890432Z"

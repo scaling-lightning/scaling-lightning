@@ -16,7 +16,7 @@ To start off let's create a local cluster with 2 nodes: Alice(CLN) and Bob(LND).
 ```yaml title="network.yaml"
 repositories:
   - name: scalinglightning
-    url: https://charts.scalinglightning.com
+    url: https://scalinglightning.com/charts
 releases:
   - name: bitcoind
     namespace: sl

@@ -1,0 +1,6 @@
+charts_dir: charts
+index-path: charts/index.yaml
+pages-index-path: charts/index.yaml
+pr: true # TODO remove this after testing and trigger only on tag push!
+push: false # TODO set this to true after testing and trigger only on tag push!
+packages-with-index: true

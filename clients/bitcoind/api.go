@@ -17,7 +17,7 @@ func (s *commonServer) WalletBalance(ctx context.Context,
 	if err != nil {
 		return nil, errors.Wrap(err, "Getting wallet balance from Bitcoin RPC")
 	}
-	return &stdcommonclient.WalletBalanceResponse{BalanceSats: uint64(walletBalance)}, nil
+	return &stdcommonclient.WalletBalanceResponse{BalanceSats: uint64(walletBalance)}, nil //nolint:gosec
 }
 
 func (s *commonServer) NewAddress(
@@ -47,7 +47,7 @@ func (s *commonServer) Send(
 
 	txid, err := s.client.SendToAddress(
 		newAddress,
-		btcutil.Amount(req.Amount),
+		btcutil.Amount(req.Amount), //nolint:gosec
 	)
 	if err != nil {
 		return nil, errors.Wrap(err, "Sending to address from Bitcoin RPC")

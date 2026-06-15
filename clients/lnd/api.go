@@ -23,7 +23,7 @@ func (s *commonServer) WalletBalance(
 		return nil, errors.Wrap(err, "Getting wallet balance from LND's gRPC")
 	}
 
-	return &stdcommonclient.WalletBalanceResponse{BalanceSats: uint64(balance.TotalBalance)}, nil
+	return &stdcommonclient.WalletBalanceResponse{BalanceSats: uint64(balance.TotalBalance)}, nil //nolint:gosec
 }
 
 func (s *commonServer) NewAddress(
@@ -81,7 +81,7 @@ func (s *lightningServer) OpenChannel(
 		context.Background(),
 		&lnrpc.OpenChannelRequest{
 			NodePubkey:         req.PubKey,
-			LocalFundingAmount: int64(req.LocalAmtSats),
+			LocalFundingAmount: int64(req.LocalAmtSats), //nolint:gosec
 		},
 	)
 	if err != nil {
@@ -101,7 +101,7 @@ func (s *lightningServer) CreateInvoice(
 	response, err := s.client.AddInvoice(
 		context.Background(),
 		&lnrpc.Invoice{
-			Value: int64(req.AmtSats),
+			Value: int64(req.AmtSats), //nolint:gosec
 		},
 	)
 	if err != nil {
