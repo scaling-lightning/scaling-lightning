@@ -76,7 +76,7 @@ func (is *initialState) Apply() error {
 			_, err := is.network.Send(
 				command.args["from"].(string),
 				command.args["to"].(string),
-				uint64(command.args["amountSats"].(int)))
+				uint64(command.args["amountSats"].(int))) //nolint:gosec
 			if err != nil {
 				return errors.Wrap(err, "Sending on chain")
 			}
@@ -91,14 +91,14 @@ func (is *initialState) Apply() error {
 			_, err := is.network.OpenChannel(
 				command.args["from"].(string),
 				command.args["to"].(string),
-				uint64(command.args["localAmountSats"].(int)))
+				uint64(command.args["localAmountSats"].(int))) //nolint:gosec
 			if err != nil {
 				return errors.Wrap(err, "Opening channels")
 			}
 		case "SendOverChannel":
 			invoice, err := is.network.CreateInvoice(
 				command.args["to"].(string),
-				uint64(command.args["amountMSat"].(int))/1000)
+				uint64(command.args["amountMSat"].(int))/1000) //nolint:gosec
 			if err != nil {
 				return errors.Wrap(err, "Creating invoice")
 			}
