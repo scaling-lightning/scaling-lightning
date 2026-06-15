@@ -1,8 +1,8 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-const lightCodeTheme = require('prism-react-renderer/themes/github');
-const darkCodeTheme = require('prism-react-renderer/themes/dracula');
+const lightCodeTheme = require('prism-react-renderer').themes.github;
+const darkCodeTheme = require('prism-react-renderer').themes.dracula;
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
@@ -97,14 +97,18 @@ const config = {
                 label: 'GitHub',
                 to: 'https://github.com/scaling-lightning/scaling-lightning',
               },
+              {
+                label: 'Helm charts repository',
+                to: 'pathname://charts',
+              }
             ],
           },
           {
             title: 'Community',
             items: [
               {
-                to: 'https://twitter.com/scalingln',
-                label: 'Twitter',
+                to: 'https://x.com/scalingln',
+                label: 'X',
               },
               {
                 to: 'https://t.me/+AytRsS0QKH5mMzM8',

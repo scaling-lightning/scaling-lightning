@@ -7,8 +7,7 @@ tls.cert
 tls.key
 *.pem
 *.tgz
-!charts/*/*.tgz
-!charts/*.tgz
+!pages/static/charts/*.tgz
 
 *.exe
 

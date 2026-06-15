@@ -55,31 +55,17 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v4
       - name: Package charts
-        run: helm package charts/bitcoind charts/cln charts/lnd --version ${{ needs.get-tag.outputs.tag }} --destination charts/dist
+        run: helm package charts/bitcoind charts/cln charts/lnd --version ${{ needs.get-tag.outputs.tag }} --destination pages/static/charts
       - name: Index charts
-        run: helm repo index charts/dist --url https://scalinglightning.com/charts
+        run: helm repo index pages/static/charts --url https://scalinglightning.com/charts
       - run: |
-          git add charts/dist
+          git add pages/static/charts
           git stash
       - uses: actions/checkout@v4
         with:
           ref: 'main'
       - run: |
           git stash pop
-      - name: Commit published charts to repo
+      - name: Commit published charts to github pages directory
         uses: EndBug/add-and-commit@v9
-      - name: Copy charts for github pages
-        run: |
-          mkdir -p /tmp/charts-dist
-          cp -R charts/dist/. /tmp/charts-dist/
-      - uses: actions/checkout@v4
-        with:
-          ref: 'gh-pages'
-      - name: Restore and stage charts for github pages
-        run: |
-          mkdir -p charts
-          rm -rf charts/*
-          cp -R /tmp/charts-dist/* charts/
-          git add -A
-      - name: Commit published charts to github pages branch
-        uses: EndBug/add-and-commit@v9
+
