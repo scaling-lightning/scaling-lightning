@@ -69,6 +69,8 @@ jobs:
       - name: Commit published charts to github pages directory
         uses: EndBug/add-and-commit@v9
   deploy-pages:
+    permissions:
+      contents: write
     needs: [helm-charts]
     uses: ./.github/workflows/deploy-docs-on-push-to-main.yml
     secrets: inherit
