@@ -28,6 +28,8 @@ jobs:
       - name: Start Minikube
         id: minikube
         uses: medyagh/setup-minikube@master
+        with:
+          addons: registry,ingress
       - name: Setup helmfile
         uses: mamezou-tech/setup-helmfile@v2.2.0
       - name: Install traefik CRDs
@@ -35,6 +37,11 @@ jobs:
           helm repo add traefik https://traefik.github.io/charts
           helm repo update
           helm install traefik traefik/traefik -n sl-traefik --create-namespace -f charts/traefik-values.yml
+      - name: Load images into Minikube
+        run: |
+          minikube image load cln-client:latest
+          minikube image load lnd-client:latest
+          minikube image load bitcoind-client:latest
       - name: Start minikube's loadbalancer tunnel
         run: minikube tunnel &> /dev/null &
       - uses: actions/checkout@v3
