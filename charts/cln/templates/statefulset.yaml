@@ -52,6 +52,11 @@ spec:
             {{- if .Values.largeChannels }}
             - --large-channels
             {{- end }}
+            {{- with .Values.additionalArgs }}
+            {{- range . }}
+            - {{ printf "--%s" . | quote }}
+            {{- end }}
+            {{- end }}
         - name: {{ .Chart.Name }}-client
           image: {{ .Values.clientImage.repository }}:{{ .Values.clientImage.tag | default "latest" }}
           imagePullPolicy: {{ .Values.clientImage.pullPolicy }}

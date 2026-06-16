@@ -59,6 +59,11 @@ spec:
             - -zmqpubrawblock=tcp://0.0.0.0:{{ .Values.zmqPubBlockPort }}
             - -zmqpubrawtx=tcp://0.0.0.0:{{ .Values.zmqPubTxPort }}
             - -startupnotify=chmod o+rx /home/bitcoin/.bitcoin && chmod o+rx /home/bitcoin/.bitcoin/regtest && chmod o+r /home/bitcoin/.bitcoin/regtest/.cookie
+            {{- with .Values.additionalArgs }}
+            {{- range . }}
+            - {{ printf "-%s" . | quote }}
+            {{- end }}
+            {{- end }}
         - name: {{ .Chart.Name }}-client
           image: {{ .Values.clientImage.repository }}:{{ .Values.clientImage.tag | default "latest" }}
           imagePullPolicy: {{ .Values.clientImage.pullPolicy }}
