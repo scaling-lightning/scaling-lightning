@@ -239,7 +239,7 @@ ports:
       default: true
     exposedPort: 28100
     protocol: TCP
-logs:
+log:
   level: ERROR
 accessLog:
   enabled: false
