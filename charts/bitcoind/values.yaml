@@ -5,8 +5,8 @@ nameOverride: ""
 fullnameOverride: ""
 
 image:
-  repository: ruimarinho/bitcoin-core
-  tag: 24
+  repository: lightninglabs/bitcoin-core
+  tag: 31-alpine
   pullPolicy: IfNotPresent
 
 clientImage:

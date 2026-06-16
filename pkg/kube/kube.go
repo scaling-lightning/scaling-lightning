@@ -226,7 +226,7 @@ func GetScale(kubeconfig string, deploymentName string, namespace string) (int, 
 }
 
 func FormatJsonOutputForLog(jsonOut []byte) string {
-	parsed := make(map[string]interface{})
+	var parsed any
 
 	err := json.Unmarshal(jsonOut, &parsed)
 	if err != nil {

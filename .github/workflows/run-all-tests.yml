@@ -20,9 +20,16 @@ jobs:
       - name: Run Tests
         id: unit
         run: make test
+      - name: Build sidecar images
+        run: |
+          docker build -t cln-client:latest -f clients/cln/Dockerfile .
+          docker build -t lnd-client:latest -f clients/lnd/Dockerfile .
+          docker build -t bitcoind-client:latest -f clients/bitcoind/Dockerfile .
       - name: Start Minikube
         id: minikube
         uses: medyagh/setup-minikube@master
+        with:
+          addons: registry,ingress
       - name: Setup helmfile
         uses: mamezou-tech/setup-helmfile@v2.2.0
       - name: Install traefik CRDs
@@ -30,14 +37,16 @@ jobs:
           helm repo add traefik https://traefik.github.io/charts
           helm repo update
           helm install traefik traefik/traefik -n sl-traefik --create-namespace -f charts/traefik-values.yml
+      - name: Load images into Minikube
+        run: |
+          minikube image load cln-client:latest
+          minikube image load lnd-client:latest
+          minikube image load bitcoind-client:latest
       - name: Start minikube's loadbalancer tunnel
         run: minikube tunnel &> /dev/null &
       - uses: actions/checkout@v3
-      - uses: actions/setup-go@v6
-        with:
-          go-version: ">=1.25.0"
       - name: Run E2E Tests
-        run: go test -run ^TestMainExample$ github.com/scaling-lightning/scaling-lightning/examples/go -count=1 -v -timeout=15m
+        run: go test -run ^Test_E2E$ github.com/scaling-lightning/scaling-lightning/e2e -count=1 -v -timeout=15m
       # setup ssh access if e2e job fails
       # - name: Setup upterm session
       #   if: always() && (steps.e2e.outcome == 'failure')

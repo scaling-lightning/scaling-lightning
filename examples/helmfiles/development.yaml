@@ -1,0 +1,55 @@
+# uses the local charts in the charts directory and images available locally
+releases:
+  - name: bitcoind
+    namespace: sl
+    chart: ../../charts/bitcoind
+    values:
+      - clientImage:
+          repository: bitcoind-client # locally built image
+          pullPolicy: IfNotPresent
+      - autoGen: true
+      - rpcEntryPoint: endpoint37
+      - zmqPubBlockEntryPoint: endpoint38
+      - zmqPubTxEntryPoint: endpoint39
+      - volume:
+          size: "2Gi"
+  - name: cln1
+    namespace: sl
+    chart: ../../charts/cln
+    values:
+      - gRPCEntryPoint: endpoint1
+      - clientImage:
+          repository: cln-client # locally built image
+          pullPolicy: IfNotPresent
+      - volume:
+          size: "1Gi"
+  - name: cln2
+    namespace: sl
+    chart: ../../charts/cln
+    values:
+      - clientImage:
+          repository: cln-client # locally built image
+          pullPolicy: IfNotPresent
+      - gRPCEntryPoint: endpoint2
+      - volume:
+          size: "1Gi"
+  - name: lnd1
+    namespace: sl
+    chart: ../../charts/lnd
+    values:
+      - clientImage:
+          repository: lnd-client # locally built image
+          pullPolicy: IfNotPresent
+      - gRPCEntryPoint: endpoint3
+      - volume:
+          size: "1Gi"
+  - name: lnd2
+    namespace: sl
+    chart: ../../charts/lnd
+    values:
+      - clientImage:
+          repository: lnd-client # locally built image
+          pullPolicy: IfNotPresent
+      - gRPCEntryPoint: endpoint4
+      - volume:
+          size: "1Gi"

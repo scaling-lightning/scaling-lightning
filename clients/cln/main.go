@@ -231,14 +231,16 @@ func grpcConnect(host string,
 
 	for {
 		state := conn.GetState()
-		if state == connectivity.Idle {
-			conn.Connect()
-		}
 
-		if state == connectivity.Ready {
+		switch state {
+		case connectivity.Ready:
 			return conn, nil
-		} else if state == connectivity.TransientFailure {
+		case connectivity.TransientFailure:
 			log.Debug().Msg("Connection to CLN in transient failure, retrying...")
+		case connectivity.Shutdown:
+			return nil, errors.New("Connection to CLN has been shutdown")
+		default:
+			conn.Connect()
 		}
 
 		if !conn.WaitForStateChange(ctx, state) {

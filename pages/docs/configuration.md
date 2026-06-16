@@ -62,7 +62,7 @@ releases:
     version: 7.7.7 # Version of chart. Match with version of cli / library
     values:
       - image:
-          tag: v0.17.0-beta.rc3 # Version of LND image to use
+          tag: v0.21.0-beta # Version of LND image to use
       - clientImage:
           tag: 7.7.7 # Version of sidecar container to use
       - gRPCEntryPoint: endpoint2

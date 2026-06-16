@@ -39,7 +39,7 @@ Start the network. The scaling-lightning binary can be downloaded from [https://
 scaling-lightning start -f network.yaml
 ```
 
-{eer up Alice and Carol and open a channel and send some initial funds that can be sent back and forth.
+Peer up Alice and Bob and open a channel and send some initial funds that can be sent back and forth.
 
 ```shell
 scaling-lightning send -f bitcoind -t alice -a 1000000

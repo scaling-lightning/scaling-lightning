@@ -9,22 +9,22 @@ To change the image used for bitcoind, CLN or LND:
 ```yaml title="bitcoind"
 values:
   - image:
-      repository: ruimarinho/bitcoin-core
-      tag: 24
+      repository: lightninglabs/bitcoin-core
+      tag: 31-alpine
 ```
 
 ```yaml title="cln"
 values:
   - image:
       repository: elementsproject/lightningd
-      tag: v23.05.1
+      tag: v26.06.1
 ```
 
 ```yaml title="lnd"
 values:
   - image:
       repository: lightninglabs/lnd
-      tag: v0.17.0-beta
+      tag: v0.21.0-beta
 ```
 
 Full example:
@@ -39,22 +39,22 @@ releases:
     chart: scalinglightning/bitcoind
     values:
       - image:
-          repository: ruimarinho/bitcoin-core
-          tag: 24
+          repository: lightninglabs/bitcoin-core
+          tag: 31-alpine
   - name: alice
     namespace: sl
     chart: scalinglightning/cln
     values:
       - image:
           repository: elementsproject/lightningd
-          tag: v23.05.1
+          tag: v26.06.1
   - name: bob
     namespace: sl
     chart: scalinglightning/lnd
     values:
       - image:
           repository: lightninglabs/lnd
-          tag: v0.17.0-beta
+          tag: v0.21.0-beta
 ```
 
 ## Upgrade an existing node
