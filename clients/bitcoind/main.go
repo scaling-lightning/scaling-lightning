@@ -112,7 +112,7 @@ func autoGenerateBlocks(ctx context.Context, client RpcClient, intervalSeconds i
 		select {
 		case <-ctx.Done():
 			return
-		case <- timer.C:
+		case <-timer.C:
 			_, err = client.GenerateToAddress(1, address, nil)
 			if err != nil {
 				log.Error().Err(err).Msg("Problem generating blocks for auto-generate")

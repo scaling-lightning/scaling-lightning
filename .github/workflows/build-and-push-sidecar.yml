@@ -18,7 +18,7 @@ on:
             latest:
                 description: 'Whether to tag the image as latest'
                 required: false
-                type: boolean  
+                type: boolean
                 default: false
 
 jobs:
@@ -72,13 +72,13 @@ jobs:
           touch "/tmp/digests/${digest#sha256:}"
       -
         name: Upload digest
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: digests${{ inputs.artifact_name }}
           path: /tmp/digests/*
           if-no-files-found: error
           retention-days: 1
-  
+
   merge:
     runs-on: ubuntu-latest
     needs:
@@ -86,7 +86,7 @@ jobs:
     steps:
       -
         name: Download digests
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: digests${{ inputs.artifact_name }}
           path: /tmp/digests
