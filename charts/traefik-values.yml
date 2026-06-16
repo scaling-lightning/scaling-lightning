@@ -240,7 +240,6 @@ ports:
     exposedPort: 28100
     protocol: TCP
 logs:
-  general:
-    level: ERROR
-  access:
-    enabled: false
+  level: ERROR
+accessLog:
+  enabled: false

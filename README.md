@@ -55,7 +55,8 @@ helm repo update
 helm install traefik traefik/traefik -n sl-traefik --create-namespace -f https://raw.githubusercontent.com/scaling-lightning/scaling-lightning/main/charts/traefik-values.yml
 ```
 
-Current version of Scaling Lightning supports Traefik version 3.0.0. If you have an older version of Traefik installed, you should upgrade it by running (this doesn't affect your existing network and is safe to do):
+Current version of Scaling Lightning supports Traefik version 3.x.x If you have an older version of Traefik installed, you should upgrade it by running (this doesn't affect your existing network and is safe to do):
+Currently required minimum traefik helm chart version is v41.0.0 (https://github.com/traefik/traefik-helm-chart/releases)
 
 ```bash
 helm uninstall traefik -n sl-traefik
