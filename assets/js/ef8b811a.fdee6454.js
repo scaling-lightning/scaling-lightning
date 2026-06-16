@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkdocs=globalThis.webpackChunkdocs||[]).push([[8947],{6600(a){a.exports=JSON.parse('{"authors":[{"name":"Max Edwards","title":"Core Maintainer","url":"https://github.com/maxwedwards","imageURL":"https://avatars.githubusercontent.com/u/1204616","key":"max","page":null,"count":4}]}')}}]);
