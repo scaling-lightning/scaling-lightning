@@ -12,7 +12,7 @@ jobs:
      contents: write
     defaults:
       run:
-        working-directory: docs
+        working-directory: pages
     name: Deploy docs and charts to GitHub Pages
     runs-on: ubuntu-latest
     steps:
