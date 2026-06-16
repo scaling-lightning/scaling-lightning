@@ -44,6 +44,8 @@ releases:
       - rpcEntryPoint: endpoint37 # Allocate endpoint37 to bitcoind's rpc interface. Allocating an endpoint gives access to outside the cluster.
       - zmqPubBlockEntryPoint: endpoint38 # Allocate endpoint38 to bitcoind's zmq block interface. Gives external access.
       - zmqPubTxEntryPoint: endpoint39 # Allotcate endpoint39 to bitcoind's zmq tx interface. Gives external access.
+      - additionalArgs: # list of any additional arguments to bitcoind.
+        - "debug=rpc"
   - name: alice # Friendly name, can be anything. Used to refer to node with the cli and library
     namespace: sl # Namespace has to be sl
     chart: ../../charts/cln # Use a chart from the local filesystem (usually used when developing the scaling lightning project itself)
@@ -56,6 +58,8 @@ releases:
           pullPolicy: IfNotPresent # K8s Pull Policy for sidecar image. IfNotPresent helps locate updated local images.
       - volume: # Optional: if specified will create a volume and data will be persisted between restarts and upgrades
           size: "1Gi" # Size of volume in kubernetes notation. Here 1 Gibibyte (1,073,741,824 bytes) is specified.
+      - additionalArgs:
+        - "min-capacity-sat=20000"
   - name: bob # Friendly name, can be anything. Used to refer to node with the cli and library
     namespace: sl # Namespace has to be sl
     chart: scalinglightning/lnd # LND chart from public helm chart repo specified above
@@ -68,4 +72,6 @@ releases:
       - gRPCEntryPoint: endpoint2
       - volume: # Optional: if specified will create a volume and data will be persisted between restarts and upgrades
           size: "1Gi" # Size of volume in kubernetes notation. Here 1 Gibibyte (1,073,741,824 bytes) is specified.
+      - additionalArgs:
+        - "minchansize=21000"
 ```
