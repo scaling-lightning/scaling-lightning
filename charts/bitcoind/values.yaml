@@ -24,6 +24,8 @@ clientPort: 8181
 
 # automatically generate a block every 10 seconds
 autoGen: true
+# change the mining interval (seconds)
+autoGenInterval: 10
 
 network: regtest
 
