@@ -77,3 +77,4 @@ spec:
             - -rpchost={{ include "bitcoind.fullname" . }}
             - -rpccookiefile=/bitcoind/regtest/.cookie
             - -autogen={{ .Values.autoGen }}
+            - -autogeninterval={{ .Values.autoGenInterval }}

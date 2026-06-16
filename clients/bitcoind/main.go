@@ -19,12 +19,13 @@ import (
 const walletName = "scalinglightning"
 
 type appConfig struct {
-	rpcCookieFile string
-	rpcHost       string
-	rpcPort       int
-	chain         string
-	apiPort       int
-	autoGen       bool
+	rpcCookieFile   string
+	rpcHost         string
+	rpcPort         int
+	chain           string
+	apiPort         int
+	autoGen         bool
+	autoGenInterval int
 }
 
 func main() {
@@ -80,8 +81,14 @@ func main() {
 
 	// start auto-generate of blocks
 	if appConfig.autoGen {
-		log.Info().Msg("Starting auto-generate of blocks")
-		go autoGenerateBlocks(context.Background(), client)
+		autoGenInterval := 10
+
+		if appConfig.autoGenInterval > 0 {
+			autoGenInterval = appConfig.autoGenInterval
+		}
+
+		log.Info().Msgf("Starting auto-generate of blocks at an interval of %d seconds", autoGenInterval)
+		go autoGenerateBlocks(context.Background(), client, autoGenInterval)
 	}
 
 	// start api
@@ -91,27 +98,29 @@ func main() {
 	}
 }
 
-func autoGenerateBlocks(ctx context.Context, client RpcClient) {
-	for {
+func autoGenerateBlocks(ctx context.Context, client RpcClient, intervalSeconds int) {
+	address, err := client.GetNewAddress(walletName)
+	if err != nil {
+		log.Error().Err(err).Msg("Problem getting new address for auto-generate")
+		return
+	}
 
+	timer := time.NewTimer(0) // Start immediately
+	defer timer.Stop()
+
+	for {
 		select {
 		case <-ctx.Done():
 			return
-		default:
-		}
+		case <- timer.C:
+			_, err = client.GenerateToAddress(1, address, nil)
+			if err != nil {
+				log.Error().Err(err).Msg("Problem generating blocks for auto-generate")
+				return
+			}
 
-		address, err := client.GetNewAddress(walletName)
-		if err != nil {
-			log.Error().Err(err).Msg("Problem getting new address for auto-generate")
-			return
+			timer.Reset(time.Duration(intervalSeconds) * time.Second)
 		}
-		_, err = client.GenerateToAddress(1, address, nil)
-		if err != nil {
-			log.Error().Err(err).Msg("Problem generating blocks for auto-generate")
-			return
-		}
-
-		time.Sleep(10 * time.Second)
 	}
 }
 
@@ -165,6 +174,8 @@ func parseFlags(appConfig *appConfig, helpRequested error) error {
 	flag.IntVar(&appConfig.apiPort, "apiport", 8080, "Optional: Port to run gRPC API on")
 
 	flag.BoolVar(&appConfig.autoGen, "autogen", true, "Optional: Auto-generate blocks")
+
+	flag.IntVar(&appConfig.autoGenInterval, "autogeninterval", 10, "Optional: Interval in seconds for auto-generating blocks")
 
 	flag.Parse()
 

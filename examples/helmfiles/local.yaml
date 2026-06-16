@@ -8,6 +8,7 @@ releases:
           repository: scalingln/bitcoind-client
           pullPolicy: IfNotPresent
       - autoGen: true
+      - autoGenInterval: 60
       - rpcEntryPoint: endpoint37
       - zmqPubBlockEntryPoint: endpoint38
       - zmqPubTxEntryPoint: endpoint39

@@ -41,6 +41,7 @@ releases:
       - volume: # Optional: if specified will create a volume and data will be persisted between restarts and upgrades
           size: "1Gi" # Size of volume in kubernetes notation. Here 1 Gibibyte (1,073,741,824 bytes) is specified.
       - autoGen: false # Optional, default value is true. Sets if auto mining is enabled which will mine a block every 10 seconds.
+      - autoGenInterval: 60 # Optional, change the default (10s) interval of auto mining. In seconds.
       - rpcEntryPoint: endpoint37 # Allocate endpoint37 to bitcoind's rpc interface. Allocating an endpoint gives access to outside the cluster.
       - zmqPubBlockEntryPoint: endpoint38 # Allocate endpoint38 to bitcoind's zmq block interface. Gives external access.
       - zmqPubTxEntryPoint: endpoint39 # Allotcate endpoint39 to bitcoind's zmq tx interface. Gives external access.
