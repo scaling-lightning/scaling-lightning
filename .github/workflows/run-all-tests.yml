@@ -38,9 +38,6 @@ jobs:
       - name: Start minikube's loadbalancer tunnel
         run: minikube tunnel &> /dev/null &
       - uses: actions/checkout@v3
-      - uses: actions/setup-go@v6
-        with:
-          go-version: ">=1.25.0"
       - name: Run E2E Tests
         run: go test -run ^Test_E2E$ github.com/scaling-lightning/scaling-lightning/e2e -count=1 -v -timeout=15m
       # setup ssh access if e2e job fails
